@@ -7,3 +7,10 @@ respective licenses. See policies/sources and docs/RESEARCH.md.
 
 The optional Wikidata connector uses structured entity metadata under CC0-1.0.
 Wikidata and Wikimedia names identify their services; no endorsement is implied.
+
+The evaluation query/annotation subset under benchmarks/scifact-v1 is derived
+from SciFact (Wadden et al., EMNLP 2020), formatted by BEIR (Thakur et al., 2021).
+Claims and evidence annotations retain CC-BY-4.0; see that directory's README
+for authors, attribution, licence links, and transformation details.
+The abstract corpus is not bundled. Its S2ORC database attribution/licence
+and underlying-content boundaries are documented in the source-rights manifest.

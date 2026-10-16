@@ -97,6 +97,18 @@ $env:ANVESHA_WIKIDATA_USER_AGENT = 'Anvesha/0.1 (mailto:your-real-contact@exampl
 
 Replace the contact with your actual operator contact before use. On Bash use `export NAME='value'`. Then submit `sources: ["local", "wikidata"]`. Default requests still search only local documents. Network access is optional; failures are visible as partial/failed jobs. See the [Wikidata policy manifest](policies/sources/wikidata.json).
 
+## Real search evaluation
+
+The first M2 evaluation uses 500 published scientific queries (200 development, 300 evaluation) and the full 5,183-document SciFact corpus. It runs an independent token-overlap floor, direct BM25, and the actual local M1 worker. No paid API, LLM, or new model is required.
+
+```text
+uv run --extra dev python -m anvesha.evaluation prepare --download
+uv run --extra dev python -m anvesha.evaluation run --export-pool
+uv run --extra dev python -m anvesha.evaluation verify
+```
+
+Only the explicit prepare download uses the network; raw abstracts stay in ignored local storage. The licensed query/annotation subset and measured reports are in the repository. These are upstream expert annotations, with zero new Anvesha human judgments. This scientific slice does not establish general-web coverage. See [methodology](docs/EVALUATION.md), [data and attribution](benchmarks/scifact-v1/README.md), and [baseline report](reports/evaluation/scifact-v1/README.md).
+
 ## Configuration and development
 
 | Variable | Default | Purpose |

@@ -1,0 +1,407 @@
+{
+  "archive_sha256": "536e14446a0ba56ed1398ab1055f39fe852686ecad24a6306c80c490fa8e0165",
+  "benchmark": "scifact-v1",
+  "bootstrap": {
+    "interval": "95% percentile; descriptive, no multiple-comparison correction",
+    "samples": 1000,
+    "seed": 20261016,
+    "unit": "query"
+  },
+  "code_revision_before_run": "57ee3ca4a94ebee104d9f1a63b99efb074ba5cc6",
+  "code_sha256": {
+    "eval_data.py": "a9b9c9faadbc05ca4d07b6c71785c2d2659e6f54b70b9623ca990acb163af17e",
+    "eval_metrics.py": "8b8735f22e64ebc12de0d9d060a5d883642a8b2436705786b7011aab325c1bec",
+    "evaluation.py": "7f31cc7fca8050c6e42346a4728396ea643c225f170d66aacc2e26fc2bb957ca",
+    "ranking.py": "ea4b42589e62af450a14df1fabc6d063e5f6bc8467e2a731fd4a2eec96a5722a",
+    "store.py": "818d37c67b2c4b96111a6983db1839d1d1f5134cad559d7164a7d5e6f3545d9a",
+    "worker.py": "0a823557aa2c3a8198a84fe9ec78f90e6f3c55a8fc76d22514a0b424a2aabf01"
+  },
+  "corpus_documents": 5183,
+  "corpus_sha256": "dec31c8182f3d744c7d2c09423756fd1d17cbef75808db13ba01cc0aab4d1ac6",
+  "coverage": {
+    "other_strata": 0,
+    "scientific_claim_evidence": 500
+  },
+  "engines": {
+    "anvesha_m1_local": "Store -> process_one -> actual M1 RRF, local source only, limit 50",
+    "fts5_bm25_title2_body1": "Store.search_local, title/body BM25 weights 2/1, escaped OR query",
+    "token_overlap_v1": "Unique lowercase token-intersection count; ties by document ID"
+  },
+  "environment": {
+    "platform": "Windows",
+    "python": "3.14.4",
+    "sqlite": "3.50.4"
+  },
+  "generated_at": "2026-10-16T13:37:52.736717+00:00",
+  "input_sha256": {
+    "document_ids.txt": "b42b9cb55780a26683df8110d34228207a9c377ebcf0c290231ac926f432db23",
+    "qrels.tsv": "b186284995f1a2853538b45a03b6dc7a7a3cc6f78b030579cb865f449949a2c4",
+    "queries.jsonl": "d45f8bb3bb152fa9fae714bd0087d9867c6494a346ddebdde1a4d0b4ecc62a18"
+  },
+  "judgment_origin": "Published SciFact expert-derived document evidence annotations",
+  "m1_and_fts5_rankings_identical": true,
+  "new_anvesha_human_judgments": 0,
+  "paired_ndcg10_delta_vs_fts5": {
+    "development": {
+      "anvesha_m1_local": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "mean": 0.0
+      },
+      "fts5_bm25_title2_body1": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "mean": 0.0
+      },
+      "token_overlap_v1": {
+        "ci95": [
+          -0.228289,
+          -0.143681
+        ],
+        "mean": -0.185211
+      }
+    },
+    "evaluation": {
+      "anvesha_m1_local": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "mean": 0.0
+      },
+      "fts5_bm25_title2_body1": {
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "mean": 0.0
+      },
+      "token_overlap_v1": {
+        "ci95": [
+          -0.225943,
+          -0.152528
+        ],
+        "mean": -0.189649
+      }
+    }
+  },
+  "pipeline_version": "m1-rrf-v1",
+  "qrels": 569,
+  "queries": 500,
+  "ranking_fingerprint": "6098bc1981e868bc5b7f0cf055f27b42ba717c5a185889caeb628b20b5ef65ef",
+  "retrieval_depth": 50,
+  "schema_version": 1,
+  "scope": "Fixed-corpus retrieval; HTTP, live discovery, freshness, fact verification and paid services excluded",
+  "splits": {
+    "development": {
+      "anvesha_m1_local": {
+        "empty_results": 0,
+        "mean_elapsed_ms": 197.534,
+        "mean_returned": 50.0,
+        "metrics": {
+          "mrr@10": {
+            "ci95": [
+              0.579628,
+              0.695686
+            ],
+            "mean": 0.640188
+          },
+          "ndcg@10": {
+            "ci95": [
+              0.618495,
+              0.721818
+            ],
+            "mean": 0.67354
+          },
+          "precision@10": {
+            "ci95": [
+              0.085,
+              0.0975
+            ],
+            "mean": 0.091
+          },
+          "recall@10": {
+            "ci95": [
+              0.770748,
+              0.866594
+            ],
+            "mean": 0.82075
+          },
+          "recall@50": {
+            "ci95": [
+              0.852481,
+              0.9365
+            ],
+            "mean": 0.8965
+          },
+          "success@10": {
+            "ci95": [
+              0.805,
+              0.9
+            ],
+            "mean": 0.855
+          }
+        },
+        "queries": 200
+      },
+      "fts5_bm25_title2_body1": {
+        "empty_results": 0,
+        "mean_elapsed_ms": 33.305,
+        "mean_returned": 50.0,
+        "metrics": {
+          "mrr@10": {
+            "ci95": [
+              0.579628,
+              0.695686
+            ],
+            "mean": 0.640188
+          },
+          "ndcg@10": {
+            "ci95": [
+              0.618495,
+              0.721818
+            ],
+            "mean": 0.67354
+          },
+          "precision@10": {
+            "ci95": [
+              0.085,
+              0.0975
+            ],
+            "mean": 0.091
+          },
+          "recall@10": {
+            "ci95": [
+              0.770748,
+              0.866594
+            ],
+            "mean": 0.82075
+          },
+          "recall@50": {
+            "ci95": [
+              0.852481,
+              0.9365
+            ],
+            "mean": 0.8965
+          },
+          "success@10": {
+            "ci95": [
+              0.805,
+              0.9
+            ],
+            "mean": 0.855
+          }
+        },
+        "queries": 200
+      },
+      "token_overlap_v1": {
+        "empty_results": 0,
+        "mean_elapsed_ms": 9.515,
+        "mean_returned": 50.0,
+        "metrics": {
+          "mrr@10": {
+            "ci95": [
+              0.396045,
+              0.524411
+            ],
+            "mean": 0.462433
+          },
+          "ndcg@10": {
+            "ci95": [
+              0.425886,
+              0.54766
+            ],
+            "mean": 0.488329
+          },
+          "precision@10": {
+            "ci95": [
+              0.0585,
+              0.074
+            ],
+            "mean": 0.0665
+          },
+          "recall@10": {
+            "ci95": [
+              0.533142,
+              0.668354
+            ],
+            "mean": 0.6045
+          },
+          "recall@50": {
+            "ci95": [
+              0.685633,
+              0.795508
+            ],
+            "mean": 0.742167
+          },
+          "success@10": {
+            "ci95": [
+              0.56,
+              0.7
+            ],
+            "mean": 0.635
+          }
+        },
+        "queries": 200
+      }
+    },
+    "evaluation": {
+      "anvesha_m1_local": {
+        "empty_results": 0,
+        "mean_elapsed_ms": 194.82,
+        "mean_returned": 50.0,
+        "metrics": {
+          "mrr@10": {
+            "ci95": [
+              0.593911,
+              0.693868
+            ],
+            "mean": 0.640082
+          },
+          "ndcg@10": {
+            "ci95": [
+              0.62864,
+              0.722937
+            ],
+            "mean": 0.672633
+          },
+          "precision@10": {
+            "ci95": [
+              0.082,
+              0.094342
+            ],
+            "mean": 0.088
+          },
+          "recall@10": {
+            "ci95": [
+              0.748389,
+              0.839003
+            ],
+            "mean": 0.792278
+          },
+          "recall@50": {
+            "ci95": [
+              0.826874,
+              0.905228
+            ],
+            "mean": 0.866056
+          },
+          "success@10": {
+            "ci95": [
+              0.77,
+              0.856667
+            ],
+            "mean": 0.813333
+          }
+        },
+        "queries": 300
+      },
+      "fts5_bm25_title2_body1": {
+        "empty_results": 0,
+        "mean_elapsed_ms": 33.719,
+        "mean_returned": 50.0,
+        "metrics": {
+          "mrr@10": {
+            "ci95": [
+              0.593911,
+              0.693868
+            ],
+            "mean": 0.640082
+          },
+          "ndcg@10": {
+            "ci95": [
+              0.62864,
+              0.722937
+            ],
+            "mean": 0.672633
+          },
+          "precision@10": {
+            "ci95": [
+              0.082,
+              0.094342
+            ],
+            "mean": 0.088
+          },
+          "recall@10": {
+            "ci95": [
+              0.748389,
+              0.839003
+            ],
+            "mean": 0.792278
+          },
+          "recall@50": {
+            "ci95": [
+              0.826874,
+              0.905228
+            ],
+            "mean": 0.866056
+          },
+          "success@10": {
+            "ci95": [
+              0.77,
+              0.856667
+            ],
+            "mean": 0.813333
+          }
+        },
+        "queries": 300
+      },
+      "token_overlap_v1": {
+        "empty_results": 0,
+        "mean_elapsed_ms": 9.858,
+        "mean_returned": 50.0,
+        "metrics": {
+          "mrr@10": {
+            "ci95": [
+              0.408764,
+              0.513765
+            ],
+            "mean": 0.456907
+          },
+          "ndcg@10": {
+            "ci95": [
+              0.43468,
+              0.539262
+            ],
+            "mean": 0.482984
+          },
+          "precision@10": {
+            "ci95": [
+              0.058667,
+              0.071342
+            ],
+            "mean": 0.065
+          },
+          "recall@10": {
+            "ci95": [
+              0.541104,
+              0.654451
+            ],
+            "mean": 0.596944
+          },
+          "recall@50": {
+            "ci95": [
+              0.675333,
+              0.777058
+            ],
+            "mean": 0.725944
+          },
+          "success@10": {
+            "ci95": [
+              0.563333,
+              0.676667
+            ],
+            "mean": 0.62
+          }
+        },
+        "queries": 300
+      }
+    }
+  },
+  "task": "ANV-019",
+  "total_seconds": 250.83
+}

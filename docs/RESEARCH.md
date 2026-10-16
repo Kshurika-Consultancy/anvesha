@@ -73,6 +73,12 @@ Learning consent must be separate from operational storage. Queries and comments
 | [OWASP SSRF Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Server_Side_Request_Forgery_Prevention_Cheat_Sheet.html) | Basis for future arbitrary-fetch controls and current fixed-destination design |
 | [OWASP LLM Prompt Injection Prevention Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/LLM_Prompt_Injection_Prevention_Cheat_Sheet.html) | Separate untrusted content from instructions; constrain privileges and validate outputs before adding model stages |
 
+## 2026-10-16 evaluation addition (ANV-019)
+
+[SciFact's upstream licence](https://github.com/allenai/scifact/blob/master/LICENSE.md) separates CC-BY-4.0 claims/evidence annotations from its S2ORC-derived abstract database under [ODC-By-1.0](https://opendatacommons.org/licenses/by/1-0/). The [SciFact paper](https://aclanthology.org/2020.emnlp-main.609/) describes the scientific claim/evidence task; relevant evidence can support or refute a claim. The [official BEIR repository](https://github.com/beir-cellar/beir) supplies the formatted SciFact download and MD5, and defers dataset licensing to original owners. These sources support the narrow offline evaluation decision, not permission to redistribute underlying articles or a general-web quality claim.
+
+The [versioned source manifest](../policies/sources/beir_scifact_evaluation.json), [dataset snapshot](../benchmarks/scifact-v1/README.md), and [methodology](EVALUATION.md) record actual transformations, hashes, attribution and limits. Commit 500 query/annotation records and document IDs; keep raw abstracts local. Use published labels without representing them as new Anvesha assessments. ANV-020 tracks broader representative strata and independent human review.
+
 ## How to update this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

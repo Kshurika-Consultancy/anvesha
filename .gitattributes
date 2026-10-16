@@ -5,3 +5,7 @@
 *.toml text eol=lf
 *.yml text eol=lf
 uv.lock text eol=lf
+
+# ANV-019: byte-hashed evaluation fixtures must survive Windows checkouts unchanged.
+/benchmarks/** text eol=lf
+/reports/evaluation/** text eol=lf

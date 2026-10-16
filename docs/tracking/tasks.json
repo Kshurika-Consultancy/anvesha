@@ -303,8 +303,8 @@
       "id": "ANV-007",
       "milestone": "M2",
       "title": "Human evaluation corpus and baseline report",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": [
         "ANV-006"
       ],
@@ -314,11 +314,16 @@
         "Publish evaluation methodology and reproducible scripts"
       ],
       "validation_plan": [
-        "Relevant automated tests and documentation review; record exact commands on completion"
+        "Complete ANV-019 scoped published-data baseline, then ANV-020 representative strata and independently reviewed pooled judgments",
+        "Report disjoint development/evaluation metrics with provenance, coverage gaps and reproducible commands"
       ],
       "verification": [],
-      "references": [],
-      "notes": ""
+      "references": [
+        "docs/EVALUATION.md",
+        "reports/evaluation/scifact-v1/README.md",
+        "docs/tracking/verification/2026-10-16-evaluation.md"
+      ],
+      "notes": "M2 started. ANV-019 delivers a 500-query published scientific-retrieval slice and reproducible baseline. Original multi-intent, independently reviewed pooled-judgment acceptance remains open under ANV-020; do not count upstream scientific labels as new Anvesha assessor judgments."
     },
     {
       "id": "ANV-008",
@@ -577,6 +582,119 @@
       ],
       "references": ["scripts/smoke_mvp.py", "tests/test_smoke_processes.py", "docs/tracking/verification/2026-10-16-publication.md"],
       "notes": "Initial CI run 38900815551 passed all 116 tests but Windows/Python 3.12 smoke cleanup failed with WinError 32. Full Windows process-tree shutdown resolves the venv-launcher descendant leak. Fixed commit 70216f3 passed all remote matrix jobs."
+    },
+    {
+      "id": "ANV-019",
+      "milestone": "M2",
+      "title": "Real SciFact evaluation starter and reproducible local baselines",
+      "status": "in_progress",
+      "owner": "root",
+      "depends_on": [
+        "ANV-006"
+      ],
+      "acceptance": [
+        "Review primary dataset rights and pin upstream archive/content hashes",
+        "Select 200 development and all 300 BEIR evaluation queries with upstream human relevance annotations",
+        "Evaluate the actual M1 local worker plus independent lexical baselines with consistent depths and correct metrics",
+        "Publish offline rerun commands, machine-readable results, limitations and a blinded review-pool export",
+        "Keep large/raw abstracts local; default CI/tests require no network or paid API"
+      ],
+      "validation_plan": [
+        "Validate snapshot hashes, document/query/qrel references and split disjointness",
+        "Use hand-computed metric cases and corruption/failure tests",
+        "Run the full 500-query corpus once, deterministic rerun comparison, standard checks and smoke",
+        "Commit/push main and inspect cross-platform CI"
+      ],
+      "verification": [
+        {
+          "command": "uv run --extra dev python -m anvesha.evaluation prepare --download --archive .anvesha/evaluation/acquisition-check.zip",
+          "result": "Fixed no-key archive acquired, SHA-256 and member hashes validated; 500 queries, 5183 documents and 569 judgments",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev pytest tests/test_evaluation.py -q",
+          "result": "30 passed including analytical metrics, offline actual worker, provenance/corruption and bounded acquisition failures",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "148 passed in 22.40 seconds; one existing ANV-015 warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .; uv run --extra dev ruff format --check .; uv run --extra dev python scripts/check_tracking.py; git diff --check",
+          "result": "All passed at local verification checkpoint",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/smoke_mvp.py",
+          "result": "Offline real-process HTTP/restart/worker/lifecycle and process/file cleanup passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.evaluation run --export-pool",
+          "result": "All 500 queries / three systems completed; M1/BM25 evaluation nDCG@10 0.672633, recall@50 0.866056; local unlabelled pool has 8051 pairs",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.evaluation run --output-dir .anvesha/evaluation/repeat --compare reports/evaluation/scifact-v1/summary.json",
+          "result": "Fresh-index repeat passed for all 500 queries and three systems with identical ranking fingerprint 6098bc1981e868bc5b7f0cf055f27b42ba717c5a185889caeb628b20b5ef65ef",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.evaluation verify; repeat report verify; staged source/input hash comparison",
+          "result": "Both reports verified; executed code and staged Git objects match recorded hashes; no raw abstracts required",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv build --out-dir .anvesha/dist; uv run --isolated --no-project --with .anvesha/dist/anvesha_search-0.1.0-py3-none-any.whl python -m anvesha.evaluation verify",
+          "result": "Build and installed-wheel report verification passed; raw corpus and review pools excluded from source distribution",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "docs/EVALUATION.md",
+        "docs/decisions/0003-published-retrieval-evaluation.md",
+        "benchmarks/scifact-v1/manifest.json",
+        "benchmarks/scifact-v1/README.md",
+        "policies/sources/beir_scifact_evaluation.json",
+        "src/anvesha/eval_data.py",
+        "src/anvesha/eval_metrics.py",
+        "src/anvesha/evaluation.py",
+        "tests/test_evaluation.py",
+        "reports/evaluation/scifact-v1/summary.json",
+        "docs/tracking/verification/2026-10-16-evaluation.md",
+        ".gitattributes",
+        ".github/workflows/ci.yml"
+      ],
+      "notes": "Local acceptance verified, including full run and independent deterministic repeat; publication and remote CI pending. Scientific claim-evidence retrieval only. No fabricated assessments, general-web parity claim, or automatic training."
+    },
+    {
+      "id": "ANV-020",
+      "milestone": "M2",
+      "title": "Expand representative query strata and obtain independent pooled judgments",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-019"
+      ],
+      "acceptance": [
+        "Collect rights-reviewed navigation, ambiguity, exact constraints, temporal, comparison and multilingual query strata",
+        "Pool and blind candidates without manufacturing relevance labels",
+        "Have identifiable human assessors label a subset twice and adjudicate disagreements",
+        "Reserve a clean project holdout, measure agreement and evaluate permitted external baselines"
+      ],
+      "validation_plan": [
+        "Dataset schema/provenance checks",
+        "Independent assessor review and documented agreement",
+        "Repeat evaluation on untouched strata"
+      ],
+      "verification": [],
+      "references": [
+        "docs/EVALUATION.md",
+        "docs/decisions/0003-published-retrieval-evaluation.md"
+      ],
+      "notes": "Completes remaining representativeness/review requirements of ANV-007; published SciFact alone does not satisfy these."
     }
   ]
 }

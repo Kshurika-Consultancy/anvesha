@@ -1,0 +1,31 @@
+{
+  "source": "beir_scifact_evaluation",
+  "manifest_version": "scifact-evaluation-v1",
+  "reviewed_at": "2026-10-16",
+  "task": "ANV-019",
+  "scope": "Explicit offline research evaluation of the published BEIR SciFact archive; not a production search connector.",
+  "license": "Claims and annotations: CC-BY-4.0; abstract database: ODC-By-1.0, with underlying content rights separate.",
+  "rights": {
+    "retrieval": "Explicit no-key download from the fixed university-hosted BEIR archive; check published MD5 and pinned SHA-256.",
+    "retention": "Keep raw abstracts and indexes locally under ignored .anvesha storage; retain attribution and source hashes.",
+    "display": "Show local benchmark records for assessment; the public report contains metrics and identifiers, not abstract prose.",
+    "redistribution": "Redistribute the selected CC-BY-4.0 queries/annotations with attribution and transformation notes. Do not bundle/relicense the abstract corpus or infer article rights from the database licence.",
+    "evaluation": "Use the published evidence annotations for scientific document retrieval; do not describe them as fresh Anvesha human judgments or a general-web study.",
+    "training": "No training in this slice. Evaluation queries are reserved from project tuning; any future training has a separate rights/privacy decision."
+  },
+  "attribution": "SciFact authors David Wadden, Shanchuan Lin, Kyle Lo, Lucy Lu Wang, Madeleine van Zuylen, Arman Cohan and Hannaneh Hajishirzi; BEIR authors Nandan Thakur, Nils Reimers, Andreas Rucklé, Abhishek Srivastava and Iryna Gurevych; S2ORC authors Kyle Lo, Lucy Lu Wang, Mark Neumann, Rodney Kinney and Daniel S. Weld.",
+  "limitations": [
+    "Only English scientific claim-evidence retrieval; no live-web freshness, factual truth, or Google/SearXNG parity claim.",
+    "Relevance labels are inherited upstream annotations; unlisted query-document pairs are unjudged, not proven irrelevant.",
+    "No raw abstract text is committed to this repository or returned by production APIs by preparing the benchmark.",
+    "Selected training claims and all BEIR test claims form development/evaluation splits. Public data can have appeared in model training."
+  ],
+  "references": [
+    "https://github.com/allenai/scifact/blob/master/LICENSE.md",
+    "https://aclanthology.org/2020.emnlp-main.609/",
+    "https://github.com/beir-cellar/beir",
+    "https://github.com/allenai/s2orc",
+    "https://opendatacommons.org/licenses/by/1-0/",
+    "https://creativecommons.org/licenses/by/4.0/"
+  ]
+}

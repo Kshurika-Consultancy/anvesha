@@ -1,0 +1,39 @@
+{
+  "archive_sha256": "536e14446a0ba56ed1398ab1055f39fe852686ecad24a6306c80c490fa8e0165",
+  "corpus_database_license": "ODC-By-1.0",
+  "corpus_redistributed": false,
+  "corpus_sha256": "dec31c8182f3d744c7d2c09423756fd1d17cbef75808db13ba01cc0aab4d1ac6",
+  "document_count": 5183,
+  "files": {
+    "document_ids.txt": {
+      "sha256": "b42b9cb55780a26683df8110d34228207a9c377ebcf0c290231ac926f432db23"
+    },
+    "qrels.tsv": {
+      "sha256": "b186284995f1a2853538b45a03b6dc7a7a3cc6f78b030579cb865f449949a2c4"
+    },
+    "queries.jsonl": {
+      "sha256": "d45f8bb3bb152fa9fae714bd0087d9867c6494a346ddebdde1a4d0b4ecc62a18"
+    }
+  },
+  "id": "scifact-v1",
+  "judgment_origin": "published_scifact_expert_annotations",
+  "qrel_count": 569,
+  "query_count": 500,
+  "query_qrel_license": "CC-BY-4.0",
+  "reviewed_at": "2026-10-16",
+  "schema_version": 1,
+  "selection": "All BEIR test queries; lowest 200 SHA256(anvesha-scifact-v1 + NUL + train_id), excluding exact normalized evaluation-query duplicates",
+  "source_url": "https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/scifact.zip",
+  "splits": {
+    "development": 200,
+    "evaluation": 300
+  },
+  "task": "ANV-019",
+  "upstream_member_sha256": {
+    "scifact/corpus.jsonl": "dec31c8182f3d744c7d2c09423756fd1d17cbef75808db13ba01cc0aab4d1ac6",
+    "scifact/qrels/test.tsv": "0864bb985e0ca2367ba217977e72004d549054b2b06666ed9d4825ac7c21284c",
+    "scifact/qrels/train.tsv": "a53f2114831916c096b6c37d9e54da68cef4efdcdbd5ed46533601af972acf1d",
+    "scifact/queries.jsonl": "8ff84a7c903f722981cd8d595c022660140c51867b27608a6d4910db86080313"
+  },
+  "upstream_published_md5": "5f7d1de60b170fc8027bb7898e2efca1"
+}

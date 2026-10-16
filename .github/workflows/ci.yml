@@ -19,6 +19,7 @@ jobs:
       - run: uv run --extra dev ruff check .
       - run: uv run --extra dev ruff format --check .
       - run: uv run --extra dev pytest
+      - run: uv run --extra dev python -m anvesha.evaluation verify
       - run: uv run --extra dev python scripts/smoke_mvp.py
       - run: uv run --extra dev python scripts/check_tracking.py
       - run: git diff --check

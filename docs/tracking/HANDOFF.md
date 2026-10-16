@@ -4,6 +4,8 @@
 
 The user selected Anvesha, asked to save the researched plan in this repository, break it into milestones, create agent guidance, and begin an MVP with no mandatory paid APIs. The user subsequently created https://github.com/Kshurika-Consultancy/anvesha and explicitly authorized connecting this workspace, committing the plan/MVP, and pushing main (ANV-017).
 
+Current request: start M2 with a real search evaluation corpus and baseline, track all work, and commit/push the changes to main. ANV-019 owns this first slice; ANV-007 remains in progress because representative multi-intent evaluation and independent pooled review are still required under ANV-020. No delegation is active in this turn.
+
 ## Starting state
 
 The repository was empty apart from `.git`, on an unborn `master` branch. No inherited repository instructions were found in the initially checked user directories. No implementation or benchmark claims existed.
@@ -20,6 +22,8 @@ The repository was empty apart from `.git`, on an unborn `master` branch. No inh
 
 M0/M1 are delivered. The API supports authenticated submit/poll/results/feedback/cancel/delete, client-scoped idempotency and ETag polling. A separate worker uses SQLite leases with recovery/fencing and publishes one immutable final snapshot. The local corpus uses FTS5/BM25; optional Wikidata metadata is fused by deterministic RRF. Pipeline version is `m1-rrf-v1`. Feedback defaults out of learning and never automatically changes ranking.
 
+ANV-019 adds evaluation modules only; production retrieval is unchanged. `benchmarks/scifact-v1` contains 500 real scientific queries (200 development, 300 evaluation), 569 published evidence judgments and the full corpus's 5,183 IDs. Explicit `python -m anvesha.evaluation prepare --download` pins the reviewed BEIR archive and leaves raw abstracts in ignored `.anvesha/evaluation/scifact-v1`. `run --export-pool` compares token overlap, direct FTS5/BM25 and the actual M1 local worker, writes public metrics/ID rankings under `reports/evaluation/scifact-v1`, and creates an ignored blinded pool with blank assessor fields. `verify` needs no raw abstracts or network. See [methodology](../EVALUATION.md), [ADR 0003](../decisions/0003-published-retrieval-evaluation.md), and [evaluation verification](verification/2026-10-16-evaluation.md). Byte-hashed fixtures use explicit Git LF attributes.
+
 Root integrated documentation/API/CLI/tracking, a storage agent owned SQLite/tests, a retrieval agent owned provider/ranking/worker/tests/manifests, and the documentation agent saved the research and independently reviewed code. All subagent ownership is released at this handoff; a new agent should claim its task and file scope explicitly.
 
 Initial repository content includes root project/governance files, docs, source, tests, scripts, examples, policies, CI, and lockfile. ANV-017 published commit `c3fd2f663f051a65c5ce3a39e702f94036850912` to origin/main after the user explicitly authorized it. Local main tracks `https://github.com/Kshurika-Consultancy/anvesha.git`; local/remote commit equality was verified. A documentation follow-up records this publication. No service deployment is authorized by the publication request. `.venv`, `.anvesha` build output, temporary databases, and caches are ignored. Smoke processes were shut down.
@@ -30,9 +34,11 @@ Local Git authentication now works through Git Credential Manager after user dev
 
 See [the verification report](verification/2026-10-16-mvp.md) for exact commands and limitations. Local Windows/Python 3.14.4 run: 116 tests passed, Ruff lint/format and tracking passed, package build passed. Real HTTP/API restart/separate worker smoke passed in both development and isolated wheel installations. Default tests do not contact network providers.
 
-The test run emits one Starlette/httpx deprecation warning, tracked as ANV-015. Repeat pre-publication checks passed: 116 tests in 12.54 seconds, Ruff, tracking and real-process smoke. [Publication evidence](verification/2026-10-16-publication.md) records initial push verification and the first GitHub Actions run, observed in progress when the report was written. CI targets Windows/Linux and Python 3.12/3.14. No live Wikidata request was made (ANV-016); no real operator contact was provided. No quality benchmark or full-web result claim exists.
+The test run emits one Starlette/httpx deprecation warning, tracked as ANV-015. Repeat pre-publication checks passed: 116 tests in 12.54 seconds, Ruff, tracking and real-process smoke. [Publication evidence](verification/2026-10-16-publication.md) records initial push verification and the first GitHub Actions run, observed in progress when the report was written. CI targets Windows/Linux and Python 3.12/3.14. No live Wikidata request was made (ANV-016); no real operator contact was provided. No quality benchmark existed at that earlier M1 checkpoint; the scoped ANV-019 evaluation is described above. No full-web result claim exists.
 
 Subsequent initial CI result: three matrix jobs passed; Windows/Python 3.12 smoke cleanup failed with a log sharing violation. ANV-018 fixes parent-only Windows termination by stopping the process tree. A real Windows child-process/log-handle regression and full local checks pass (118 tests, one existing warning). Smoke success output now occurs after cleanup. Fix commit `70216f31502ab3f60741cbd91997ada2fb8d859f` passed all four Windows/Linux and Python 3.12/3.14 jobs in [run 38901376551](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/38901376551). Later documentation-only commits may have their own Actions runs; check current main before claiming their state.
+
+Current ANV-019 checkpoint: 30 evaluation tests and 148 full-suite tests pass; Ruff lint/format, tracking, `git diff --check` and real-process smoke pass. The frozen-code full-corpus run and an independent fresh-index repeat have identical rankings for all 500 queries and three systems (fingerprint `6098bc1981e868bc5b7f0cf055f27b42ba717c5a185889caeb628b20b5ef65ef`). M1/direct BM25 evaluation nDCG@10 is 0.672633 and recall@50 is 0.866056. Package build and installed-wheel artifact verification pass. Publication/remote CI are pending; do not mark ANV-019 done until that evidence is recorded.
 
 ## Run locally
 
@@ -42,7 +48,7 @@ An empty environment defaults to local retrieval. The demo URLs are synthetic ex
 
 ## Next work and known limits
 
-1. ANV-007: collect a rights-reviewed 500-query evaluation set and report coverage/relevance against baselines before adding quality claims.
+1. Complete ANV-019 publication: commit/push main and inspect all four CI jobs, then record the evidence and completion state. ANV-020 extends representative query strata and obtains independently reviewed pooled judgments to complete ANV-007. Existing SciFact labels are not new Anvesha human assessments; the 8,051-pair local review pool has blank assessor fields.
 2. ANV-008: quotas, automated retention, source-wide rate limits, strict total upstream deadlines, operational monitoring and key/tenant decisions. Current HTTP inactivity limits do not provide a strict deadline for trickling headers. Keep the deployment local.
 3. ANV-015: migrate the test transport using upstream guidance; do not merely hide the warning.
 4. ANV-016: run a bounded live Wikidata check only with actual operator contact; it is unnecessary for local operation.
