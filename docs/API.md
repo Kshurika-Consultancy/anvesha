@@ -1,0 +1,86 @@
+# M1 HTTP API
+
+Task ANV-004. Base URL for local development: `http://127.0.0.1:8000`. OpenAPI is available at `/openapi.json` and interactive docs at `/docs`. JSON is the only application input/output format. Response timestamps are UTC Unix seconds. The liveness endpoint `/healthz` and API documentation are public; all `/v1/searches` operations require `X-API-Key`.
+
+## Authentication and ownership
+
+Configure one or more strong secrets with `ANVESHA_API_KEYS`. Every key identifies a separate owner. Raw secrets are not stored in job records or returned. Invalid/missing credentials return 401; another owner's job returns the same 404 as a nonexistent job. Key rotation does not transfer old jobs; multi-key tenant identities are future work. Restrict access to the local database, which contains operational query and feedback records.
+
+## Submit and poll
+
+`POST /v1/searches` body:
+
+```json
+{"query":"free local search","sources":["local"],"limit":10}
+```
+
+`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata` sources. `limit` is an integer from 1–50. Unknown fields are rejected: M1 does not accept language/region/date/LLM options. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
+
+Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key and canonical query/sources/limit returns the existing job (200 with `Idempotency-Replayed: true`); different input returns 409. New jobs return 202 only after durable commit, with `Location`, `Retry-After: 1`, and `Idempotency-Replayed: false`. Deleting a job removes its idempotency record, so reusing that key after deletion creates new work.
+
+`GET /v1/searches/{id}` returns the public job state:
+
+```json
+{
+  "id": "srch_example",
+  "query": "free local search",
+  "sources": ["local"],
+  "limit": 10,
+  "state": "queued",
+  "phase": "queued",
+  "attempts": 0,
+  "results_version": 0,
+  "pipeline_version": "m1-rrf-v1",
+  "warnings": [],
+  "error_code": null,
+  "created_at": 1792137600.0,
+  "updated_at": 1792137600.0,
+  "next_poll_after_ms": 1000,
+  "results_available": false,
+  "results_url": "/v1/searches/srch_example/results",
+  "coverage": "configured_sources_only"
+}
+```
+
+IDs/timestamps above are illustrative. State is separate from phase. Internal owner hashes, worker identifiers and lease tokens are omitted. `ETag` supports `If-None-Match` and 304 polling; clients should remember the last ETag without persisting private responses in shared caches. Responses use `Cache-Control: no-store`.
+
+| State | Meaning |
+| --- | --- |
+| queued | Persisted, waiting for worker |
+| running | Claimed under a lease; retrieving or ranking |
+| completed | All requested sources completed; results can still be empty or narrow |
+| completed_partial | At least one source succeeded and at least one failed/was disabled |
+| failed | All sources failed, processing failed, or worker attempts were exhausted |
+| cancelled | Owner cancelled before terminal publication |
+
+There is no percentage-complete claim. M1 publishes one final snapshot, version 1; it does not publish intermediate snapshots. Execution completion is not exhaustive web coverage or factual verification. Stale leases are reclaimed by an active worker up to three attempts. If all workers are stopped, queued/expired-running jobs remain pending until a worker resumes.
+
+## Results and feedback
+
+`GET /v1/searches/{id}/results?version=1&offset=0&limit=10` returns `search_id`, `pipeline_version`, `version`, `results`, `total`, `offset`, `next_offset`, and coverage. Version may be omitted for the current snapshot. Offset is nonnegative; page limit is 1–50. Results-unavailable or nonexistent version returns 409. Failed/cancelled jobs without snapshots have no results. Stable final snapshots make pagination repeatable; no new results are added after completion.
+
+Each result includes `id`, `rank`, `url`, `title`, `snippet`, `sources`, `score`, `display_source`, `evidence_status`, `license`, `attribution`, and `provenance`. The score is RRF ordering, not a probability of truth. The displayed text retains the licence of its selected source, while provenance records all contributors. `local_document` means operator-imported text was available; `metadata_only` means only Wikidata label/description metadata was retrieved. Neither claims factual verification. Clients must render titles/snippets as untrusted plain text, not executable HTML.
+
+`POST /v1/searches/{id}/feedback` body:
+
+```json
+{"version":1,"result_id":null,"rating":1,"reason":"relevant","comment":"Useful","learning_opt_in":false}
+```
+
+Omit/null `result_id` for overall search feedback, or pass an ID in the referenced snapshot. `rating` must be integer -1 or 1 (booleans rejected). Optional reason: relevant, irrelevant, outdated, incorrect, wrong_locale, duplicate, inaccessible, promotional, missing_information. Comment is at most 2000 characters. Learning opt-in is a strict boolean and defaults false.
+
+Feedback requires a published snapshot and valid result membership; invalid references return 409. There is one current rating per owner/search/version/result. Repeated submissions replace it, keeping its feedback ID. A response includes stored rating context, pipeline version and consent, never owner secrets. No training, instant boosting or blacklisting occurs. Anonymous public crowdsourced voting is not part of this MVP.
+
+## Cancellation and deletion
+
+`POST /v1/searches/{id}/cancel` immediately cancels queued/running work and invalidates publication by a worker still doing external I/O. It returns status. Cancelling a terminal job is an idempotent no-op; already published results remain. It cannot recall a query already sent to Wikimedia.
+
+`DELETE /v1/searches/{id}` returns 204 and cascades the active database's job, snapshot, and feedback records. It invalidates a running worker's later publication. Missing/unowned jobs return 404. Automatic expiry, backup-retention management and forensic erasure are not implemented (ANV-008).
+
+## Provider configuration and operational bounds
+
+The API and worker source allowlists must agree. Enable `wikidata` explicitly and set a real `ANVESHA_WIKIDATA_USER_AGENT`. No paid keys are required. The connector makes one bounded-result English entity metadata query to a fixed host, does not follow redirects, and never fetches arbitrary result URLs. Source failures are sanitized codes such as `wikidata:missing_user_agent`, not raw response bodies.
+
+Current live networking limits include inactivity timeouts, response-size limits, and body elapsed checks. A strict total deadline including trickling headers remains tracked in ANV-008. This is another reason not to expose the M1 worker as a public unlimited service. Default offline tests mock this connector; no live availability guarantee is implied.
+
+Local files are a shared operator corpus, not a per-client private document store. Request lengths and result counts are bounded, but hosted quotas, automatic retention, production metrics and source-rights policy enforcement beyond the approved built-in connectors remain tracked work. Use loopback for the current deployment.

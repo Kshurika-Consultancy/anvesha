@@ -1,0 +1,41 @@
+{
+  "source": "wikidata",
+  "manifest_version": "wikidata-v1",
+  "reviewed_at": "2026-10-16",
+  "task": "ANV-005",
+  "scope": "Wikidata structured item metadata: validated Q identifier, English label and description from wbsearchentities.",
+  "endpoint": "https://www.wikidata.org/w/api.php",
+  "license": "CC0-1.0",
+  "rights": {
+    "retrieval": "Public Action API without a paid key, subject to Wikimedia API usage policies and upstream availability.",
+    "retention": "CC0 structured metadata can be retained in result snapshots; raw upstream payloads are not stored.",
+    "display": "CC0 item labels and descriptions may be displayed.",
+    "redistribution": "CC0 structured metadata may be redistributed; this does not cover linked articles or other namespaces.",
+    "evaluation": "CC0 structured metadata may be used in evaluations; query/feedback privacy remains separate.",
+    "training": "CC0 does not impose a copyright restriction on reuse; MVP training is disabled and any future dataset requires a separate rights/privacy review."
+  },
+  "attribution": "Wikidata contributors plus the item identifier; preserved for provenance although CC0 does not require attribution.",
+  "runtime_requirements": [
+    "Explicitly enable wikidata and request it; default operation uses only local data.",
+    "Set ANVESHA_WIKIDATA_USER_AGENT, for example AnveshaBot/0.1 (mailto:you@example.org), using the operator's real contact information.",
+    "Use one fixed HTTPS endpoint, no redirects, identity response encoding, and a maximum 1 MiB response.",
+    "Use 5-second HTTP operation timeouts and a 15-second response-body elapsed budget checked between chunks; no automatic retries inside a job.",
+    "Respect maxlag and HTTP failures; surface them as partial/failed search status."
+  ],
+  "limitations": [
+    "Entity label/alias search is not general-web search or full document retrieval.",
+    "Only English-language entity metadata is requested in M1.",
+    "No linked pages, article prose, images, or other Wikimedia text namespaces are covered or fetched.",
+    "Metadata is unverified user-contributed information; metadata_only is not factual verification.",
+    "Explicit live requests disclose the query and operator's network address to Wikimedia.",
+    "HTTP timeouts bound inactivity, not a strict end-to-end wall-clock deadline; expired leases prevent late publication.",
+    "Hosted quotas, cross-worker rate limits and configurable retention are tracked under ANV-008."
+  ],
+  "references": [
+    "https://www.wikidata.org/wiki/Wikidata:Licensing",
+    "https://www.wikidata.org/wiki/Wikidata:Data_access",
+    "https://www.mediawiki.org/wiki/Wikidata_Query_Service/User_Manual/MWAPI",
+    "https://foundation.wikimedia.org/wiki/Policy:User-Agent_policy",
+    "https://foundation.wikimedia.org/wiki/Policy:API_usage_guidelines"
+  ]
+}

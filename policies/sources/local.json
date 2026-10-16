@@ -1,0 +1,26 @@
+{
+  "source": "local",
+  "manifest_version": "local-v1",
+  "reviewed_at": "2026-10-16",
+  "task": "ANV-005",
+  "scope": "Operator-imported documents indexed on the same host; no network retrieval.",
+  "license": "Per-document; bundled first-party demonstration content is Apache-2.0.",
+  "rights": {
+    "retrieval": "Operator must have permission to ingest and index each document.",
+    "retention": "Conditional on each document's rights; retained until operator removal.",
+    "display": "Conditional on each document's rights; title and extracted snippet preserve its license and attribution.",
+    "redistribution": "Conditional on each document's rights; importing a document does not grant redistribution rights.",
+    "evaluation": "Only when each document's rights permit the proposed evaluation use.",
+    "training": "Not enabled by the MVP; future training requires per-document rights review and separate user-data opt-in."
+  },
+  "attribution": "Preserve supplied attribution and license per candidate, including after deduplication.",
+  "limitations": [
+    "A supplied license string is an operator assertion, not automated legal verification.",
+    "The bundled demo corpus is synthetic first-party project material, not general-web coverage.",
+    "Local result URLs are displayed but never fetched by the MVP.",
+    "This manifest is a review record; it is not a blanket license for imported content."
+  ],
+  "references": [
+    "https://www.apache.org/licenses/LICENSE-2.0.html"
+  ]
+}

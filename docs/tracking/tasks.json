@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "updated_at": "2026-10-16",
+  "tasks": [
+    {
+      "id": "ANV-001",
+      "milestone": "M0",
+      "title": "Agent workflow, licensing, CI and tracking foundations",
+      "status": "done",
+      "owner": "root",
+      "depends_on": [],
+      "acceptance": [
+        "AGENTS.md defines context, task ownership, verification and handoff rules",
+        "Task ledger has validation and references; tracking checks run in CI",
+        "Apache-2.0 licence and contribution/security guidance are present"
+      ],
+      "validation_plan": [
+        "Run focused behavior tests and inspect documentation consistency",
+        "Run standard lint, formatting, pytest and tracking checks; use real-process smoke for runtime changes"
+      ],
+      "verification": [
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "116 tests passed; one recorded Starlette/httpx deprecation warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .",
+          "result": "Passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/check_tracking.py",
+          "result": "Passed",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "SECURITY.md",
+        "LICENSE",
+        "scripts/check_tracking.py",
+        "tests/test_tracking.py",
+        ".github/workflows/ci.yml",
+        "docs/tracking/verification/2026-10-16-mvp.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ANV-002",
+      "milestone": "M0",
+      "title": "Save researched plan, milestones and architecture",
+      "status": "done",
+      "owner": "plan_docs",
+      "depends_on": [],
+      "acceptance": [
+        "Research plan is saved with dated primary-source references",
+        "Milestones have scope, acceptance gates and dependencies",
+        "MVP deviations from target architecture are explicit"
+      ],
+      "validation_plan": [
+        "Run focused behavior tests and inspect documentation consistency",
+        "Run standard lint, formatting, pytest and tracking checks; use real-process smoke for runtime changes"
+      ],
+      "verification": [
+        {
+          "command": "Independent plan/source/document review and scripts/check_tracking.py",
+          "result": "Saved substantial plan and dated primary sources; local links and milestone references validated",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "docs/PLAN.md",
+        "docs/RESEARCH.md",
+        "docs/MILESTONES.md",
+        "docs/architecture/README.md",
+        "docs/decisions/0001-local-first-mvp.md",
+        "docs/tracking/verification/2026-10-16-mvp.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ANV-003",
+      "milestone": "M1",
+      "title": "Durable SQLite jobs, document index and feedback storage",
+      "status": "done",
+      "owner": "storage",
+      "depends_on": [
+        "ANV-001"
+      ],
+      "acceptance": [
+        "Accepted jobs, client-scoped idempotency and ownership persist",
+        "Lease recovery, stale-worker rejection, cancellation and deletion are transactional",
+        "Snapshots and feedback validate versions and result membership",
+        "FTS5 retrieval escapes query operators and preserves document rights"
+      ],
+      "validation_plan": [
+        "Run focused behavior tests and inspect documentation consistency",
+        "Run standard lint, formatting, pytest and tracking checks; use real-process smoke for runtime changes"
+      ],
+      "verification": [
+        {
+          "command": "uv run --extra dev pytest tests/test_store.py -q",
+          "result": "38 tests passed, including concurrency and injected publication rollback",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "116 tests passed; one recorded Starlette/httpx deprecation warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .",
+          "result": "Passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/check_tracking.py",
+          "result": "Passed",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "src/anvesha/store.py",
+        "tests/test_store.py",
+        "docs/tracking/verification/2026-10-16-mvp.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ANV-004",
+      "milestone": "M1",
+      "title": "Authenticated API and offline command-line setup",
+      "status": "done",
+      "owner": "root",
+      "depends_on": [
+        "ANV-001",
+        "ANV-003"
+      ],
+      "acceptance": [
+        "Submit, poll, results, feedback, cancel and delete endpoints work",
+        "API keys are required and internal secrets/leases are not returned",
+        "CLI initializes, seeds and ingests local documents without paid APIs",
+        "README and API docs describe actual configuration and limitations"
+      ],
+      "validation_plan": [
+        "Run focused behavior tests and inspect documentation consistency",
+        "Run standard lint, formatting, pytest and tracking checks; use real-process smoke for runtime changes"
+      ],
+      "verification": [
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "116 tests passed; one recorded Starlette/httpx deprecation warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .",
+          "result": "Passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/check_tracking.py",
+          "result": "Passed",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "src/anvesha/api.py",
+        "src/anvesha/config.py",
+        "src/anvesha/cli.py",
+        "tests/test_api.py",
+        "tests/test_cli.py",
+        "README.md",
+        "docs/API.md",
+        "docs/tracking/verification/2026-10-16-mvp.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ANV-005",
+      "milestone": "M1",
+      "title": "Local and optional Wikidata retrieval with durable worker",
+      "status": "done",
+      "owner": "retrieval_worker",
+      "depends_on": [
+        "ANV-001",
+        "ANV-003"
+      ],
+      "acceptance": [
+        "Separate worker completes jobs with bounded connector work",
+        "Offline local retrieval works and Wikidata is explicitly optional",
+        "Source failures produce honest partial/failed statuses",
+        "RRF deduplication is deterministic and provenance is preserved",
+        "Source manifests document actual rights and limits"
+      ],
+      "validation_plan": [
+        "Run focused behavior tests and inspect documentation consistency",
+        "Run standard lint, formatting, pytest and tracking checks; use real-process smoke for runtime changes"
+      ],
+      "verification": [
+        {
+          "command": "uv run --extra dev pytest tests/test_providers.py tests/test_ranking.py tests/test_worker.py -q",
+          "result": "39 tests passed with mocked network; live connector check is ANV-016",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "116 tests passed; one recorded Starlette/httpx deprecation warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .",
+          "result": "Passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/check_tracking.py",
+          "result": "Passed",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "src/anvesha/providers.py",
+        "src/anvesha/ranking.py",
+        "src/anvesha/worker.py",
+        "tests/test_providers.py",
+        "tests/test_ranking.py",
+        "tests/test_worker.py",
+        "policies/sources/local.json",
+        "policies/sources/wikidata.json",
+        "docs/tracking/verification/2026-10-16-mvp.md"
+      ],
+      "notes": ""
+    },
+    {
+      "id": "ANV-006",
+      "milestone": "M1",
+      "title": "Integrated MVP verification and delivery handoff",
+      "status": "done",
+      "owner": "root",
+      "depends_on": [
+        "ANV-002",
+        "ANV-003",
+        "ANV-004",
+        "ANV-005"
+      ],
+      "acceptance": [
+        "Offline test suite covers main flow and critical failure/ownership paths",
+        "Fresh environment and real API/worker smoke tests pass",
+        "CI lint, formatting, tests and tracking checks are configured",
+        "Known limitations and next work are recorded honestly"
+      ],
+      "validation_plan": [
+        "Run focused behavior tests and inspect documentation consistency",
+        "Run standard lint, formatting, pytest and tracking checks; use real-process smoke for runtime changes"
+      ],
+      "verification": [
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "116 tests passed; one recorded Starlette/httpx deprecation warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .",
+          "result": "Passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/check_tracking.py",
+          "result": "Passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/smoke_mvp.py",
+          "result": "Passed: real HTTP, API restart, separate worker, snapshots, feedback, cancellation and deletion",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv build --out-dir .anvesha/dist",
+          "result": "Built source distribution and wheel",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --isolated --no-project --with .anvesha/dist/anvesha_search-0.1.0-py3-none-any.whl python scripts/smoke_mvp.py",
+          "result": "Passed against isolated runtime-only wheel installation",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv sync --extra dev --locked",
+          "result": "Passed",
+          "date": "2026-10-16"
+        }
+      ],
+      "references": [
+        "scripts/smoke_mvp.py",
+        "docs/tracking/verification/2026-10-16-mvp.md",
+        "uv.lock"
+      ],
+      "notes": "Initial M1 tests ran on Windows/Python 3.14 before a remote existed. Subsequent repository publication and GitHub Actions observations are tracked under ANV-017; see verification reports for boundaries."
+    },
+    {
+      "id": "ANV-007",
+      "milestone": "M2",
+      "title": "Human evaluation corpus and baseline report",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-006"
+      ],
+      "acceptance": [
+        "500 representative queries and reviewed pooled judgments exist with rights",
+        "Measure baseline retrieval quality and coverage by intent",
+        "Publish evaluation methodology and reproducible scripts"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": ""
+    },
+    {
+      "id": "ANV-008",
+      "milestone": "M2",
+      "title": "Hosted-service hardening and retention",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-006"
+      ],
+      "acceptance": [
+        "Implement per-client quotas, job resource ceilings and feedback abuse controls",
+        "Implement configurable retention expiry and automatic deletion",
+        "Audit authentication, privacy and single-host load limits",
+        "Enforce strict upstream wall-clock deadlines and cross-worker source rate limits",
+        "Document API-key rotation and shared-corpus boundaries; decide tenant identities and private-document ACL requirements"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": "Known M1 gaps: strict total upstream deadline including trickling headers; hosted query/feedback quotas; automated retention and backup policy; operational metrics; API key-to-tenant rotation; per-document tenant ACLs if private corpora are added. Keep local-loopback deployment until the applicable controls are implemented."
+    },
+    {
+      "id": "ANV-009",
+      "milestone": "M3",
+      "title": "Permission-aware document fetching and extraction",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-007",
+        "ANV-008"
+      ],
+      "acceptance": [
+        "Fetching enforces SSRF, redirect, DNS, parser and size controls",
+        "Document/section provenance and freshness are recorded",
+        "Evaluate extraction and snippet support independently"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": ""
+    },
+    {
+      "id": "ANV-010",
+      "milestone": "M3",
+      "title": "Hybrid retrieval, reranking and bounded query planning",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-007",
+        "ANV-009"
+      ],
+      "acceptance": [
+        "Local models remain optional with pinned licences and versions",
+        "Preserve original query constraints and compare stagewise ablations",
+        "Adopt changes only with measured gains on supported strata"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": ""
+    },
+    {
+      "id": "ANV-011",
+      "milestone": "M3",
+      "title": "Expand permitted sources and owned corpus",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-007"
+      ],
+      "acceptance": [
+        "Approve source-specific retrieval, retention, export and learning rights",
+        "Expand corpus where measured discovery gaps justify cost",
+        "Expose source freshness, failures and coverage limitations"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": ""
+    },
+    {
+      "id": "ANV-012",
+      "milestone": "M4",
+      "title": "Reviewed feedback learning and adaptive investigation",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-008",
+        "ANV-010"
+      ],
+      "acceptance": [
+        "Separate opted-in learning data from operational records",
+        "Review labels and guard against poisoning and position bias",
+        "Evaluate bounded gap-search loops and release improvements with rollback"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": ""
+    },
+    {
+      "id": "ANV-013",
+      "milestone": "M5",
+      "title": "Scale storage, index and durable orchestration when measured",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-008",
+        "ANV-011"
+      ],
+      "acceptance": [
+        "Use measured limits to choose PostgreSQL/index/workflow migration",
+        "Preserve ownership, idempotency, snapshots and deletion semantics",
+        "Record cost and failure-recovery evidence"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": ""
+    },
+    {
+      "id": "ANV-014",
+      "milestone": "M6",
+      "title": "Public pilot and release governance",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-007",
+        "ANV-008",
+        "ANV-012"
+      ],
+      "acceptance": [
+        "Publish supported-scope quality and cost report",
+        "Review provider contracts, privacy obligations and name clearance",
+        "Complete release/security/contribution docs and explicit deployment authorization"
+      ],
+      "validation_plan": [
+        "Relevant automated tests and documentation review; record exact commands on completion"
+      ],
+      "verification": [],
+      "references": [],
+      "notes": "Initial source publication is separately authorized and tracked under ANV-017. Service deployment and the M6 public pilot remain planned. Establish a private vulnerability disclosure contact and complete name/package/domain clearance before the public service release."
+    },
+    {
+      "id": "ANV-015",
+      "milestone": "M2",
+      "title": "Maintain supported test transport as Starlette deprecates httpx",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-006"
+      ],
+      "acceptance": [
+        "Evaluate current Starlette-supported test transport and pin compatible development dependencies",
+        "Remove the observed deprecation warning without suppressing it or changing runtime provider behavior",
+        "Run complete API and offline test suite after migration"
+      ],
+      "validation_plan": [
+        "Consult primary upstream migration guidance",
+        "Run API tests, full offline tests and real-process smoke"
+      ],
+      "verification": [],
+      "references": [
+        "tests/test_api.py",
+        "pyproject.toml"
+      ],
+      "notes": "116-test run passes with one StarletteDeprecationWarning advising httpx2 for TestClient. Runtime Wikidata/httpx use is separate."
+    },
+    {
+      "id": "ANV-016",
+      "milestone": "M2",
+      "title": "Verify optional live Wikidata connector with operator identity",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-006"
+      ],
+      "acceptance": [
+        "Operator configures a real identifying User-Agent/contact",
+        "Run one bounded non-sensitive live query and record metadata/rights/status results",
+        "Document upstream throttling or network limitations without falling back to paid services"
+      ],
+      "validation_plan": [
+        "Explicit optional live smoke; default tests remain offline",
+        "Recheck Wikimedia endpoint and usage terms before test"
+      ],
+      "verification": [],
+      "references": [
+        "src/anvesha/providers.py",
+        "policies/sources/wikidata.json"
+      ],
+      "notes": "No live request made during M1 build; mocked source tests passed. Do not invent a company contact. Local mode is fully runnable without this task."
+    },
+    {
+      "id": "ANV-017",
+      "milestone": "M0",
+      "title": "Connect GitHub and publish the initial plan and MVP on main",
+      "status": "in_progress",
+      "owner": "root",
+      "depends_on": ["ANV-006"],
+      "acceptance": [
+        "Configure origin as https://github.com/Kshurika-Consultancy/anvesha.git and use main",
+        "Review included files and rerun required checks before the initial commit",
+        "Push without overwriting remote history and verify remote main matches the published commit",
+        "Record publication evidence and observed GitHub Actions status"
+      ],
+      "validation_plan": [
+        "Run locked environment, lint, format, pytest, tracking, and real-process smoke checks",
+        "Inspect staged file list and confirm ignored secrets/databases/build artifacts are excluded",
+        "Compare local HEAD and remote main after push; inspect GitHub Actions"
+      ],
+      "verification": [],
+      "references": ["docs/tracking/HANDOFF.md", "docs/tracking/STATUS.md"],
+      "notes": "User explicitly authorized connecting, committing, and pushing the plan/MVP to main. This does not authorize public service deployment or mark the M6 public pilot complete."
+    }
+  ]
+}

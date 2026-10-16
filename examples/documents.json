@@ -1,0 +1,10 @@
+[
+  {
+    "id": "operator-import-demo",
+    "url": "https://example.org/anvesha-demo/operator-import",
+    "title": "Anvesha demonstration: importing operator documents",
+    "content": "This synthetic demonstration explains local document import. An operator prepares a JSON list, reviews content rights, and imports it through the Anvesha CLI. The example.org URL identifies demonstration content and is not a verified live source. Local search then finds this text without paid APIs or network access.",
+    "license": "Apache-2.0",
+    "attribution": "Kshurika Consultancy — synthetic demo corpus"
+  }
+]
