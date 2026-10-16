@@ -529,7 +529,7 @@
       "id": "ANV-017",
       "milestone": "M0",
       "title": "Connect GitHub and publish the initial plan and MVP on main",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": ["ANV-006"],
       "acceptance": [
@@ -543,9 +543,16 @@
         "Inspect staged file list and confirm ignored secrets/databases/build artifacts are excluded",
         "Compare local HEAD and remote main after push; inspect GitHub Actions"
       ],
-      "verification": [],
-      "references": ["docs/tracking/HANDOFF.md", "docs/tracking/STATUS.md"],
-      "notes": "User explicitly authorized connecting, committing, and pushing the plan/MVP to main. This does not authorize public service deployment or mark the M6 public pilot complete."
+      "verification": [
+        {"command": "uv run --extra dev pytest -q", "result": "116 tests passed; existing Starlette/httpx warning tracked in ANV-015", "date": "2026-10-16"},
+        {"command": "uv run --extra dev python scripts/smoke_mvp.py", "result": "Passed real local HTTP/API restart/worker lifecycle checks", "date": "2026-10-16"},
+        {"command": "uv run --extra dev ruff check .; uv run --extra dev ruff format --check .; uv run --extra dev python scripts/check_tracking.py", "result": "All passed", "date": "2026-10-16"},
+        {"command": "git diff --cached --check and staged-file review", "result": "45 initial source/documentation files reviewed; private/runtime artifacts excluded", "date": "2026-10-16"},
+        {"command": "git push -u origin main; git rev-parse HEAD; git ls-remote origin refs/heads/main", "result": "Initial commit c3fd2f663f051a65c5ce3a39e702f94036850912 published; local and remote matched; upstream configured", "date": "2026-10-16"},
+        {"command": "Read GitHub Actions runs for initial source commit", "result": "Checks run 38900815551 started; observed in_progress when evidence was written", "date": "2026-10-16"}
+      ],
+      "references": ["docs/tracking/HANDOFF.md", "docs/tracking/STATUS.md", "docs/tracking/verification/2026-10-16-publication.md"],
+      "notes": "User explicitly authorized source publication. Git Credential Manager device sign-in enabled the successful CLI push; the separate GitHub connector still lacks repository write access. No public service deployment or M6 pilot completion is implied. See publication evidence for initial CI observation."
     }
   ]
 }

@@ -22,13 +22,15 @@ M0/M1 are delivered. The API supports authenticated submit/poll/results/feedback
 
 Root integrated documentation/API/CLI/tracking, a storage agent owned SQLite/tests, a retrieval agent owned provider/ranking/worker/tests/manifests, and the documentation agent saved the research and independently reviewed code. All subagent ownership is released at this handoff; a new agent should claim its task and file scope explicitly.
 
-All new files are intentional initial repository content: root project/governance files; docs; source; tests; scripts; examples; policies; CI; lockfile. Initial GitHub publication is now authorized under ANV-017. The remote was confirmed empty before preparation; origin/main setup, commit, and push are in progress. No service deployment is authorized by this publication request. `.venv`, `.anvesha` build output, temporary databases, and caches are ignored. Smoke processes were shut down.
+Initial repository content includes root project/governance files, docs, source, tests, scripts, examples, policies, CI, and lockfile. ANV-017 published commit `c3fd2f663f051a65c5ce3a39e702f94036850912` to origin/main after the user explicitly authorized it. Local main tracks `https://github.com/Kshurika-Consultancy/anvesha.git`; local/remote commit equality was verified. A documentation follow-up records this publication. No service deployment is authorized by the publication request. `.venv`, `.anvesha` build output, temporary databases, and caches are ignored. Smoke processes were shut down.
+
+Local Git authentication now works through Git Credential Manager after user device sign-in. Repository-scoped author configuration uses Bitthal Ladiwal's GitHub noreply identity. The separate GitHub connector still returned write 403 and an empty organization-repository list; do not assume its metadata permission flags prove connector write access. Use authenticated local Git for publication unless that connection is corrected.
 
 ## Verification
 
 See [the verification report](verification/2026-10-16-mvp.md) for exact commands and limitations. Local Windows/Python 3.14.4 run: 116 tests passed, Ruff lint/format and tracking passed, package build passed. Real HTTP/API restart/separate worker smoke passed in both development and isolated wheel installations. Default tests do not contact network providers.
 
-The test run emits one Starlette/httpx deprecation warning, tracked as ANV-015. CI is configured for Windows/Linux and Python 3.12/3.14 but was not executed remotely. No live Wikidata request was made (ANV-016); no real operator contact was provided. No quality benchmark or full-web result claim exists.
+The test run emits one Starlette/httpx deprecation warning, tracked as ANV-015. Repeat pre-publication checks passed: 116 tests in 12.54 seconds, Ruff, tracking and real-process smoke. [Publication evidence](verification/2026-10-16-publication.md) records initial push verification and the first GitHub Actions run, observed in progress when the report was written. CI targets Windows/Linux and Python 3.12/3.14. No live Wikidata request was made (ANV-016); no real operator contact was provided. No quality benchmark or full-web result claim exists.
 
 ## Run locally
 
