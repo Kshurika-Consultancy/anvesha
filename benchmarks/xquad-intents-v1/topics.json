@@ -1,0 +1,242 @@
+[
+  {
+    "domain": "civics_economics_education",
+    "id": "1973_oil_crisis",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Amazon_rainforest",
+    "split": "development"
+  },
+  {
+    "domain": "culture_sport_media",
+    "id": "American_Broadcasting_Company",
+    "split": "development"
+  },
+  {
+    "domain": "technology",
+    "id": "Apollo_program",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "Black_Death",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Chloroplast",
+    "split": "holdout"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Civil_disobedience",
+    "split": "holdout"
+  },
+  {
+    "domain": "technology",
+    "id": "Computational_complexity_theory",
+    "split": "holdout"
+  },
+  {
+    "domain": "technology",
+    "id": "Construction",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Ctenophora",
+    "split": "holdout"
+  },
+  {
+    "domain": "culture_sport_media",
+    "id": "Doctor_Who",
+    "split": "holdout"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Economic_inequality",
+    "split": "development"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "European_Union_law",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Force",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "French_and_Indian_War",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Fresno,_California",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "Genghis_Khan",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Geology",
+    "split": "development"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Harvard_University",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "Huguenot",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Immune_system",
+    "split": "holdout"
+  },
+  {
+    "domain": "history",
+    "id": "Imperialism",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Intergovernmental_Panel_on_Climate_Change",
+    "split": "development"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Islamism",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Jacksonville,_Florida",
+    "split": "holdout"
+  },
+  {
+    "domain": "geography",
+    "id": "Kenya",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "Martin_Luther",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Newcastle_upon_Tyne",
+    "split": "development"
+  },
+  {
+    "domain": "technology",
+    "id": "Nikola_Tesla",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "Normans",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Oxygen",
+    "split": "holdout"
+  },
+  {
+    "domain": "technology",
+    "id": "Packet_switching",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Pharmacy",
+    "split": "development"
+  },
+  {
+    "domain": "science_health",
+    "id": "Prime_number",
+    "split": "development"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Private_school",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Rhine",
+    "split": "development"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Scottish_Parliament",
+    "split": "development"
+  },
+  {
+    "domain": "culture_sport_media",
+    "id": "Sky_(United_Kingdom)",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Southern_California",
+    "split": "development"
+  },
+  {
+    "domain": "technology",
+    "id": "Steam_engine",
+    "split": "development"
+  },
+  {
+    "domain": "culture_sport_media",
+    "id": "Super_Bowl_50",
+    "split": "holdout"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "Teacher",
+    "split": "holdout"
+  },
+  {
+    "domain": "culture_sport_media",
+    "id": "United_Methodist_Church",
+    "split": "holdout"
+  },
+  {
+    "domain": "civics_economics_education",
+    "id": "University_of_Chicago",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Victoria_(Australia)",
+    "split": "holdout"
+  },
+  {
+    "domain": "culture_sport_media",
+    "id": "Victoria_and_Albert_Museum",
+    "split": "development"
+  },
+  {
+    "domain": "geography",
+    "id": "Warsaw",
+    "split": "development"
+  },
+  {
+    "domain": "history",
+    "id": "Yuan_dynasty",
+    "split": "development"
+  }
+]

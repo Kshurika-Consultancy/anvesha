@@ -1,0 +1,273 @@
+{
+  "answer_context_mappings": 720,
+  "code_sha256": {
+    "eval_metrics.py": "8b8735f22e64ebc12de0d9d060a5d883642a8b2436705786b7011aab325c1bec",
+    "evaluation.py": "7f31cc7fca8050c6e42346a4728396ea643c225f170d66aacc2e26fc2bb957ca",
+    "intent_evaluation.py": "9cd38733c6819f2bd6da54f1781940f59e9ab3598713af71139ebbf12019525d",
+    "ranking.py": "ea4b42589e62af450a14df1fabc6d063e5f6bc8467e2a731fd4a2eec96a5722a",
+    "review_data.py": "8f5f376dc0b3316da1468b8cd78ba6f212adda2f37c413da160e663d0d985c19",
+    "store.py": "818d37c67b2c4b96111a6983db1839d1d1f5134cad559d7164a7d5e6f3545d9a",
+    "worker.py": "0a823557aa2c3a8198a84fe9ec78f90e6f3c55a8fc76d22514a0b424a2aabf01"
+  },
+  "corpus_sha256": "0dd06c931d4ea8a06f7979a8347ea2a7fc9ede410f6e593fa36e7e9510142e4e",
+  "coverage": {
+    "domain": {
+      "civics_economics_education": 161,
+      "culture_sport_media": 99,
+      "geography": 142,
+      "history": 128,
+      "science_health": 135,
+      "technology": 91
+    },
+    "language": {
+      "en": 270,
+      "es": 243,
+      "hi": 243
+    },
+    "origin": {
+      "ai_authored_draft": 36,
+      "published_xquad_question": 720
+    },
+    "split": {
+      "development": 566,
+      "holdout": 190
+    },
+    "stratum": {
+      "ambiguity": 6,
+      "comparison": 6,
+      "exact_constraint": 6,
+      "factual": 240,
+      "multilingual": 486,
+      "navigation": 6,
+      "temporal": 6
+    }
+  },
+  "dataset": "xquad-intents-v1",
+  "derived_context_retrieval_metrics": {
+    "development": {
+      "en": {
+        "anvesha_m1_local": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.938843,
+            "ndcg@10": 0.95235,
+            "precision@10": 0.099444,
+            "recall@10": 0.994444,
+            "recall@50": 0.994444,
+            "success@10": 0.994444
+          }
+        },
+        "fts5_bm25_title2_body1": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.938843,
+            "ndcg@10": 0.95235,
+            "precision@10": 0.099444,
+            "recall@10": 0.994444,
+            "recall@50": 0.994444,
+            "success@10": 0.994444
+          }
+        },
+        "token_overlap_v1": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.821748,
+            "ndcg@10": 0.853758,
+            "precision@10": 0.095556,
+            "recall@10": 0.955556,
+            "recall@50": 0.988889,
+            "success@10": 0.955556
+          }
+        }
+      },
+      "es": {
+        "anvesha_m1_local": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.924907,
+            "ndcg@10": 0.938166,
+            "precision@10": 0.097778,
+            "recall@10": 0.977778,
+            "recall@50": 0.994444,
+            "success@10": 0.977778
+          }
+        },
+        "fts5_bm25_title2_body1": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.924907,
+            "ndcg@10": 0.938166,
+            "precision@10": 0.097778,
+            "recall@10": 0.977778,
+            "recall@50": 0.994444,
+            "success@10": 0.977778
+          }
+        },
+        "token_overlap_v1": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.867405,
+            "ndcg@10": 0.889868,
+            "precision@10": 0.096111,
+            "recall@10": 0.961111,
+            "recall@50": 0.988889,
+            "success@10": 0.961111
+          }
+        }
+      },
+      "hi": {
+        "anvesha_m1_local": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.751843,
+            "ndcg@10": 0.78872,
+            "precision@10": 0.090556,
+            "recall@10": 0.905556,
+            "recall@50": 0.977778,
+            "success@10": 0.905556
+          }
+        },
+        "fts5_bm25_title2_body1": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.751843,
+            "ndcg@10": 0.78872,
+            "precision@10": 0.090556,
+            "recall@10": 0.905556,
+            "recall@50": 0.977778,
+            "success@10": 0.905556
+          }
+        },
+        "token_overlap_v1": {
+          "mapped_queries": 180,
+          "means": {
+            "mrr@10": 0.556221,
+            "ndcg@10": 0.606539,
+            "precision@10": 0.076667,
+            "recall@10": 0.766667,
+            "recall@50": 0.894444,
+            "success@10": 0.766667
+          }
+        }
+      }
+    },
+    "holdout": {
+      "en": {
+        "anvesha_m1_local": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.983333,
+            "ndcg@10": 0.987698,
+            "precision@10": 0.1,
+            "recall@10": 1.0,
+            "recall@50": 1.0,
+            "success@10": 1.0
+          }
+        },
+        "fts5_bm25_title2_body1": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.983333,
+            "ndcg@10": 0.987698,
+            "precision@10": 0.1,
+            "recall@10": 1.0,
+            "recall@50": 1.0,
+            "success@10": 1.0
+          }
+        },
+        "token_overlap_v1": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.839583,
+            "ndcg@10": 0.858467,
+            "precision@10": 0.091667,
+            "recall@10": 0.916667,
+            "recall@50": 1.0,
+            "success@10": 0.916667
+          }
+        }
+      },
+      "es": {
+        "anvesha_m1_local": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.972222,
+            "ndcg@10": 0.979364,
+            "precision@10": 0.1,
+            "recall@10": 1.0,
+            "recall@50": 1.0,
+            "success@10": 1.0
+          }
+        },
+        "fts5_bm25_title2_body1": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.972222,
+            "ndcg@10": 0.979364,
+            "precision@10": 0.1,
+            "recall@10": 1.0,
+            "recall@50": 1.0,
+            "success@10": 1.0
+          }
+        },
+        "token_overlap_v1": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.91377,
+            "ndcg@10": 0.930249,
+            "precision@10": 0.098333,
+            "recall@10": 0.983333,
+            "recall@50": 1.0,
+            "success@10": 0.983333
+          }
+        }
+      },
+      "hi": {
+        "anvesha_m1_local": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.794048,
+            "ndcg@10": 0.824585,
+            "precision@10": 0.091667,
+            "recall@10": 0.916667,
+            "recall@50": 0.983333,
+            "success@10": 0.916667
+          }
+        },
+        "fts5_bm25_title2_body1": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.794048,
+            "ndcg@10": 0.824585,
+            "precision@10": 0.091667,
+            "recall@10": 0.916667,
+            "recall@50": 0.983333,
+            "success@10": 0.916667
+          }
+        },
+        "token_overlap_v1": {
+          "mapped_queries": 60,
+          "means": {
+            "mrr@10": 0.607798,
+            "ndcg@10": 0.654401,
+            "precision@10": 0.08,
+            "recall@10": 0.8,
+            "recall@50": 0.933333,
+            "success@10": 0.8
+          }
+        }
+      }
+    }
+  },
+  "documents": 720,
+  "draft_queries_excluded_from_metrics": 36,
+  "m1_bm25_parity": true,
+  "new_human_judgments": 0,
+  "pipeline_version": "m1-rrf-v1",
+  "queries": 756,
+  "ranking_fingerprint": "2b7914b9dfa02982a6c7d0c185b254d3966ce32d106ab724b34ad2f8ff6e3d2a",
+  "runs": 2268,
+  "schema_version": 1,
+  "snapshot_sha256": "a76a7686824a4b62c96af2ab976837068632eec502e65483ba4bd06723809430",
+  "task": "ANV-020"
+}

@@ -1,0 +1,38 @@
+{
+  "answer_context_mappings": 720,
+  "corpus_redistributed": false,
+  "corpus_sha256": "0dd06c931d4ea8a06f7979a8347ea2a7fc9ede410f6e593fa36e7e9510142e4e",
+  "document_count": 720,
+  "draft_count": 36,
+  "files": {
+    "answer_contexts.jsonl": {
+      "sha256": "c4e1a56263ac57bc6b91fc8fecc1afdcf0a0f7a49905bd4fc46612454b1c6068"
+    },
+    "document_ids.txt": {
+      "sha256": "a76534a20a9c4d6a4a618057b36b61a11e072d2e463ede0742c5114d1125ffaa"
+    },
+    "drafts.jsonl": {
+      "sha256": "cd9cafd24db9ea43c21452ea466223d52236f4f9f8328e6cfc0d2788f9592136"
+    },
+    "queries.jsonl": {
+      "sha256": "70c6b52ba5c56aceac08038e5406573120baafa957777441320bce97a936b651"
+    },
+    "topics.json": {
+      "sha256": "2d77008dbf8eddb05d90090a713dbf23a5d00cee0e419f7f58a501400a6e5837"
+    }
+  },
+  "id": "xquad-intents-v1",
+  "license": "CC-BY-SA-4.0",
+  "query_count": 756,
+  "revision": "7d30520c717524000f0d9d2f9c10a069acd9d285",
+  "schema_version": 1,
+  "selection": "One minimum-ID English question per paragraph, aligned in es/hi; all passages",
+  "source_root": "https://raw.githubusercontent.com/google-deepmind/xquad/7d30520c717524000f0d9d2f9c10a069acd9d285",
+  "source_sha256": {
+    "en": "e4c57d1c9143aaa1c5d265ba5987a65f4e69528d2a98f29d6e75019b10344f29",
+    "es": "dcbae93ec3a9f4b9e78fd834a171d6f96c1a875e10e15b7530b7e4ef4971e37e",
+    "hi": "df2cce3532b37e9beb8979704b5c9a4bf874358f105395a298b89427b43b9d24"
+  },
+  "split_method": "Lowest 12 SHA256(dataset_id + article_title) articles reserved as holdout",
+  "task": "ANV-020"
+}

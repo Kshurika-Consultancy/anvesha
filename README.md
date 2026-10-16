@@ -109,6 +109,8 @@ uv run --extra dev python -m anvesha.evaluation verify
 
 Only the explicit prepare download uses the network; raw abstracts stay in ignored local storage. The licensed query/annotation subset and measured reports are in the repository. These are upstream expert annotations, with zero new Anvesha human judgments. This scientific slice does not establish general-web coverage. See [methodology](docs/EVALUATION.md), [data and attribution](benchmarks/scifact-v1/README.md), and [baseline report](reports/evaluation/scifact-v1/README.md).
 
+ANV-020 adds a [multilingual corpus](benchmarks/xquad-intents-v1/README.md) beyond scientific claims: 720 published English/Spanish/Hindi query instances and 36 explicitly AI-authored intent probes. The [human-review workflow](docs/review/README.md) provides local blinded browser forms, separate credentials, revision-safe imports, agreement and adjudication. Human assessments remain pending; no paid API or hosted model is required. See the [expanded report](reports/evaluation/xquad-intents-v1/README.md).
+
 ## Configuration and development
 
 | Variable | Default | Purpose |

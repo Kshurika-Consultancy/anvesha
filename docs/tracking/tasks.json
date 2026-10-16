@@ -683,8 +683,8 @@
       "id": "ANV-020",
       "milestone": "M2",
       "title": "Expand representative query strata and obtain independent pooled judgments",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": [
         "ANV-019"
       ],
@@ -695,16 +695,73 @@
         "Reserve a clean project holdout, measure agreement and evaluate permitted external baselines"
       ],
       "validation_plan": [
-        "Dataset schema/provenance checks",
-        "Independent assessor review and documented agreement",
-        "Repeat evaluation on untouched strata"
+        "Pin and validate real multilingual XQuAD source hashes, attribution, topic coverage and grouped split isolation",
+        "Validate first-party draft intent queries without inventing human labels or claiming population representativeness",
+        "Exercise blind assignments, reviewer isolation, authenticated local CLI imports, duplicate/revision integrity, abstentions, agreement and adjudication",
+        "Run an actual local retrieval pool, end-to-end workflow regression with explicitly synthetic test labels, full required checks, offline smoke and cross-platform CI",
+        "Commit/push the delivered slice; leave real assessor collection and external comparison acceptance open until completed"
       ],
-      "verification": [],
+      "verification": [
+        {
+          "command": "uv run --extra dev python -m anvesha.review_data prepare --download --sources-dir .anvesha/evaluation/xquad-acquisition-check",
+          "result": "Three pinned source files verified; 756 query instances, 720 real passages, 720 derived context mappings and 36 unjudged AI-authored probes",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.intent_evaluation run; uv run --extra dev python -m anvesha.intent_evaluation verify",
+          "result": "All 2268 query/system runs and offline artifact verification passed; 10813 candidate pairs; no new human judgments",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.review init --reviewers reviewer-a reviewer-b --adjudicator adjudicator --languages en; export each reviewer packet",
+          "result": "Private pilot: 200 pairs / 52 queries / 42 double assignments / 242 total assignments; two offline forms; placeholder pseudonyms, zero actual assessments",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev pytest -q",
+          "result": "Final run: 185 passed in 26.86 seconds, including 37 new tests; all fixture labels synthetic; existing ANV-015 warning",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev ruff check .; uv run --extra dev ruff format --check .; uv run --extra dev python scripts/check_tracking.py",
+          "result": "All passed at implementation checkpoint",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python scripts/smoke_mvp.py; uv build --out-dir .anvesha/dist",
+          "result": "Offline real-process lifecycle/cleanup smoke passed; wheel/source distribution built",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.intent_evaluation run --output-dir .anvesha/evaluation/xquad-repeat --compare reports/evaluation/xquad-intents-v1/summary.json; verify the repeat report",
+          "result": "All 756 queries / three systems reran from a fresh index with identical fingerprint 2b7914b9dfa02982a6c7d0c185b254d3966ce32d106ab724b34ad2f8ff6e3d2a; offline repeat verification passed",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "Installed wheel: intent_evaluation verify and review status; inspect distribution and evaluated-code hashes; verify original SciFact report",
+          "result": "All passed with runtime dependencies only; source fingerprints match; raw corpus/credentials excluded from distribution; original SciFact artifacts unchanged",
+          "date": "2026-10-16"
+        }
+      ],
       "references": [
-        "docs/EVALUATION.md",
-        "docs/decisions/0003-published-retrieval-evaluation.md"
+        "docs/review/README.md",
+        "docs/review/rubric-v1.json",
+        "docs/decisions/0004-multilingual-corpus-and-human-review.md",
+        "benchmarks/xquad-intents-v1/manifest.json",
+        "benchmarks/xquad-intents-v1/README.md",
+        "policies/sources/xquad_evaluation.json",
+        "src/anvesha/review_data.py",
+        "src/anvesha/intent_evaluation.py",
+        "src/anvesha/review.py",
+        "src/anvesha/review_form.py",
+        "tests/test_review.py",
+        "tests/test_review_form.py",
+        "tests/test_review_acquisition.py",
+        "tests/test_intent_evaluation.py",
+        "reports/evaluation/xquad-intents-v1/summary.json",
+        "docs/tracking/verification/2026-10-16-human-review.md"
       ],
-      "notes": "Completes remaining representativeness/review requirements of ANV-007; published SciFact alone does not satisfy these."
+      "notes": "Corpus and human-workflow implementation verified locally; publication/CI pending. Task remains in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. No fabricated human labels, automatic training or paid dependency."
     }
   ]
 }

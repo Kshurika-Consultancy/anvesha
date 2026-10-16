@@ -1,0 +1,31 @@
+{
+  "source": "xquad_evaluation",
+  "manifest_version": "xquad-evaluation-v1",
+  "reviewed_at": "2026-10-16",
+  "task": "ANV-020",
+  "scope": "Offline fixed-corpus English, Spanish and Hindi retrieval/review; no production connector.",
+  "license": "CC-BY-SA-4.0 data; independently written workflow code Apache-2.0.",
+  "rights": {
+    "retrieval": "Explicit bounded no-key downloads of three fixed files at upstream Git revision 7d30520c717524000f0d9d2f9c10a069acd9d285; verify pinned SHA-256.",
+    "retention": "Raw translated Wikipedia passages, indexes, review packets, credentials and personal assessor mappings remain local and ignored; retain attribution and version provenance.",
+    "display": "Local assessors may inspect attributed snapshot passages; offline forms make no third-party requests. Public reports contain identifiers and aggregate coverage/metrics.",
+    "redistribution": "Selected queries and answer-context mappings are adaptations under CC-BY-SA-4.0 with attribution, source links and change notices. No raw passage bundle or private human judgments are published automatically. Corpus identifiers do not relicense Wikipedia article content.",
+    "evaluation": "Use professional translations and original crowdworker questions as fixed-corpus inputs. Distinguish QA answer-context mapping from human retrieval relevance. Separately identify AI-authored draft intent probes.",
+    "training": "No training or feedback-driven production change. Holdout groups are reserved from project tuning; future data/model use needs a separate decision."
+  },
+  "attribution": "XQuAD: Mikel Artetxe, Sebastian Ruder and Dani Yogatama, On the Cross-lingual Transferability of Monolingual Representations (2020). SQuAD: Pranav Rajpurkar, Jian Zhang, Konstantin Lopyrev and Percy Liang (2016). Original article passages: Wikipedia contributors; translations: XQuAD contributors.",
+  "limitations": [
+    "Historical Wikipedia snapshot and selected questions; no current-web, original-source, freshness or population-representativeness claim.",
+    "English, Spanish and Hindi only; translated instances share groups and are not independent samples of user demand.",
+    "A relevant answer-bearing parent paragraph is a derived QA mapping, not an exhaustive relevance judgment.",
+    "Only real, consented assessors can provide new human judgments; script attestation cannot prove a person's identity or independence."
+  ],
+  "references": [
+    "https://github.com/google-deepmind/xquad/tree/7d30520c717524000f0d9d2f9c10a069acd9d285",
+    "https://raw.githubusercontent.com/google-deepmind/xquad/7d30520c717524000f0d9d2f9c10a069acd9d285/README.md",
+    "https://rajpurkar.github.io/SQuAD-explorer/",
+    "https://aclanthology.org/D16-1264/",
+    "https://arxiv.org/abs/1910.11856",
+    "https://creativecommons.org/licenses/by-sa/4.0/"
+  ]
+}

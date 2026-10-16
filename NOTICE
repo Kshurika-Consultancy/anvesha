@@ -14,3 +14,10 @@ Claims and evidence annotations retain CC-BY-4.0; see that directory's README
 for authors, attribution, licence links, and transformation details.
 The abstract corpus is not bundled. Its S2ORC database attribution/licence
 and underlying-content boundaries are documented in the source-rights manifest.
+
+The adapted data under benchmarks/xquad-intents-v1 retains CC-BY-SA-4.0.
+It derives from XQuAD (Artetxe, Ruder and Yogatama), SQuAD (Rajpurkar, Zhang,
+Lopyrev and Liang), and Wikipedia contributors. See that directory's README
+for source versions, attribution, transformations and licence links.
+AI-authored intent probes are explicitly distinguished from published questions.
+Raw translated passages and private assessor data are not bundled.

@@ -79,6 +79,10 @@ Learning consent must be separate from operational storage. Queries and comments
 
 The [versioned source manifest](../policies/sources/beir_scifact_evaluation.json), [dataset snapshot](../benchmarks/scifact-v1/README.md), and [methodology](EVALUATION.md) record actual transformations, hashes, attribution and limits. Commit 500 query/annotation records and document IDs; keep raw abstracts local. Use published labels without representing them as new Anvesha assessments. ANV-020 tracks broader representative strata and independent human review.
 
+## ANV-020 source addition, 2026-10-16
+
+The [official XQuAD README](https://github.com/google-deepmind/xquad/tree/7d30520c717524000f0d9d2f9c10a069acd9d285) describes parallel professional translations of SQuAD questions/passages and explicitly licenses the dataset CC-BY-SA-4.0. The [SQuAD site](https://rajpurkar.github.io/SQuAD-explorer/) identifies its crowdworker/Wikipedia origin and data licence; the explorer software's MIT licence is a separate grant. This supports the scoped adapted-data snapshot under the [XQuAD rights manifest](../policies/sources/xquad_evaluation.json), not a claim of actual web-search demand or current factual knowledge. Keep historical context mappings distinct from new human relevance review. Native-speaker validation and real independent labels remain open ANV-020 work.
+
 ## How to update this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

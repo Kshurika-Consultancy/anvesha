@@ -1,0 +1,36 @@
+{"constraints": ["Destination must be the requested Wikipedia article."], "group": "Warsaw", "id": "draft-001", "language": "en", "stratum": "navigation", "text": "Find the Wikipedia article about Warsaw."}
+{"constraints": ["Destination must be the requested Wikipedia article."], "group": "Normans", "id": "draft-002", "language": "en", "stratum": "navigation", "text": "Wikipedia Normans article"}
+{"constraints": ["Find an article destination rather than a quote."], "group": "Doctor_Who", "id": "draft-003", "language": "en", "stratum": "navigation", "text": "Find the encyclopedia page for Doctor Who."}
+{"constraints": ["Destination must be the requested Wikipedia article."], "group": "Harvard_University", "id": "draft-004", "language": "en", "stratum": "navigation", "text": "Wikipedia Harvard University"}
+{"constraints": ["Destination must be the requested Wikipedia article."], "group": "Scottish_Parliament", "id": "draft-005", "language": "en", "stratum": "navigation", "text": "Find the Wikipedia article on the Scottish Parliament."}
+{"constraints": ["Destination must be the requested Wikipedia article."], "group": "Super_Bowl_50", "id": "draft-006", "language": "en", "stratum": "navigation", "text": "Wikipedia Super Bowl 50 page"}
+{"constraints": [], "group": "Victoria_(Australia)", "id": "draft-007", "language": "en", "stratum": "ambiguity", "text": "Victoria"}
+{"constraints": [], "group": "Teacher", "id": "draft-008", "language": "en", "stratum": "ambiguity", "text": "teacher"}
+{"constraints": [], "group": "Sky_(United_Kingdom)", "id": "draft-009", "language": "en", "stratum": "ambiguity", "text": "Sky"}
+{"constraints": [], "group": "Construction", "id": "draft-010", "language": "en", "stratum": "ambiguity", "text": "construction"}
+{"constraints": [], "group": "Rhine", "id": "draft-011", "language": "en", "stratum": "ambiguity", "text": "Rhine history"}
+{"constraints": [], "group": "Normans", "id": "draft-012", "language": "en", "stratum": "ambiguity", "text": "Norman"}
+{"constraints": ["Preserve the quoted phrase Harvard University."], "group": "Harvard_University", "id": "draft-013", "language": "en", "stratum": "exact_constraint", "text": "\"Harvard University\" founding year"}
+{"constraints": ["Preserve the quoted organization name."], "group": "American_Broadcasting_Company", "id": "draft-014", "language": "en", "stratum": "exact_constraint", "text": "\"American Broadcasting Company\" television network"}
+{"constraints": ["Both quoted names are required."], "group": "Super_Bowl_50", "id": "draft-015", "language": "en", "stratum": "exact_constraint", "text": "\"Super Bowl 50\" \"Denver Broncos\""}
+{"constraints": ["Preserve the exact war name and the year 1754."], "group": "French_and_Indian_War", "id": "draft-016", "language": "en", "stratum": "exact_constraint", "text": "\"French and Indian War\" 1754"}
+{"constraints": ["Exclude the film; preserve the quoted title."], "group": "Doctor_Who", "id": "draft-017", "language": "en", "stratum": "exact_constraint", "text": "\"Doctor Who\" television series excluding the film"}
+{"constraints": ["Preserve the exact museum name; London is required."], "group": "Victoria_and_Albert_Museum", "id": "draft-018", "language": "en", "stratum": "exact_constraint", "text": "\"Victoria and Albert Museum\" London"}
+{"constraints": ["Historical event in February 2016, not the latest Super Bowl."], "group": "Super_Bowl_50", "id": "draft-019", "language": "en", "stratum": "temporal", "text": "Who won Super Bowl 50 in February 2016?"}
+{"constraints": ["The event year is 1973."], "group": "1973_oil_crisis", "id": "draft-020", "language": "en", "stratum": "temporal", "text": "What caused the oil crisis in 1973?"}
+{"constraints": ["The event year is 1763."], "group": "French_and_Indian_War", "id": "draft-021", "language": "en", "stratum": "temporal", "text": "How did the French and Indian War end in 1763?"}
+{"constraints": ["The event year is 1368."], "group": "Yuan_dynasty", "id": "draft-022", "language": "en", "stratum": "temporal", "text": "How did the Yuan dynasty end in 1368?"}
+{"constraints": ["Historical context around 1945, not current travel advice."], "group": "Warsaw", "id": "draft-023", "language": "en", "stratum": "temporal", "text": "Warsaw after the Second World War in 1945"}
+{"constraints": ["The requested historical period is 1999."], "group": "Scottish_Parliament", "id": "draft-024", "language": "en", "stratum": "temporal", "text": "Scottish Parliament history around its opening in 1999"}
+{"constraints": ["Evidence should address both public and private schooling."], "group": "Private_school", "id": "draft-025", "language": "en", "stratum": "comparison", "text": "Compare public and private schooling in England."}
+{"constraints": ["Preserve the distinction between income and wealth."], "group": "Economic_inequality", "id": "draft-026", "language": "en", "stratum": "comparison", "text": "Compare income inequality with wealth inequality."}
+{"constraints": ["Evidence should address the comparison, not just one definition."], "group": "Civil_disobedience", "id": "draft-027", "language": "en", "stratum": "comparison", "text": "Compare civil disobedience with violent protest."}
+{"constraints": ["Evidence should distinguish regulations from directives."], "group": "European_Union_law", "id": "draft-028", "language": "en", "stratum": "comparison", "text": "Compare EU regulations and EU directives."}
+{"constraints": ["Preserve both teacher roles."], "group": "Teacher", "id": "draft-029", "language": "en", "stratum": "comparison", "text": "Compare primary and secondary school teachers."}
+{"constraints": ["Evidence should distinguish or relate both concepts."], "group": "Imperialism", "id": "draft-030", "language": "en", "stratum": "comparison", "text": "Compare imperialism with colonialism."}
+{"constraints": [], "group": "Warsaw", "id": "draft-031", "language": "hi", "stratum": "multilingual", "text": "वॉरसॉ पोलैंड की राजधानी कब बना?"}
+{"constraints": [], "group": "Normans", "id": "draft-032", "language": "hi", "stratum": "multilingual", "text": "नॉर्मन लोग कहाँ से आए थे?"}
+{"constraints": [], "group": "Kenya", "id": "draft-033", "language": "hi", "stratum": "multilingual", "text": "केन्या की राजधानी क्या है?"}
+{"constraints": [], "group": "Warsaw", "id": "draft-034", "language": "es", "stratum": "multilingual", "text": "¿Cuándo se convirtió Varsovia en la capital de Polonia?"}
+{"constraints": [], "group": "Super_Bowl_50", "id": "draft-035", "language": "es", "stratum": "multilingual", "text": "¿Qué equipo ganó el Super Bowl 50?"}
+{"constraints": [], "group": "Normans", "id": "draft-036", "language": "es", "stratum": "multilingual", "text": "¿De dónde procedían los normandos?"}
