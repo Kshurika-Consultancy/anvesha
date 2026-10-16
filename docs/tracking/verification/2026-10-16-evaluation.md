@@ -31,8 +31,10 @@ Windows/Python 3.14.4, SQLite 3.50.4, uv 0.11.8; locked runtime/dev dependencies
 | `uv run --isolated --no-project --with .anvesha/dist/anvesha_search-0.1.0-py3-none-any.whl python -m anvesha.evaluation verify` | Installed wheel verified the report using runtime dependencies only |
 | `git check-attr text eol -- benchmarks/scifact-v1/queries.jsonl benchmarks/scifact-v1/qrels.tsv benchmarks/scifact-v1/document_ids.txt reports/evaluation/scifact-v1/per_query.jsonl` | All explicitly use LF; cross-platform checkout must preserve byte-hashed inputs |
 | `git diff --check` | Passed |
+| `git push origin main`; compare `git rev-parse HEAD` and `git ls-remote origin refs/heads/main` | Baseline commit `9ae8b2f7fa3141f9727e0477dd32379f4e7dc356` published; local/remote main matched |
+| Inspect [GitHub Actions run 38910026463](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/38910026463) and all matrix jobs | All four passed for baseline commit `9ae8b2f`: Windows/Linux, Python 3.12/3.14, including offline report verification, smoke and tracking |
 
-Publication and remote CI results are pending at this local verification checkpoint. The final report comes from the frozen evaluation code; the fresh-index repeat and earlier exploratory run used the same untuned retrieval parameters and produced the same rankings.
+ANV-019 is complete. The final report comes from the frozen evaluation code; the fresh-index repeat and earlier exploratory run used the same untuned retrieval parameters and produced the same rankings. A documentation follow-up records completion and this CI evidence. Its separate Actions run should be checked against the current main revision before describing that revision's CI state.
 
 ## Measured baseline
 

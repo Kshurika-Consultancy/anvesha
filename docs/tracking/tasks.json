@@ -587,7 +587,7 @@
       "id": "ANV-019",
       "milestone": "M2",
       "title": "Real SciFact evaluation starter and reproducible local baselines",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": [
         "ANV-006"
@@ -650,6 +650,16 @@
           "command": "uv build --out-dir .anvesha/dist; uv run --isolated --no-project --with .anvesha/dist/anvesha_search-0.1.0-py3-none-any.whl python -m anvesha.evaluation verify",
           "result": "Build and installed-wheel report verification passed; raw corpus and review pools excluded from source distribution",
           "date": "2026-10-16"
+        },
+        {
+          "command": "git push origin main; git rev-parse HEAD; git ls-remote origin refs/heads/main",
+          "result": "Baseline commit 9ae8b2f7fa3141f9727e0477dd32379f4e7dc356 published to main; local/remote hashes matched",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "Inspect GitHub Actions run 38910026463 and all matrix jobs",
+          "result": "All four Windows/Linux Python 3.12/3.14 jobs passed for 9ae8b2f, including offline artifact verification, smoke and tracking",
+          "date": "2026-10-16"
         }
       ],
       "references": [
@@ -667,7 +677,7 @@
         ".gitattributes",
         ".github/workflows/ci.yml"
       ],
-      "notes": "Local acceptance verified, including full run and independent deterministic repeat; publication and remote CI pending. Scientific claim-evidence retrieval only. No fabricated assessments, general-web parity claim, or automatic training."
+      "notes": "Complete scoped scientific claim-evidence baseline with published expert labels, repeatable rankings and cross-platform CI. ANV-007 remains open under ANV-020 for broader strata and independent pooled review. No fabricated assessments, general-web parity claim, paid dependency or automatic training."
     },
     {
       "id": "ANV-020",
