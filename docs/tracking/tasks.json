@@ -558,7 +558,7 @@
       "id": "ANV-018",
       "milestone": "M1",
       "title": "Stop the Windows smoke server process tree and verify remote CI",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": ["ANV-017"],
       "acceptance": [
@@ -568,9 +568,15 @@
         "Push the fix and inspect all GitHub Actions matrix jobs"
       ],
       "validation_plan": ["Run the process cleanup regression, full offline suite and real-process smoke", "Observe Windows/Linux Python 3.12/3.14 CI results after push"],
-      "verification": [],
-      "references": [],
-      "notes": "Initial CI run 38900815551 passed all 116 tests but Windows/Python 3.12 smoke cleanup failed with WinError 32 for server.log. Parent-only termination can leave the actual API child alive behind the Windows venv launcher."
+      "verification": [
+        {"command": "uv run --extra dev pytest tests/test_smoke_processes.py -q", "result": "2 passed on Windows, including actual descendant termination and log-handle release", "date": "2026-10-16"},
+        {"command": "uv run --extra dev pytest -q", "result": "118 passed in 12.86 seconds; one existing warning tracked under ANV-015", "date": "2026-10-16"},
+        {"command": "uv run --extra dev python scripts/smoke_mvp.py", "result": "Passed lifecycle and cleanup; success emitted after temporary-directory cleanup", "date": "2026-10-16"},
+        {"command": "uv run --extra dev ruff check .; uv run --extra dev ruff format --check .; uv run --extra dev python scripts/check_tracking.py", "result": "All passed", "date": "2026-10-16"},
+        {"command": "Inspect GitHub Actions run 38901376551 jobs", "result": "All four matrix jobs passed: Windows/Linux on Python 3.12/3.14 for fix commit 70216f31502ab3f60741cbd91997ada2fb8d859f", "date": "2026-10-16"}
+      ],
+      "references": ["scripts/smoke_mvp.py", "tests/test_smoke_processes.py", "docs/tracking/verification/2026-10-16-publication.md"],
+      "notes": "Initial CI run 38900815551 passed all 116 tests but Windows/Python 3.12 smoke cleanup failed with WinError 32. Full Windows process-tree shutdown resolves the venv-launcher descendant leak. Fixed commit 70216f3 passed all remote matrix jobs."
     }
   ]
 }

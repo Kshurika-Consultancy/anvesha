@@ -38,4 +38,8 @@ Source publication does not deploy the service or complete M6. Local hosting and
 
 The first run subsequently completed: Windows/Python 3.14 and both Linux jobs passed; Windows/Python 3.12 passed all 116 tests and smoke assertions but failed removing server.log with WinError 32. The Windows virtual-environment launcher can outlive parent-only process termination through its API descendant.
 
-ANV-018 adds full Windows process-tree shutdown, a real descendant/log-handle regression, and success output only after cleanup. Local validation: 118 tests passed in 12.86 seconds, Ruff and tracking passed, and the real-process smoke passed including cleanup. Remote verification of this fix is pending at this commit.
+ANV-018 adds full Windows process-tree shutdown, a real descendant/log-handle regression, and success output only after cleanup. Local validation: 118 tests passed in 12.86 seconds, Ruff and tracking passed, and the real-process smoke passed including cleanup.
+
+Fix commit [70216f31502ab3f60741cbd91997ada2fb8d859f](https://github.com/Kshurika-Consultancy/anvesha/commit/70216f31502ab3f60741cbd91997ada2fb8d859f) passed all four jobs in [Checks run 38901376551](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/38901376551): Windows/Linux, Python 3.12/3.14. Each job includes lint, formatting, tests, real-process smoke, tracking, and whitespace checks. The Windows-specific regression is skipped on Linux; Windows executes all 118 tests. A documentation-only follow-up records this evidence and receives its own Actions run.
+
+Nonblocking upstream warnings remain: the Starlette/httpx test transport warning is ANV-015, and the runner's Node action deprecation warning is recorded for ANV-014 release maintenance.
