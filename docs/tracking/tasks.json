@@ -741,6 +741,21 @@
           "command": "Installed wheel: intent_evaluation verify and review status; inspect distribution and evaluated-code hashes; verify original SciFact report",
           "result": "All passed with runtime dependencies only; source fingerprints match; raw corpus/credentials excluded from distribution; original SciFact artifacts unchanged",
           "date": "2026-10-16"
+        },
+        {
+          "command": "Compare staged Git objects with recorded code/input hashes; inspect staged paths",
+          "result": "All hashes matched; raw passages, review workspace, credentials and responses excluded",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "git push origin main; compare git rev-parse HEAD and git ls-remote origin refs/heads/main",
+          "result": "Implementation commit ac48d2e6c3897a34cc2e9516358acc77d663d93f published; local/remote main matched",
+          "date": "2026-10-16"
+        },
+        {
+          "command": "Inspect GitHub Actions run 38936703068 and all matrix jobs",
+          "result": "All four Windows/Linux Python 3.12/3.14 jobs passed, including tests, offline data/report verification, smoke and tracking",
+          "date": "2026-10-16"
         }
       ],
       "references": [
@@ -761,7 +776,7 @@
         "reports/evaluation/xquad-intents-v1/summary.json",
         "docs/tracking/verification/2026-10-16-human-review.md"
       ],
-      "notes": "Corpus and human-workflow implementation verified locally; publication/CI pending. Task remains in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. No fabricated human labels, automatic training or paid dependency."
+      "notes": "Corpus and human-workflow implementation committed/pushed and verified locally plus cross-platform CI. Task stays in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. No fabricated human labels, automatic training or paid dependency."
     }
   ]
 }

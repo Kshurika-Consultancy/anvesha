@@ -31,10 +31,12 @@ See [dataset/attribution](../../../benchmarks/xquad-intents-v1/README.md), [righ
 | Compare seven evaluated-code hashes; inspect wheel/source distribution members | Code hashes match the report; workflow modules included; ignored raw corpus and credentials excluded |
 | `uv run --extra dev python -m anvesha.evaluation verify` | Existing SciFact report still verifies; no scientific baseline rewriting |
 | Compare staged Git objects with input and evaluated-code hashes; inspect staged paths | All hashes match; private corpus, review workspace, credentials and responses excluded |
+| `git push origin main`; compare local/remote main | Source commit `ac48d2e6c3897a34cc2e9516358acc77d663d93f` published; hashes matched |
+| Inspect [Actions run 38936703068](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/38936703068) | All four Windows/Linux Python 3.12/3.14 jobs passed, including all offline artifact checks, tests, smoke and tracking |
 
 The 37 added tests cover group/translation isolation, modified input hashes/provenance, forbidden draft-label promotion, real worker fixtures, no implicit network, failed acquisition cleanup, HMAC/credential/attestation checks, malformed packet shapes, atomic invalid-packet rollback, idempotent labels, stale revisions/adjudication, abstentions, hand-calculated agreement/kappa, immutable exports and CLI packets. The optional Node test passed locally and executes Unicode display/navigation/attested JSON download in a simulated DOM; it is not a browser visual audit. All assessment grades in tests are explicitly synthetic and never count as human evidence.
 
-Local code/data verification, the full-run repeat, installed-wheel and staged byte checks are complete. Publication/CI are pending at this checkpoint.
+The implementation slice is published and verified locally and in all four CI jobs. A documentation follow-up records this evidence; check that commit's separate Actions run before claiming current-HEAD CI. ANV-020 remains in progress for the actual study requirements below.
 
 ## Remaining acceptance and limits
 
