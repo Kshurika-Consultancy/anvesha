@@ -10,6 +10,8 @@ M0 foundations and M1 local-first asynchronous search are implemented and verifi
 
 Implementation uses Python/FastAPI, SQLite WAL/FTS5, a separate durable worker, a locally indexed first-party demonstration corpus, and an optional Wikidata metadata connector. It needs no paid API or LLM key. Demo content is visibly identified as demonstration material. A real-process smoke test passed for both the development installation and isolated built wheel.
 
-Next priorities: representative quality evaluation (ANV-007), hosted hardening/retention (ANV-008), test transport maintenance (ANV-015), and optional live Wikidata verification with a real operator contact (ANV-016). No live provider test has run. GitHub Actions started for the initial published commit; the publication report records the observed state without asserting a completed result.
+The first remote CI run exposed a Windows/Python 3.12 smoke cleanup failure after all assertions passed. ANV-018 updates shutdown to stop the server process tree and adds a real descendant-process regression. All 118 tests and the smoke pass locally; remote verification of this fix is pending.
+
+Next priorities after CI verification: representative quality evaluation (ANV-007), hosted hardening/retention (ANV-008), test transport maintenance (ANV-015), and optional live Wikidata verification with a real operator contact (ANV-016). No live provider test has run.
 
 Quality claims require measured evidence. Runtime failures, unsupported features, and uncovered search categories must be exposed rather than silently described as complete coverage.

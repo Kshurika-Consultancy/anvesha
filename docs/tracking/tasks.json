@@ -552,7 +552,25 @@
         {"command": "Read GitHub Actions runs for initial source commit", "result": "Checks run 38900815551 started; observed in_progress when evidence was written", "date": "2026-10-16"}
       ],
       "references": ["docs/tracking/HANDOFF.md", "docs/tracking/STATUS.md", "docs/tracking/verification/2026-10-16-publication.md"],
-      "notes": "User explicitly authorized source publication. Git Credential Manager device sign-in enabled the successful CLI push; the separate GitHub connector still lacks repository write access. No public service deployment or M6 pilot completion is implied. See publication evidence for initial CI observation."
+      "notes": "User explicitly authorized source publication. Git Credential Manager device sign-in enabled the successful CLI push; the separate GitHub connector still lacks repository write access. No public service deployment or M6 pilot completion is implied. First remote CI exposed a Windows/Python 3.12 smoke cleanup failure, tracked as ANV-018."
+    },
+    {
+      "id": "ANV-018",
+      "milestone": "M1",
+      "title": "Stop the Windows smoke server process tree and verify remote CI",
+      "status": "in_progress",
+      "owner": "root",
+      "depends_on": ["ANV-017"],
+      "acceptance": [
+        "Windows smoke shutdown terminates the venv redirector and API descendants",
+        "Restart and final cleanup do not leave an API process or locked server log",
+        "Add a real Windows descendant-process regression and rerun required checks",
+        "Push the fix and inspect all GitHub Actions matrix jobs"
+      ],
+      "validation_plan": ["Run the process cleanup regression, full offline suite and real-process smoke", "Observe Windows/Linux Python 3.12/3.14 CI results after push"],
+      "verification": [],
+      "references": [],
+      "notes": "Initial CI run 38900815551 passed all 116 tests but Windows/Python 3.12 smoke cleanup failed with WinError 32 for server.log. Parent-only termination can leave the actual API child alive behind the Windows venv launcher."
     }
   ]
 }

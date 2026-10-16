@@ -32,6 +32,8 @@ See [the verification report](verification/2026-10-16-mvp.md) for exact commands
 
 The test run emits one Starlette/httpx deprecation warning, tracked as ANV-015. Repeat pre-publication checks passed: 116 tests in 12.54 seconds, Ruff, tracking and real-process smoke. [Publication evidence](verification/2026-10-16-publication.md) records initial push verification and the first GitHub Actions run, observed in progress when the report was written. CI targets Windows/Linux and Python 3.12/3.14. No live Wikidata request was made (ANV-016); no real operator contact was provided. No quality benchmark or full-web result claim exists.
 
+Subsequent initial CI result: three matrix jobs passed; Windows/Python 3.12 smoke cleanup failed with a log sharing violation. ANV-018 fixes parent-only Windows termination by stopping the process tree. A real Windows child-process/log-handle regression and full local checks pass (118 tests, one existing warning). Smoke success output now occurs after cleanup. Remote CI verification of the fix is pending.
+
 ## Run locally
 
 Use `uv sync --extra dev --locked`, then `uv run --extra dev anvesha init --seed`. Set the generated key in `ANVESHA_API_KEYS` and run `uv run --extra dev anvesha serve`. In another terminal with the same DB/source configuration, run `uv run --extra dev python -m anvesha.worker`. Full instructions are in [README](../../README.md) and [API](../API.md).

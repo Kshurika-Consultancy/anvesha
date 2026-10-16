@@ -15,6 +15,34 @@ import httpx
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def stop_server(process):
+    """Stop API descendants too: Windows venv launchers may wrap the real server.
+
+    ANV-018. Waiting for the launcher alone does not release a child's inherited
+    log handle or listening socket, and can make a restart test hit the old API.
+    """
+    if process is None or process.poll() is not None:
+        return
+    if sys.platform == "win32":
+        stopped = subprocess.run(
+            ["taskkill", "/PID", str(process.pid), "/T", "/F"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            creationflags=subprocess.CREATE_NO_WINDOW,
+            timeout=10,
+        )
+        if stopped.returncode != 0 and process.poll() is None:
+            raise RuntimeError("Failed to stop the Windows smoke server process tree")
+        process.wait(timeout=5)
+        return
+    process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=5)
+
+
 def main():
     with tempfile.TemporaryDirectory(prefix="anvesha-smoke-") as temporary:
         directory = Path(temporary)
@@ -69,6 +97,7 @@ def main():
                 deadline = time.monotonic() + 15
                 while time.monotonic() < deadline:
                     if process.poll() is not None:
+                        process.wait(timeout=5)
                         raise RuntimeError("API process exited during startup")
                     try:
                         if client.get("/healthz").status_code == 200:
@@ -76,18 +105,8 @@ def main():
                     except httpx.TransportError:
                         pass
                     time.sleep(0.1)
-                process.terminate()
-                process.wait(timeout=5)
+                stop_server(process)
                 raise RuntimeError("API startup timed out")
-
-            def stop(process):
-                if process is not None and process.poll() is None:
-                    process.terminate()
-                    try:
-                        process.wait(timeout=5)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
-                        process.wait(timeout=5)
 
             try:
                 server = start()
@@ -99,7 +118,7 @@ def main():
                 job_id = response.json()["id"]
                 location = f"/v1/searches/{job_id}"
                 assert client.get(location).json()["state"] == "queued"
-                stop(server)
+                stop_server(server)
                 server = start()
                 assert client.get(location).json()["state"] == "queued"
                 run_module("anvesha.worker", "--once")
@@ -132,29 +151,26 @@ def main():
                 assert client.post(cancelled + "/cancel").json()["state"] == "cancelled"
                 run_module("anvesha.worker", "--once")
                 assert client.get(cancelled).json()["state"] == "cancelled"
-                print(
-                    json.dumps(
-                        {
-                            "status": "passed",
-                            "mode": "offline",
-                            "checks": [
-                                "CLI initialization",
-                                "HTTP submission",
-                                "API restart persistence",
-                                "separate worker",
-                                "stable results",
-                                "idempotency",
-                                "feedback",
-                                "deletion",
-                                "cancellation",
-                            ],
-                            "result_count": len(results),
-                        },
-                        indent=2,
-                    )
-                )
+                summary = {
+                    "status": "passed",
+                    "mode": "offline",
+                    "checks": [
+                        "CLI initialization",
+                        "HTTP submission",
+                        "API restart persistence",
+                        "separate worker",
+                        "stable results",
+                        "idempotency",
+                        "feedback",
+                        "deletion",
+                        "cancellation",
+                        "server process and temporary-file cleanup",
+                    ],
+                    "result_count": len(results),
+                }
             finally:
-                stop(server)
+                stop_server(server)
+    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

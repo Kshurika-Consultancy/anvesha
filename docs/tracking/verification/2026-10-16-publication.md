@@ -33,3 +33,9 @@ The initial CLI push had no credentials. GitHub connector writes separately retu
 GitHub Actions started [Checks run 38900815551](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/38900815551) for the initial source commit. Its observed state while recording this report was `in_progress`; this report does not claim a completed remote CI result. A documentation-only follow-up records publication evidence and task completion; it also receives its own CI run.
 
 Source publication does not deploy the service or complete M6. Local hosting and quality limitations remain in README, SECURITY, and the task ledger.
+
+## Initial CI result and follow-up
+
+The first run subsequently completed: Windows/Python 3.14 and both Linux jobs passed; Windows/Python 3.12 passed all 116 tests and smoke assertions but failed removing server.log with WinError 32. The Windows virtual-environment launcher can outlive parent-only process termination through its API descendant.
+
+ANV-018 adds full Windows process-tree shutdown, a real descendant/log-handle regression, and success output only after cleanup. Local validation: 118 tests passed in 12.86 seconds, Ruff and tracking passed, and the real-process smoke passed including cleanup. Remote verification of this fix is pending at this commit.
