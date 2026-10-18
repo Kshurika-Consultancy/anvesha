@@ -1,11 +1,13 @@
 # Anvesha development status
 
-ANV-025's scoped safeguards are implemented and verified locally (2026-10-18):
+ANV-025's scoped safeguards are done and published as `7764642` (2026-10-18):
 query-scoped coaching/exposure exclusions, blinded replacement assignments, explicit
 legacy migration and current-export verification. Final full suite: 363 passed
 (38 new synthetic cases), plus Ruff/tracking, both process smokes, five report
-verifiers and runtime-only installed-wheel CLI acceptance. Commit/push verification
-is next. Actual private pilot, forms, keys and labels are untouched; ANV-020's human
+verifiers and runtime-only installed-wheel CLI acceptance. Local/remote main matched;
+all five jobs passed in [implementation CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39142333841),
+including actual container acceptance. Actual private pilot, forms, keys and labels
+are untouched; ANV-020's human
 study remains open. See
 [ADR 0011](../decisions/0011-independent-review-exposure-and-replacement.md) and
 [evidence/workflow](verification/2026-10-18-review-integrity.md). No paid API, model

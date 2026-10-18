@@ -16,8 +16,13 @@ form, credential, label or private practice note was read/changed. All owned tes
 processes ended. No model call, delegation or mandatory paid API. Ignored synthetic
 installed-wheel scratch remains after automatic approval rejected cleanup as
 "blocked by policy"; it contains no real pilot data and is excluded from Git/packages.
-Implementation acceptance is met; commit/push and CI verification follow. Keep
-ANV-020 open: operator must explicitly migrate the actual pilot, record known
+Implementation is published as `7764642a7f13ddf68adaadd02d1327eceeecdb3d` with
+matching local/remote main and clean Git state. All five jobs passed in
+[CI run 39142333841](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39142333841),
+including Windows/Linux Python 3.12/3.14 and actual container acceptance. Root
+ownership of this completed scoped slice is released. This documentation-only
+evidence follow-up has its own commit/CI; inspect current HEAD. Keep ANV-020 open:
+operator must explicitly migrate the actual pilot, record known
 query-wide practice exclusions, enroll eligible replacements and collect real
 labels. No credentials/attestation can prove actual human independence.
 

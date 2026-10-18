@@ -8,7 +8,8 @@ Record material delivered changes with task IDs and verification references. Thi
   labels while retaining history. Added explicit legacy migration, private reviewer
   enrollment, blinded replacement assignments with preserved review slots, consistent
   snapshot exports and current-export verification. Actual pilot/labels stay untouched;
-  ANV-020 remains open. See [verification](verification/2026-10-18-review-integrity.md)
+  ANV-020 remains open. Implementation `7764642` is pushed to main with all five CI
+  jobs passing. See [verification](verification/2026-10-18-review-integrity.md)
   and [operator workflow](../review/README.md).
 - ANV-024: added opt-in pointwise ordinal grading with lexical ties, whole-query
   fallback, one shared deadline, saved-config compatibility and structural failure

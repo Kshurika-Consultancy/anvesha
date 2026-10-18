@@ -75,8 +75,7 @@ suite warning. Final full suite after fixture-handle cleanup: **363 passed in
 56.73s**. Lint/format/tracking, both offline real-process smokes and all five
 archived artifact verifiers passed. Model/report fingerprints stay unchanged.
 Diff inspection classifies all 14 changed/new files under ANV-025 (ANV-020 notes
-updated for continuity); no unrelated changes were present. Publication and CI
-are verified after the implementation commit.
+updated for continuity); no unrelated changes were present.
 
 Both wheel and source distribution built. Inspection confirms `review.py` and the
 new `review_integrity.py` in the wheel match source; no private workspace, database,
@@ -101,6 +100,18 @@ corrected installed-wheel actual-CLI rerun exited 0 after repeating the complete
 synthetic exclusion/replacement/export workflow and explicit legacy migration;
 all its database connections and subprocesses closed. Cleanup is the sole retained
 scratch limitation, separately recorded in ANV-025.
+
+## Publication and cross-platform acceptance
+
+`git push origin main` published implementation
+`7764642a7f13ddf68adaadd02d1327eceeecdb3d`; `git rev-parse HEAD` and
+`git ls-remote origin refs/heads/main` matched, and `git status --short` was empty.
+All five jobs passed in [run 39142333841](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39142333841):
+Windows/Linux on Python 3.12/3.14 plus actual Linux container acceptance. Matrix
+checks include the synthetic review suite, offline data/report verifiers, process
+smokes and tracking. No model weights, mandatory paid API or actual review pilot
+is used in CI. The ignored package-check scratch is not tracked. This
+documentation-only evidence follow-up has its own commit/run; inspect current HEAD.
 
 ## Remaining human work
 
