@@ -2,28 +2,48 @@
 
 ## Objective
 
-2026-10-18: user authorized choosing/implementing the next useful step, testing,
-committing and pushing. Root owns ANV-024 from clean main 536fc75. Implemented
-opt-in pointwise 0–3 grading, stable lexical ties, whole-query fallback, shared
-deadline/cancellation checks and closed-vocabulary contract warnings. Existing
-listwise configurations/fingerprints remain stable. No mandatory paid service.
+2026-10-18: user authorized selecting the next useful step, implementation, tests,
+commit and push. Root implemented ANV-024 from clean main 536fc75. Source/protocol
+freeze `1793f3a41ecb5555cf67ab0dd0f5ec4fec1ffb2b` is pushed to main; all five jobs
+passed in [source CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39122584748).
+Results/evidence publication and its final checks are the current remaining step.
+No subagents or mandatory paid APIs/hosted inference were used.
 
-The new `local-llm-contracts-v1` protocol selects 4 development + 16 evaluation
-queries excluding all ANV-023 IDs, by hash without labels/scores. Both contracts
-use the cached pinned Qwen/llama.cpp CPU profile, same candidate prefix and 120s
-total deadline. `anvesha.ranking_experiment` alternates profile order, rejects
-checkpoint drift, requires development before explicit evaluation release and
-retains all outcomes. Real inference/results are pending at this source freeze;
-do not claim a gain. Human-review workspaces were not used or modified.
+The actual Qwen3/llama.cpp CPU comparison completed all 4 development + 16 fresh
+evaluation queries under both contracts (40 query/profile runs). Source/protocol
+were frozen before inference; all nine measured files still match the freeze.
+Evaluation nDCG@10: 0.748850 lexical, 0.743299 listwise, 0.793284 pointwise.
+Pointwise: 16 applied, zero fallback/failure; listwise: 13 applied, three duplicate-ID
+fallbacks, zero worker failures. Pointwise-minus-lexical delta is +0.044433 with
+95% interval [0.000000,+0.124450]; pointwise-minus-listwise +0.049984 with interval
+[-0.069250,+0.203888]. Improvement is not established. Pointwise stays opt-in;
+existing listwise configurations/fingerprints remain stable. No private queries,
+feedback or independent-review workspaces were used; zero new human judgments.
 
-Checks before freeze: 325 pytest passed (49.31s; existing ANV-015 warning), Ruff
-lint/format, tracking, MVP and native schema/pointwise smokes, archived SciFact/
-intent/model report verifiers. The final experiment helper adjustment passed its
-9 focused tests. Source/protocol must be committed before starting the model.
-Current ports are free; cached weights/runtime are ignored. Next: explicit
-server launcher, development, unchanged evaluation release, public sanitized
-report/verification, stop owned model tree, final checks and commit/push main.
-See [evidence](verification/2026-10-18-ranking-contracts.md) for commands.
+[Analysis](../../reports/evaluation/local-llm-contracts-v1/ANALYSIS.md), summary,
+complete ID rankings and allowlisted execution/resources are public artifacts.
+[ADR 0010](../decisions/0010-pointwise-local-ranking-experiment.md) records limits.
+Do not tune on released ANV-023/024 samples and call another run unseen. Follow-ups
+are ANV-010 controlled retrieval/ranking and semantic robustness, ANV-020 independent
+domain judgments, and ANV-023 actual other backends/hardware; no default promotion.
+
+All model/development/evaluation sessions are complete. The verified owned model
+tree was stopped, matching PID record removed, port 8135 closed. Historical PIDs
+1108/25156 must not be reused. Runtime/weights and resource/checkpoint files remain
+ignored under `.anvesha/local-llm/anv023` and `.anvesha/evaluation/local-llm-contracts-v1`.
+Reproduce into fresh ignored paths using docs/LOCAL_LLM_EVALUATION.md; public output
+refuses overwrite. No model download or inference is needed for ordinary checks.
+
+Final pytest: 325 passed in 38.49s (existing ANV-015 warning). Lint/format and all
+archived/new report verifiers pass with the model stopped. Before inference both
+process smokes and the runtime-only isolated installed-wheel schema/pointwise
+smoke passed. Both final process smokes and package/archive inspection also pass;
+all nine measured wheel Python files match source, three browser assets are
+included and private caches/config/data/weights/binaries excluded. ANV-024 is done
+for this scoped comparison; new follow-ups are recorded in ANV-010. New CI step
+verifies the comparison offline. Next: commit/push results, verify remote equality
+and CI, record publication and release root ownership.
+See [verification](verification/2026-10-18-ranking-contracts.md).
 
 ## Previous completed ANV-023 slice
 

@@ -72,6 +72,17 @@ Each result includes `id`, `rank`, `url`, `title`, `snippet`, `sources`, `score`
 
 Successful model reranking adds `lexical_rank` and `ranking_method` (`llm_rerank` within the assessed prefix, `rrf` for the untouched tail). Final `rank` reflects the new order, while `score` remains the original lexical RRF value and need not be monotonic. Fewer than two candidates need no model call and retain the lexical result shape. A model failure or configuration mismatch retains lexical results, exposes an `llm:*` warning and marks the job partial. The accepted pipeline fingerprint identifies requested configuration, not proof of applied reranking, model weights or gateway routing; inspect warnings and result methods. Feedback retains that accepted pipeline version.
 
+ANV-024 adds operator-only `ANVESHA_LLM_STRATEGY=pointwise`; the client still sends
+`ranking=llm`. It grades each original prefix candidate 0–3 internally and sorts
+with lexical ties. Every grade is required: one failure discards all grades.
+Existing configurations remain listwise. Both use `llm_rerank`; the accepted
+pipeline distinguishes the configured contract. No grades are published as
+confidence or evidence scores. Invalid output keeps `llm:invalid_response` and
+may add a sanitized `llm_contract:` warning: `malformed_json`, `invalid_envelope`,
+`truncated_output`, `unexpected_fields`, `invalid_ids`, `unknown_ids`,
+`duplicate_ids`, `incomplete_ids` or `invalid_grade`. Consumers should accept
+additional warning strings and use state/methods to identify lexical fallback.
+
 `POST /v1/searches/{id}/feedback` body:
 
 ```json
@@ -102,6 +113,15 @@ The API and worker source allowlists must agree. Enable `wikidata` explicitly an
 
 Current live networking limits include inactivity timeouts, response-size limits, and body elapsed checks. A strict total deadline including trickling headers remains tracked in ANV-008. This is another reason not to expose the M1 worker as a public unlimited service. Default offline tests mock this connector; no live availability guarantee is implied.
 
-The separate ANV-021 model client enforces a total async deadline including header/body waits (default 60, maximum 120 seconds), a 64 KiB response limit, no redirects and no environment proxies. It sends only the original query and bounded IDs/titles/snippets/evidence labels to a fixed operator endpoint. Accepted output must be a complete permutation of supplied IDs. No client can choose endpoints/models or supply tools through a search request. Non-loopback endpoint configuration requires explicit network opt-in; a local proxy can still forward externally. Its API key is never persisted in jobs. See [the processing policy](../policies/llm-processing.json).
+The model client enforces a total async deadline including header/body waits
+(default 60, maximum 120 seconds), a 64 KiB response limit per response, no redirects
+and no environment proxies. It sends the original query and bounded titles/
+snippets/evidence labels to a fixed operator endpoint. Listwise additionally sends
+compact aliases and accepts only a complete permutation. Pointwise sends one
+candidate without an ID per sequential call, accepting only an integer grade
+0–3. Its at most 20 calls share one total deadline. No client can choose endpoints,
+models, strategy or tools through a search request. Network destinations require
+operator opt-in; a local proxy can still forward externally. Model keys are never
+persisted in jobs. See [the processing policy](../policies/llm-processing.json).
 
 Local files are a shared operator corpus, not a per-client private document store. Request lengths and result counts are bounded, but hosted quotas, automatic retention, production metrics and source-rights policy enforcement beyond the approved built-in connectors remain tracked work. Use loopback for the current deployment.

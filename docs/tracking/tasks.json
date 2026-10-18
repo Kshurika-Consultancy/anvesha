@@ -390,7 +390,7 @@
       ],
       "verification": [],
       "references": [],
-      "notes": ""
+      "notes": "ANV-024 supplies an opt-in pointwise contract and frozen real CPU comparison: 16/16 valid pointwise vs 13/16 listwise, but relevance improvement is not established on 16 scientific queries. Next controlled stagewise work should investigate ordinal calibration/ties, context/passage selection, specialized local rerankers or retrieval coverage using a fresh frozen reserve and supported-stratum gains. Include actual semantic prompt-injection evaluation; mocked hostile-text contract tests do not prove ranking robustness. Preserve no-paid-API/local inference, original constraints and source/result identities. Do not reuse released ANV-023/024 evaluation outcomes as unseen tuning evidence; independent domain judgments remain ANV-020 and actual backend/hardware profiles ANV-023."
     },
     {
       "id": "ANV-011",
@@ -996,7 +996,7 @@
       "id": "ANV-024",
       "milestone": "M3",
       "title": "Improve small local-model ranking reliability and diagnostic evidence",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": [
         "ANV-021"
@@ -1017,6 +1017,16 @@
           "command": "Pinned uv sync; Ruff lint/format; pytest; tracking; both process smokes; archived evaluation/intent/LLM verifiers; git diff --check",
           "result": "Before inference: 325 tests passed (49.31s), focused experiment verifier 9 passed after its helper change, lint/format/tracking and both offline process smokes passed. Existing ANV-015 warning only. Source/protocol are prepared for freeze; real-model comparison is pending. See docs/tracking/verification/2026-10-18-ranking-contracts.md.",
           "date": "2026-10-18"
+        },
+        {
+          "command": "Pinned real Qwen3/llama.cpp run: anvesha.ranking_experiment development, then unchanged --release-evaluation --resume; offline verify; source hash check against 1793f3a",
+          "result": "All 40 runs retained (4 development + 16 fresh evaluation queries, both profiles), all 9 source hashes match pre-inference freeze. Evaluation nDCG@10 lexical 0.748850 / listwise 0.743299 / pointwise 0.793284. Pointwise 16 valid / 0 fallback; listwise 13 valid / 3 duplicate-ID exact lexical fallbacks; 0 worker failures. Paired pointwise-minus-lexical interval [0,+0.124450], pointwise-minus-listwise [-0.069250,+0.203888]; improved relevance not established. Zero new human judgments, no private data, no paid API/hosted inference. Report verified offline after owned model tree stopped, PID record removed and port 8135 closed.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "Final Ruff lint/format; pytest; both process smokes; archived/new report verifiers; source CI run 39122584748; runtime-only installed wheel check",
+          "result": "325 tests passed in 38.49s (existing ANV-015 warning), lint/format and final MVP/native pointwise/schema smokes passed. New and archived reports verify with model stopped; lexical fingerprints unchanged. Runtime-only installed wheel/native schema/pointwise smoke passed with site-packages imports and 18 locked runtime packages. All 5 source CI jobs passed including actual container build/restart/cleanup. Results publication and its CI are verified separately after commit/push.",
+          "date": "2026-10-18"
         }
       ],
       "references": [
@@ -1030,9 +1040,27 @@
         "docs/decisions/0009-opt-in-constrained-ranking-output.md",
         "reports/evaluation/local-llm-development-v2/diagnostics.json",
         "src/anvesha/llm.py",
-        "docs/review/README.md"
+        "docs/review/README.md",
+        "README.md",
+        "docs/API.md",
+        "docs/MILESTONES.md",
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/RESEARCH.md",
+        "docs/architecture/README.md",
+        "policies/llm-processing.json",
+        "scripts/smoke_mvp.py",
+        "scripts/smoke_selfhost.py",
+        ".github/workflows/ci.yml",
+        "tests/test_selfhost.py",
+        "tests/test_llm_pipeline.py",
+        "src/anvesha/worker.py",
+        "reports/evaluation/local-llm-contracts-v1/README.md",
+        "reports/evaluation/local-llm-contracts-v1/ANALYSIS.md",
+        "reports/evaluation/local-llm-contracts-v1/summary.json",
+        "reports/evaluation/local-llm-contracts-v1/rankings.jsonl",
+        "reports/evaluation/local-llm-contracts-v1/execution.json"
       ],
-      "notes": "2026-10-18 root started the user-authorized next slice from clean main 536fc75: implement an opt-in bounded pointwise relevance contract with lexical tie-breaking, sanitized failure diagnostics and whole-query fallback. Preserve listwise defaults and previous evidence. Compare both contracts and lexical control on a new label-blind frozen development/evaluation sample excluding ANV-023 IDs, using the cached free local model. Freeze source/protocol before evaluation, retain all outcomes, and run contract/lifecycle/configuration tests plus standard checks and process smokes before commit/push. No default promotion or quality claim without evidence. Known development-led follow-up: v1 had four timeouts, v2 had four invalid outputs and v3 one fallback among four development queries. Released ANV-023 evaluation scores are not an unseen tuning set. Broader independent domain evidence remains ANV-020; actual backend/hardware profiles remain ANV-023."
+      "notes": "Completed scoped ANV-024 contract comparison from clean 536fc75. Source/protocol 1793f3a was committed/pushed before inference; source CI all five jobs passed. New per-candidate ordinal strategy stays opt-in, existing listwise default/fingerprints unchanged. All fresh development/evaluation query/profile outcomes retained, strict whole-query fallback and sanitized duplicate-ID diagnostics observed live. Valid output coverage was 16/16 pointwise vs 13/16 listwise in evaluation; paired relevance intervals include zero, so no established gain or default promotion. Tests cover hostile snippets/contract boundaries, unsupported formats, leases/cancellation/config upgrades, not semantic prompt-injection immunity. Actual main server tree stopped, record removed and port closed; ignored caches/checkpoints retained. No real reviewer work, private query/feedback or new model download. Follow-ups remain ANV-010 controlled ranking/calibration/semantic robustness, ANV-020 independent domain labels, ANV-023 actual other backends/hardware. Future unseen-reserve claims must exclude released ANV-023/024 samples. Final local 325-test/checks and process smokes passed. Root retains ownership only to finish result publication/remote CI evidence in this authorized turn."
     }
   ]
 }

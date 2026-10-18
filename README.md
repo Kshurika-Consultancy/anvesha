@@ -107,6 +107,13 @@ ANV-020 adds a [multilingual corpus](benchmarks/xquad-intents-v1/README.md) beyo
 
 ## Configuration and development
 
+ANV-024's [real local-model contract comparison](reports/evaluation/local-llm-contracts-v1/ANALYSIS.md)
+tests a simpler opt-in pointwise grader. On 16 fresh scientific queries, valid
+output was 16/16 pointwise versus 13/16 listwise. nDCG@10 was 0.7489 lexical,
+0.7433 listwise and 0.7933 pointwise; paired intervals include zero, so improved
+relevance is not established. Listwise remains the default. The pinned CPU test
+uses no paid API or hosted inference; [reproduce or verify it](docs/LOCAL_LLM_EVALUATION.md).
+
 | Variable | Default | Purpose |
 | --- | --- | --- |
 | `ANVESHA_DB_PATH` | `.anvesha/anvesha.db` | Shared local SQLite file; API and worker must agree |
@@ -114,12 +121,14 @@ ANV-020 adds a [multilingual corpus](benchmarks/xquad-intents-v1/README.md) beyo
 | `ANVESHA_ENABLED_SOURCES` | `local` | Allowlist of `local` and optionally `wikidata` |
 | `ANVESHA_WORKER_POLL_SECONDS` | `1` | Idle queue polling, 0.1–60 seconds |
 | `ANVESHA_WIKIDATA_USER_AGENT` | unset | Identifying operator contact for optional live calls |
-| `ANVESHA_LLM_MODEL` | unset | Enables explicitly requested local-source reranking with your selected model |
+| `ANVESHA_LLM_MODEL` | unset | Your model for the default local-source LLM mode; explicit lexical mode needs none |
 | `ANVESHA_LLM_BASE_URL` | `http://127.0.0.1:11434/v1` | Fixed chat endpoint; OmniRoute can use port 20128 |
 | `ANVESHA_LLM_API_KEY` | unset | Optional runtime/gateway secret; never stored in jobs |
 | `ANVESHA_LLM_ALLOW_NETWORK` | `false` | Explicitly allow a non-loopback model endpoint; does not audit gateway egress |
-| `ANVESHA_LLM_TIMEOUT_SECONDS` | `60` | Total model-call deadline, 0.1–120 seconds |
+| `ANVESHA_LLM_TIMEOUT_SECONDS` | `60` | Total stage deadline across all model calls, 0.1–120 seconds; measured CPU profile uses 120 |
 | `ANVESHA_LLM_CANDIDATE_LIMIT` | `20` | Rerank at most 2–20 retrieved candidates |
+| `ANVESHA_LLM_OUTPUT_FORMAT` | `json_object` | Opt-in `json_schema` when supported; client validation always applies |
+| `ANVESHA_LLM_STRATEGY` | `listwise` | Opt-in `pointwise` grading with lexical ties and whole-query fallback |
 
 [.env.example](.env.example) documents configuration; files named `.env` are **not automatically loaded**. Set environment variables in your shell. Keys, databases, and virtual environments are git-ignored. Do not store private corpora in the repository.
 

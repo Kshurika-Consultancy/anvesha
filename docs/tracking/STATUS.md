@@ -1,11 +1,14 @@
 # Anvesha development status
 
-ANV-024 is in progress (2026-10-18): opt-in pointwise local grading, structural
-failure diagnostics and a fresh frozen listwise/pointwise/lexical comparison.
-The source/protocol freeze precedes real inference; measured results are pending.
-325 offline tests, lint/format/tracking, both process smokes and archived baseline
-verifiers pass. Listwise stays the default. See [current evidence](verification/2026-10-18-ranking-contracts.md)
-and [ADR 0010](../decisions/0010-pointwise-local-ranking-experiment.md).
+ANV-024's real CPU comparison is measured (2026-10-18); results publication is
+being finalized. Source freeze 1793f3a is pushed and all five source CI jobs pass.
+On 16 fresh scientific queries, nDCG@10 is 0.748850 lexical / 0.743299 listwise /
+0.793284 pointwise. Pointwise applies 16/16; listwise applies 13/16 with three
+explicit duplicate-ID fallbacks. Paired intervals include zero: improved relevance
+is not established. Pointwise stays opt-in. All 40 development/evaluation profile
+runs are retained; model tree stopped, PID record removed and port closed.
+325 tests and report verifiers pass. See [analysis](../../reports/evaluation/local-llm-contracts-v1/ANALYSIS.md),
+[verification](verification/2026-10-18-ranking-contracts.md) and [ADR 0010](../decisions/0010-pointwise-local-ranking-experiment.md).
 
 ANV-023's initial real local-model pilot is measured and verified (2026-10-18).
 Title/descriptions identify private search for user-controlled AI tools. Free

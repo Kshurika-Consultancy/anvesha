@@ -172,7 +172,17 @@ private configuration, stop services, back up the file, deliberately set
 pending stronger quality evidence. Up to 20 sequential grade requests share the
 configured total deadline; one invalid grade causes whole-query lexical fallback.
 Grades only determine ordering and are not published as confidence/truth scores.
+The measured CPU experiment explicitly uses 120 seconds. If selecting that
+profile for normal service, set `ANVESHA_LLM_TIMEOUT_SECONDS=120` before setup
+alongside the strategy; the normal default remains 60 seconds. Faster hardware
+can behave differently, and an inadequate budget produces visible fallback.
 See [the comparison method](LOCAL_LLM_EVALUATION.md).
+
+For a fresh Compose setup, pass these operator settings with `docker compose run
+--rm -e ANVESHA_LLM_STRATEGY=pointwise -e ANVESHA_LLM_OUTPUT_FORMAT=json_schema
+-e ANVESHA_LLM_TIMEOUT_SECONDS=120 setup setup`, followed by the model URL/name
+and flags in the Compose instructions. The saved configuration supplies both
+services. Actual Ollama/OmniRoute quality remains a separate ANV-023 check.
 Setup saves it in the private configuration. Existing files
 without `output_format` keep `json_object`, the compatibility default. A saved
 file takes precedence over later environment changes. Use the same configuration
@@ -215,9 +225,12 @@ query to the configured model. No URL field, client key, corpus, feedback, revie
 label or tool is supplied. Source text can contain URLs or sensitive data; review
 it before enabling external processing.
 
-Only a complete permutation of supplied IDs is accepted. Reranking precedes the
+Listwise accepts only a complete permutation of supplied IDs. Pointwise accepts
+one integer 0–3 per candidate; all grades must validate before applying stable
+grade ordering with lexical ties. Reranking precedes the
 requested result limit. Unassessed candidates retain lexical order; fewer than two
-candidates need no call. `ranking_method`/`lexical_rank` identify changed ordering;
+candidates need no call. `ranking_method`/`lexical_rank` identify assessed candidates
+and their original order, even when the final order is unchanged;
 `score` remains the original RRF value, never a truth probability. Source text,
 URLs and rights stay intact. Prompt injection can still damage relevance.
 
@@ -225,7 +238,7 @@ Configuration fingerprints bind endpoint/model identifiers, prompt and bounds,
 not verified weights or routes. API/worker settings must match. Model errors or
 configuration drift publish lexical results as `completed_partial` with sanitized
 `llm:*` warnings. The total model deadline defaults to 60 seconds (maximum 120),
-without application retries; worker recovery can repeat a call. Cancellation
+without application retries; worker recovery can repeat the bounded stage. Cancellation
 prevents publication but cannot recall content already sent.
 
 ## Browser, storage and upgrades

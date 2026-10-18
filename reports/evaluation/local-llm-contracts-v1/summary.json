@@ -1,0 +1,587 @@
+{
+  "backend": {
+    "context_tokens": 8192,
+    "cpu_model": "AMD Ryzen 5 4600G with Radeon Graphics",
+    "gpu_layers": 0,
+    "logical_processors": 12,
+    "memory_bytes": 33684578304,
+    "model_alias": "anvesha-qwen3-4b-q4km",
+    "model_sha256": "85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9",
+    "offline": true,
+    "physical_cores": 6,
+    "runtime": "llama.cpp",
+    "runtime_archive_sha256": "37b3efcf962847ca869745fd4ccf7f5e7e8dacfeff9fa3523b4ca8cdc66d632b",
+    "runtime_commit": "620d2225cc436ab0b001e3200e590e3b286ef9ab",
+    "runtime_version": "version: 0.7.0-dev (build 11669, commit 620d2225c)",
+    "seed": 20261018,
+    "server_sha256": "6a4635aeb35656153d4bfeeddf761d24ed84aada9c9108d580737cbed465141b",
+    "threads": 6,
+    "tools_enabled": false,
+    "webui": false
+  },
+  "benchmark_sha256": {
+    "document_ids.txt": "b42b9cb55780a26683df8110d34228207a9c377ebcf0c290231ac926f432db23",
+    "qrels.tsv": "b186284995f1a2853538b45a03b6dc7a7a3cc6f78b030579cb865f449949a2c4",
+    "queries.jsonl": "d45f8bb3bb152fa9fae714bd0087d9867c6494a346ddebdde1a4d0b4ecc62a18"
+  },
+  "code_sha256": {
+    "eval_data.py": "a9b9c9faadbc05ca4d07b6c71785c2d2659e6f54b70b9623ca990acb163af17e",
+    "eval_metrics.py": "8b8735f22e64ebc12de0d9d060a5d883642a8b2436705786b7011aab325c1bec",
+    "llm.py": "9eeff5f96dbf8380c74cc588d7f5dbae862a614ba8bca848bc1313a6e58c4a63",
+    "llm_evaluation.py": "f72a2d274c6c55337f0593dab280197a9dc705061586b273a62ef105ae89617f",
+    "providers.py": "0f98e65df0587e94d852cac7106f5693ee876a889916d0103617c3f372cb07d3",
+    "ranking.py": "ea4b42589e62af450a14df1fabc6d063e5f6bc8467e2a731fd4a2eec96a5722a",
+    "ranking_experiment.py": "1f5510beee0567dfde119ed834778d88299eecabc90f1924ca9e8e388208c9ce",
+    "store.py": "4c5881e785aaf4c8f4fdf018d5b20cb2270140189ca689864e6a1ae0e414931d",
+    "worker.py": "25ecec8f6bbdb97393b9a0cb45b18974d92344971179d296af627e8e22d07838"
+  },
+  "corpus_sha256": "dec31c8182f3d744c7d2c09423756fd1d17cbef75808db13ba01cc0aab4d1ac6",
+  "environment": {
+    "platform": "Windows",
+    "python": "3.14.4",
+    "sqlite": "3.50.4"
+  },
+  "experiment": "local-llm-contracts-v1",
+  "generated_at": "2026-10-18T12:11:31.804258+00:00",
+  "lexical_reference_sha256": "08143f79b513ae16fc02eaa41e7802bad7649f7509d97a07c281e11ba55c294f",
+  "model_policy_sha256": "a657643a67801c5c85a6dd58200fab1a5b3010e757c46a94e0163321e5fa8686",
+  "new_human_judgments": 0,
+  "pipelines": {
+    "listwise": "m3-llm-rerank-v1-066888ba9cffd3d3",
+    "pointwise": "m3-llm-rerank-v1-84129e0a4ccfd74a"
+  },
+  "protocol_sha256": "3f01943e8cf8efd4ecc584a8e2e50a9a2999df11ec2a3a463114efc22477bc04",
+  "records_sha256": "d26b7549ce10aaa3c9112fcc38df6628f688c7842300bcbb8abce17c5dfbf629",
+  "results": {
+    "attempted_model_calls": {
+      "listwise": 20,
+      "pointwise": 400
+    },
+    "contract_failures": {
+      "listwise": {
+        "llm_contract:duplicate_ids": 3
+      },
+      "pointwise": {}
+    },
+    "paired_pointwise_minus_listwise_ndcg10": {
+      "development": {
+        "ci95": [
+          0.0,
+          0.513401
+        ],
+        "mean": 0.171134
+      },
+      "evaluation": {
+        "ci95": [
+          -0.06925,
+          0.203888
+        ],
+        "mean": 0.049984
+      }
+    },
+    "profiles": {
+      "listwise": {
+        "development": {
+          "inference": "interval includes zero; improvement not established",
+          "latency_ms": {
+            "lexical": {
+              "median": 220.735,
+              "p95": 544.525,
+              "total": 1213.361
+            },
+            "llm": {
+              "median": 98605.595,
+              "p95": 116519.094,
+              "total": 404529.504
+            }
+          },
+          "mean_oracle_prefix_ndcg10": 0.75,
+          "metrics": {
+            "lexical": {
+              "mrr@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "precision@10": {
+                "ci95": [
+                  0.025,
+                  0.1
+                ],
+                "mean": 0.075
+              },
+              "recall@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "recall@50": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "success@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              }
+            },
+            "llm": {
+              "mrr@10": {
+                "ci95": [
+                  0.0625,
+                  1.0
+                ],
+                "mean": 0.53125
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.157732,
+                  1.0
+                ],
+                "mean": 0.578866
+              },
+              "precision@10": {
+                "ci95": [
+                  0.025,
+                  0.1
+                ],
+                "mean": 0.075
+              },
+              "recall@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "recall@50": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "success@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              }
+            }
+          },
+          "model_applied": 4,
+          "model_fallbacks": 0,
+          "ndcg10_wins_ties_losses": {
+            "losses": 1,
+            "ties": 3,
+            "wins": 0
+          },
+          "paired_ndcg10_delta": {
+            "ci95": [
+              -0.513401,
+              0.0
+            ],
+            "mean": -0.171134
+          },
+          "queries": 4,
+          "warnings": {},
+          "worker_failures": 0
+        },
+        "evaluation": {
+          "inference": "interval includes zero; improvement not established",
+          "latency_ms": {
+            "lexical": {
+              "median": 220.661,
+              "p95": 477.685,
+              "total": 4112.644
+            },
+            "llm": {
+              "median": 90510.07,
+              "p95": 100319.346,
+              "total": 1468449.583
+            }
+          },
+          "mean_oracle_prefix_ndcg10": 0.875,
+          "metrics": {
+            "lexical": {
+              "mrr@10": {
+                "ci95": [
+                  0.50625,
+                  0.890781
+                ],
+                "mean": 0.709375
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.570751,
+                  0.914433
+                ],
+                "mean": 0.74885
+              },
+              "precision@10": {
+                "ci95": [
+                  0.06875,
+                  0.1
+                ],
+                "mean": 0.0875
+              },
+              "recall@10": {
+                "ci95": [
+                  0.6875,
+                  1.0
+                ],
+                "mean": 0.875
+              },
+              "recall@50": {
+                "ci95": [
+                  0.8125,
+                  1.0
+                ],
+                "mean": 0.9375
+              },
+              "success@10": {
+                "ci95": [
+                  0.6875,
+                  1.0
+                ],
+                "mean": 0.875
+              }
+            },
+            "llm": {
+              "mrr@10": {
+                "ci95": [
+                  0.53125,
+                  0.90625
+                ],
+                "mean": 0.71875
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.555799,
+                  0.914433
+                ],
+                "mean": 0.743299
+              },
+              "precision@10": {
+                "ci95": [
+                  0.0625,
+                  0.1
+                ],
+                "mean": 0.08125
+              },
+              "recall@10": {
+                "ci95": [
+                  0.625,
+                  1.0
+                ],
+                "mean": 0.8125
+              },
+              "recall@50": {
+                "ci95": [
+                  0.8125,
+                  1.0
+                ],
+                "mean": 0.9375
+              },
+              "success@10": {
+                "ci95": [
+                  0.625,
+                  1.0
+                ],
+                "mean": 0.8125
+              }
+            }
+          },
+          "model_applied": 13,
+          "model_fallbacks": 3,
+          "ndcg10_wins_ties_losses": {
+            "losses": 2,
+            "ties": 11,
+            "wins": 3
+          },
+          "paired_ndcg10_delta": {
+            "ci95": [
+              -0.175027,
+              0.140673
+            ],
+            "mean": -0.005551
+          },
+          "queries": 16,
+          "warnings": {
+            "llm:invalid_response": 3,
+            "llm_contract:duplicate_ids": 3
+          },
+          "worker_failures": 0
+        }
+      },
+      "pointwise": {
+        "development": {
+          "inference": "interval includes zero; improvement not established",
+          "latency_ms": {
+            "lexical": {
+              "median": 186.81,
+              "p95": 237.436,
+              "total": 782.95
+            },
+            "llm": {
+              "median": 86186.13,
+              "p95": 91873.5,
+              "total": 343152.948
+            }
+          },
+          "mean_oracle_prefix_ndcg10": 0.75,
+          "metrics": {
+            "lexical": {
+              "mrr@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "precision@10": {
+                "ci95": [
+                  0.025,
+                  0.1
+                ],
+                "mean": 0.075
+              },
+              "recall@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "recall@50": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "success@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              }
+            },
+            "llm": {
+              "mrr@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "precision@10": {
+                "ci95": [
+                  0.025,
+                  0.1
+                ],
+                "mean": 0.075
+              },
+              "recall@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "recall@50": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              },
+              "success@10": {
+                "ci95": [
+                  0.25,
+                  1.0
+                ],
+                "mean": 0.75
+              }
+            }
+          },
+          "model_applied": 4,
+          "model_fallbacks": 0,
+          "ndcg10_wins_ties_losses": {
+            "losses": 0,
+            "ties": 4,
+            "wins": 0
+          },
+          "paired_ndcg10_delta": {
+            "ci95": [
+              0.0,
+              0.0
+            ],
+            "mean": 0.0
+          },
+          "queries": 4,
+          "warnings": {},
+          "worker_failures": 0
+        },
+        "evaluation": {
+          "inference": "interval includes zero; improvement not established",
+          "latency_ms": {
+            "lexical": {
+              "median": 215.595,
+              "p95": 489.438,
+              "total": 4149.889
+            },
+            "llm": {
+              "median": 80982.808,
+              "p95": 84712.223,
+              "total": 1293999.837
+            }
+          },
+          "mean_oracle_prefix_ndcg10": 0.875,
+          "metrics": {
+            "lexical": {
+              "mrr@10": {
+                "ci95": [
+                  0.50625,
+                  0.890781
+                ],
+                "mean": 0.709375
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.570751,
+                  0.914433
+                ],
+                "mean": 0.74885
+              },
+              "precision@10": {
+                "ci95": [
+                  0.06875,
+                  0.1
+                ],
+                "mean": 0.0875
+              },
+              "recall@10": {
+                "ci95": [
+                  0.6875,
+                  1.0
+                ],
+                "mean": 0.875
+              },
+              "recall@50": {
+                "ci95": [
+                  0.8125,
+                  1.0
+                ],
+                "mean": 0.9375
+              },
+              "success@10": {
+                "ci95": [
+                  0.6875,
+                  1.0
+                ],
+                "mean": 0.875
+              }
+            },
+            "llm": {
+              "mrr@10": {
+                "ci95": [
+                  0.578125,
+                  0.9375
+                ],
+                "mean": 0.765625
+              },
+              "ndcg@10": {
+                "ci95": [
+                  0.62215,
+                  0.94135
+                ],
+                "mean": 0.793284
+              },
+              "precision@10": {
+                "ci95": [
+                  0.06875,
+                  0.1
+                ],
+                "mean": 0.0875
+              },
+              "recall@10": {
+                "ci95": [
+                  0.6875,
+                  1.0
+                ],
+                "mean": 0.875
+              },
+              "recall@50": {
+                "ci95": [
+                  0.8125,
+                  1.0
+                ],
+                "mean": 0.9375
+              },
+              "success@10": {
+                "ci95": [
+                  0.6875,
+                  1.0
+                ],
+                "mean": 0.875
+              }
+            }
+          },
+          "model_applied": 16,
+          "model_fallbacks": 0,
+          "ndcg10_wins_ties_losses": {
+            "losses": 0,
+            "ties": 14,
+            "wins": 2
+          },
+          "paired_ndcg10_delta": {
+            "ci95": [
+              0.0,
+              0.12445
+            ],
+            "mean": 0.044433
+          },
+          "queries": 16,
+          "warnings": {},
+          "worker_failures": 0
+        }
+      }
+    }
+  },
+  "source_revision": "1793f3a41ecb5555cf67ab0dd0f5ec4fec1ffb2b",
+  "started_at": "2026-10-18T11:07:57.036194+00:00",
+  "task": "ANV-024"
+}

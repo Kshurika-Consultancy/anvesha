@@ -4,12 +4,15 @@ Record material delivered changes with task IDs and verification references. Thi
 
 ## 2026-10-18
 
-- ANV-024 implementation/freeze: added experimental pointwise ordinal relevance
-  grading with stable lexical ties, whole-query fallback and a shared deadline;
-  saved configuration/fingerprint compatibility and sanitized contract diagnostics.
-  A fresh four-development/16-evaluation protocol compares both local contracts
-  with lexical control; real results are pending at this freeze. Offline tests
-  and process smokes pass. [Evidence](verification/2026-10-18-ranking-contracts.md).
+- ANV-024: added opt-in pointwise ordinal grading with lexical ties, whole-query
+  fallback, one shared deadline, saved-config compatibility and structural failure
+  diagnostics. Source/protocol 1793f3a preceded inference and passed all five source
+  CI jobs. All 40 runs over 4 development / 16 fresh evaluation queries are retained.
+  Evaluation nDCG@10 is 0.748850 lexical / 0.743299 listwise / 0.793284 pointwise;
+  paired intervals include zero, so relevance improvement is not established.
+  Pointwise has 16 valid rankings, listwise 13 plus three duplicate-ID fallbacks.
+  Default stays listwise. Added public provenance/resources, stopped owned model
+  tree, and offline CI report verification. [Evidence](verification/2026-10-18-ranking-contracts.md).
 
 - ANV-023 initial slice: clarified private search for user-controlled AI tools in
   the main title/descriptions and GitHub About. Added explicit pinned free CPU

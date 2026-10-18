@@ -30,7 +30,7 @@
     "https://github.com/diegosouzapw/OmniRoute",
     "https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE"
   ],
-  "candidate_aliases": "Short per-request aliases map back only to supplied result objects. They are not authorization or anonymization. Original public result IDs and source rights remain stable.",
+  "candidate_aliases": "Listwise sends short per-request aliases mapping back only to supplied result objects; pointwise sends no ID field. Aliases are not authorization or anonymization. Original public result IDs and source rights remain stable.",
   "output_format": "json_object remains the compatibility default. Optional json_schema bounds either the listwise permutation or one pointwise ordinal grade. Strict client validation still applies. No implicit format/provider fallback; accepted identity includes the format.",
   "strategy": "listwise remains the default for new and older saved settings. Optional pointwise sends one candidate without ID per sequential call, at most 20 under a single total deadline. Every grade is required; any failure discards all grades and retains lexical results. Grades remain internal ordinal signals. No automatic promotion or training.",
   "diagnostics": "Only closed-vocabulary structural llm_contract warnings accompany invalid_response; no raw model outputs, reasoning or private exception text."

@@ -11,13 +11,21 @@ calls share that deadline. Ties retain lexical order; one failure discards all
 grades. Both profiles' failures remain in paired metrics. No automatic default
 change follows from a small pilot or higher contract validity alone.
 
+The [completed report](../reports/evaluation/local-llm-contracts-v1/ANALYSIS.md)
+retains all 40 query/profile runs. Evaluation nDCG@10 is 0.748850 lexical,
+0.743299 listwise and 0.793284 pointwise. Pointwise has 16 applied / zero fallback;
+listwise has 13 applied / three duplicate-ID fallbacks. Neither paired relevance
+comparison establishes improvement: pointwise-minus-lexical 95% interval is
+[0.000000,+0.124450], and pointwise-minus-listwise is [-0.069250,+0.203888].
+The model is stopped; normal tests and public report verification need no weights.
+
 Use the same explicit pinned acquisition/server commands below. With that model
 server running, from a checkout:
 
 ```text
-uv run --extra dev python -m anvesha.ranking_experiment run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json
-uv run --extra dev python -m anvesha.ranking_experiment run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --release-evaluation --resume
-uv run --extra dev python -m anvesha.ranking_experiment verify
+uv run --extra dev python -m anvesha.ranking_experiment run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --workspace .anvesha/evaluation/local-llm-contracts-reproduction --output-dir .anvesha/evaluation/local-llm-contracts-reproduction/report
+uv run --extra dev python -m anvesha.ranking_experiment run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --workspace .anvesha/evaluation/local-llm-contracts-reproduction --output-dir .anvesha/evaluation/local-llm-contracts-reproduction/report --release-evaluation --resume
+uv run --extra dev python -m anvesha.ranking_experiment verify --output-dir .anvesha/evaluation/local-llm-contracts-reproduction/report
 ```
 
 The first command saves development only; the second explicitly releases
@@ -28,6 +36,8 @@ to verify. Metadata pins source/model/runtime/environment/hardware. Public repor
 retain benchmark IDs, metrics, bounded calls and sanitized warnings. No raw model
 outputs/reasoning, private queries or independent review data are recorded. Offline
 verification checks consistency, not proof of inference. No paid API is needed.
+Use `uv run --extra dev python -m anvesha.ranking_experiment verify` to check the
+published report offline without starting a model.
 
 ## ANV-023 initial pilot
 

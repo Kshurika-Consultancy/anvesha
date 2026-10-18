@@ -1,0 +1,57 @@
+{
+  "cleanup": {
+    "model_port_8135_closed": true,
+    "owned_model_process_tree_stopped": true,
+    "owned_pid_record_removed": true,
+    "test_services_stopped": true
+  },
+  "network_limits": "Sampled main-process listeners/connections only, not whole-tree packet capture or a firewall/anonymity attestation. Actual profile uses fixed verified files, loopback, offline mode and no tools/cloud routes.",
+  "network_observations": [
+    {
+      "listeners": [
+        "127.0.0.1"
+      ],
+      "main_process_nonloopback_established_count": 0,
+      "observed_at": "2026-10-18T11:13:59.2896455Z",
+      "phase": "development"
+    },
+    {
+      "listeners": [
+        "127.0.0.1"
+      ],
+      "main_process_nonloopback_established_count": 0,
+      "observed_at": "2026-10-18T11:38:00.6622736Z",
+      "phase": "evaluation_1"
+    },
+    {
+      "listeners": [
+        "127.0.0.1"
+      ],
+      "main_process_nonloopback_established_count": 0,
+      "observed_at": "2026-10-18T11:50:44.7160352Z",
+      "phase": "evaluation_2"
+    },
+    {
+      "listeners": [
+        "127.0.0.1"
+      ],
+      "main_process_nonloopback_established_count": 0,
+      "observed_at": "2026-10-18T12:11:59.9468522Z",
+      "phase": "end"
+    }
+  ],
+  "new_human_judgments": 0,
+  "query_profiles_complete": 40,
+  "records_sha256": "d26b7549ce10aaa3c9112fcc38df6628f688c7842300bcbb8abce17c5dfbf629",
+  "resources": {
+    "evaluation_window_cpu_seconds": 15380.641,
+    "evaluation_window_wall_seconds": 2931.32,
+    "main_server_lifetime_peak_working_set_bytes": 13190733824,
+    "scope": "Main model-server process only; runtime children, Python worker/indexer and OS excluded. Lifetime peak includes development. Shared PC; observations are not total memory, minimum hardware or energy estimates. Window includes fresh indexing and bookkeeping.",
+    "window_ended_at": "2026-10-18T12:11:59.9468522Z",
+    "window_started_at": "2026-10-18T11:23:08.6265865Z"
+  },
+  "retention": "Verified model/runtime and checkpoints remain ignored locally. No prompts, raw responses, hidden reasoning, private queries or human-review data published. No model download, paid API or hosted inference used in this run.",
+  "source_freeze": "1793f3a41ecb5555cf67ab0dd0f5ec4fec1ffb2b",
+  "task": "ANV-024"
+}
