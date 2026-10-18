@@ -4,7 +4,7 @@
 
 The user selected Anvesha, asked to save the researched plan in this repository, break it into milestones, create agent guidance, and begin an MVP with no mandatory paid APIs. The user subsequently created https://github.com/Kshurika-Consultancy/anvesha and explicitly authorized connecting this workspace, committing the plan/MVP, and pushing main (ANV-017).
 
-Current request, 2026-10-18: commit/push ANV-021 to main, then build ANV-022 browser/easy self-hosting and make LLM the default. ANV-021 was published as `83830bf4ace6df5702a5921f17ef3d37f991fa91`; local/remote equality and all four matrix jobs in Actions run 39109656383 were verified. ANV-022 is in progress with root ownership; ANV-023 owns actual backend/model quality. No delegation is active. Repository publication is authorized; no public service deployment is requested. ANV-020 independent review remains open and separate.
+Current request delivered, 2026-10-18: publish ANV-021, build ANV-022 browser/easy self-hosting and make LLM default. ANV-021 is on main as `83830bf4ace6df5702a5921f17ef3d37f991fa91`, with four CI jobs passed. ANV-022 is on main as `0193557c109939b032fafbc28eaddc60aac19d5b`, with all five jobs in Actions run 39111550834 passed, including real Docker installation/restart/private chat connectivity. Local/remote hashes matched after each push. A documentation follow-up records completion; check its own Actions run separately if assessing current HEAD. ANV-023 owns actual backend/model quality. No delegation or public service is active. ANV-020 independent review remains open and separate.
 
 ## Starting state
 
@@ -20,7 +20,7 @@ The repository was empty apart from `.git`, on an unborn `master` branch. No inh
 
 ## Implemented state
 
-ANV-022 local state: new API requests default to LLM; missing model configuration
+ANV-022 completed state: new API requests default to LLM; missing model configuration
 rejects before acceptance and explicit lexical still works offline. Existing
 accepted jobs/evaluation helper defaults remain lexical. Packaged browser assets
 at `/` cover authentication, submit/poll/cancel, stable pagination and feedback
@@ -33,7 +33,7 @@ See [ADR 0006](../decisions/0006-llm-default-and-self-hosted-browser.md) and
 suite, Ruff/tracking/diff checks and both process smokes pass. Browser checks,
 wheel/sdist inspection and isolated runtime-only installed-wheel native smoke
 also pass. All preview/smoke services are stopped and browser viewport restored.
-Linux Docker CI remains to finish; ANV-022 is not yet done. Never serve the separate
+Linux Docker CI and all four matrix jobs passed. Never serve the separate
 private review form or treat synthetic operational feedback as human assessment.
 
 ANV-021 is published and verified for its scoped preview: bounded Ollama/OmniRoute chat wire contract, strict candidate permutations, total deadlines, lease/cancellation checks and visible lexical fallback. Heartbeat I/O does not block the async deadline. The additive ranking column retains old jobs/snapshots/feedback. Accepted fingerprints bind configured identifiers/prompt/bounds, not verified weights or routes. Its original opt-in default is superseded by ANV-022/ADR 0006. Historic ANV-021 checks: 240 tests, Ruff/tracking, development/installed-wheel process smoke and both full fresh lexical benchmark repeats with unchanged fingerprints. See [evidence](verification/2026-10-18-private-research.md). Coaching guidance/private practice records remain intact.
@@ -76,7 +76,7 @@ The source defaults to local, but the HTTP ranking default is now LLM and needs 
 
 ## Next work and known limits
 
-Finish ANV-022 with browser/installed-wheel verification, final checks and actual Linux container CI, then continue ANV-023 actual backend/model tests and independent gains. Docker is unavailable here; no actual Ollama or OmniRoute instance was exercised. Broader source coverage needs ANV-009/ANV-011. A local gateway does not establish local inference. The browser is self-hosted and CDN-backed interactive docs are now disabled. ANV-021/ANV-022 do not complete M2/M3 overall quality gates.
+Next is ANV-023 actual backend/model tests and independently measured gains. ANV-022's actual Linux container CI passed despite Docker being unavailable locally; no real Ollama/OmniRoute or model weights were exercised. Broader source coverage needs ANV-009/ANV-011. A local gateway does not establish local inference. The browser is self-hosted; CDN-backed docs are disabled. ANV-021/ANV-022 do not complete M2/M3 overall quality gates. Refresh pinned image digests and action versions during ANV-014 release maintenance.
 
 1. Continue ANV-020 with native-speaker review, real consenting independent assessments, adjudication/agreement, permitted external baselines, more representative current-web/locale inputs and a legacy SciFact pool adapter. The existing pilot is ready for private enrollment and packet distribution by an authorized operator. Existing SciFact/XQuAD annotations are not new Anvesha human judgments. Retain source baselines and do not tune on holdout data.
 2. ANV-008: quotas, automated retention, source-wide rate limits, strict total upstream deadlines, operational monitoring and key/tenant decisions. Current HTTP inactivity limits do not provide a strict deadline for trickling headers. Keep the deployment local.

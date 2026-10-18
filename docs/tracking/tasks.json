@@ -478,7 +478,7 @@
       ],
       "verification": [],
       "references": [],
-      "notes": "Initial source publication is separately authorized and tracked under ANV-017. Service deployment and the M6 public pilot remain planned. Establish a private vulnerability disclosure contact and complete name/package/domain clearance before the public service release."
+      "notes": "Initial source publication is separately authorized and tracked under ANV-017. Service deployment and the M6 public pilot remain planned. Establish a private vulnerability disclosure contact and complete name/package/domain clearance before public service release. Release maintenance must review action runtime deprecations and refresh/review the pinned Python, uv and optional model-runtime image digests introduced in ANV-022; a pinned digest is not a security-update policy."
     },
     {
       "id": "ANV-015",
@@ -845,7 +845,7 @@
       "id": "ANV-022",
       "milestone": "M3",
       "title": "Container deployment and accessible research clients",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": ["ANV-021"],
       "acceptance": [
@@ -866,6 +866,21 @@
           "command": "uv run --extra dev python scripts/smoke_mvp.py; uv run --extra dev python scripts/smoke_selfhost.py",
           "result": "Both passed with synthetic offline model transport, LLM default, private configuration, separate API/worker supervision, persistent results and complete owned-process cleanup",
           "date": "2026-10-18"
+        },
+        {
+          "command": "Ruff lint/format, tracking, git diff --check, uv build; locked offline runtime-only wheel install and scripts/smoke_selfhost.py",
+          "result": "All passed. Wheel includes all three browser assets; wheel/sdist exclude private configuration/workspaces. Installed package resolves under site-packages and real processes restart/clean up successfully. Final full-suite repeat: 252 passed in 32.18 seconds.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "Real-browser synthetic workflow with desktop/mobile visual checks",
+          "result": "Verified default LLM selection, successful reordered results, invalid/HTTP-error fallback, cancellation, stable pagination, snapshot feedback with learning off, untrusted text, reload/disconnect clearing, labelled controls and no mobile overflow. No console warnings/errors; viewport reset and all preview services stopped. No independent judgments created.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "git push origin main; compare local/remote hashes; inspect Actions run 39111550834 and container job log",
+          "result": "Implementation 0193557c109939b032fafbc28eaddc60aac19d5b published with matching remote hash. All five jobs passed: Windows/Linux Python 3.12/3.14 plus actual Docker build/non-root/private chat fixture/restart/fallback/scoped cleanup. Offline archived report checks retain both ranking fingerprints and zero new human judgments.",
+          "date": "2026-10-18"
         }
       ],
       "references": [
@@ -882,9 +897,12 @@
         "scripts/container_model_fixture.py",
         "Dockerfile",
         "compose.yaml",
-        ".dockerignore"
+        ".dockerignore",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        ".github/workflows/ci.yml"
       ],
-      "notes": "User authorized publishing ANV-021, then starting ANV-022 and making LLM processing the default. ANV-021 was published as 83830bf4ace6df5702a5921f17ef3d37f991fa91; local/remote main equality verified. Root owns UI/runtime/config/container/tests/docs. Docker is unavailable locally; container behavior must be verified through Linux CI before claiming acceptance. Browser fixtures must remain separate from independent human-review labels."
+      "notes": "User-directed browser/self-hosting slice completed and published with actual Linux container CI despite Docker being unavailable locally. New API/browser requests default to LLM, while explicit lexical, historical jobs and evaluation helpers preserve free offline behavior. Default-mode upgrade/processing effects are documented. No mandatory paid API, auto-downloaded model, actual model/gateway claim or public deployment. Runtime/model quality stays ANV-023, hosted hardening ANV-008 and release image/action maintenance ANV-014. Synthetic browser feedback is separate from independent ANV-020 labels. Root ownership is released at this handoff."
     },
     {
       "id": "ANV-023",

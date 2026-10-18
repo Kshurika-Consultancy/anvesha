@@ -68,6 +68,8 @@ Run narrower tests during development, then the standard checks before completin
 
 For API, job lifecycle, worker, configuration, or packaging changes also run `uv run --extra dev python scripts/smoke_mvp.py`; it exercises real local processes, restart persistence, and HTTP behavior without network providers. Do not leave smoke-test servers running.
 
+For saved configuration, native supervision or browser packaging changes, also run `uv run --extra dev python scripts/smoke_selfhost.py`. For Docker/Compose changes, verify `scripts/smoke_container.py` with Docker Compose v2 locally or in Linux CI; a YAML review does not prove container acceptance. Browser changes need focused real-browser checks using synthetic data, separate from independent review workspaces. Reset temporary viewports and stop all owned preview services. These ANV-022 checks use no paid API or real model weights.
+
 A task is done only when its acceptance criteria are met, relevant tests and checks pass, docs reflect actual behavior, all known follow-ups are in the ledger, and the handoff contains enough evidence for another agent to continue. No workflow can guarantee perfect context; these checks reduce gaps and make remaining uncertainty visible.
 
 Do not publish a repository, deploy publicly, send messages, or promise production readiness as a side effect of local development. Follow the user's explicit scope and authorization.
