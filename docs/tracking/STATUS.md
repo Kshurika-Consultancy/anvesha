@@ -1,5 +1,17 @@
 # Anvesha development status
 
+ANV-025's scoped safeguards are implemented and verified locally (2026-10-18):
+query-scoped coaching/exposure exclusions, blinded replacement assignments, explicit
+legacy migration and current-export verification. Final full suite: 363 passed
+(38 new synthetic cases), plus Ruff/tracking, both process smokes, five report
+verifiers and runtime-only installed-wheel CLI acceptance. Commit/push verification
+is next. Actual private pilot, forms, keys and labels are untouched; ANV-020's human
+study remains open. See
+[ADR 0011](../decisions/0011-independent-review-exposure-and-replacement.md) and
+[evidence/workflow](verification/2026-10-18-review-integrity.md). No paid API, model
+call or new human judgment. No owned services; ignored synthetic package-check
+scratch remains after policy-blocked cleanup, separately recorded in the evidence.
+
 ANV-024's scoped CPU comparison is done and published (2026-10-18). Source freeze
 1793f3a and results 8db584e are on main; all five jobs passed for both, including
 the new offline verifier and actual container acceptance in [result CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39126844802).

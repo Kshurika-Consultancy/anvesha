@@ -50,6 +50,7 @@ Anvesha is Kshurika Consultancy's private, asynchronous, open-source search engi
 - Use fixed approved endpoints for the initial live connector. Arbitrary web fetching requires SSRF-safe DNS/redirect handling, parser isolation, size/time limits, and a rights review under a tracked task.
 - Fetched content is untrusted. Rankers and extractors must not have privileged tools or secrets. Validate model outputs, identifiers, and all client input.
 - Feedback is a signal, not truth. Store it against an authenticated client, result snapshot, and pipeline version. No automatic production retraining or site blocking from a vote.
+- Test independent-review workflows only in explicitly synthetic workspaces. Follow [the review guide](docs/review/README.md) for actual studies: declare coached/exposed reviewer-query exclusions, preserve required review slots, obtain blinded eligible replacements, and verify current exports. Never import practice as independent judgment or migrate/change the real pilot as a testing side effect.
 - Separate operational data from opt-in learning data. Honor documented retention/deletion and do not publish raw user queries or feedback. Do not describe hashes as anonymization.
 - Independently written code is Apache-2.0. Keep third-party notices and model/data licenses separate. Do not copy AGPL code into the Apache core. Review integration boundaries rather than assuming separate processes eliminate obligations.
 

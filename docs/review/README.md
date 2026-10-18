@@ -1,6 +1,6 @@
 # Independent human review workflow
 
-Task ANV-020, [ADR 0004](../decisions/0004-multilingual-corpus-and-human-review.md). The code and expanded corpus are an implementation slice. Real independent assessments, adjudication and permitted external comparisons remain open acceptance criteria. **New human judgments at delivery: zero.** Synthetic tests are labelled as such and never counted as human evidence.
+Task ANV-020, [ADR 0004](../decisions/0004-multilingual-corpus-and-human-review.md), with ANV-025 exposure safeguards in [ADR 0011](../decisions/0011-independent-review-exposure-and-replacement.md). The code and expanded corpus are an implementation slice. Real independent assessments, adjudication and permitted external comparisons remain open acceptance criteria. **New human judgments at delivery: zero.** Synthetic tests are labelled as such and never counted as human evidence.
 
 ## Operator boundary and enrollment
 
@@ -29,7 +29,7 @@ Default sessions include development only. Reviewing holdout requires both `--sp
 
 ## Assess and import
 
-Keep calibration outside independent assessment. Use practice queries that are absent from the assigned study query set, and never import an assistant's suggested grade or rationale as a person's independent judgment. If an assigned item is coached, privately record the affected session, reviewer and item, leave that row unjudged, and obtain an unexposed assessor's judgment through a fresh study assignment before counting it as independent. Do not use abstention to hide coaching. The current CLI does **not** enforce coaching exclusions or support reassignment; an operator note is not an import guard. Keep the affected session incomplete until a reviewed replacement workflow is available under ANV-020. Do not delete assignments or edit signed packets to force completion.
+Keep calibration outside independent assessment. Use practice queries absent from the assigned study query set, and never import an assistant's suggested grade or rationale as a person's independent judgment. If an assigned item is coached, record the exclusion using the workflow below before further imports. It covers **every candidate for that query and reviewer**; understanding gained in coaching can influence other candidates. Do not use abstention to hide coaching. Obtain an unexposed assessor's judgment through a recorded replacement assignment. Never delete assignments or edit signed packets to force completion.
 
 An assessor opens their `packets/<pseudonym>/review.html` locally in a browser. The form renders passages as text, makes no network requests and includes no credentials or hidden system/gold labels. Read the rubric and original query, grade each record **1** or **0**, or explicitly **abstain**. Every submitted entry needs a rationale; abstentions also need a reason. Unfinished rows remain unjudged. The form requires a personal-assessment checkbox before downloading responses.
 
@@ -48,6 +48,87 @@ The response download normally goes to the browser's Downloads directory. Move/c
 
 Imports validate the personal-attestation flag, reviewer credential, session/role, signed immutable payload, assignment, binary grade types, explanations and revisions. One invalid row rolls back the whole import. Repeating identical submissions is idempotent for labels; import receipts preserve packet hashes and attestation. Changes to existing labels require a fresh packet and explicit `--revise`. Revisions remain in the database. Stale edits fail, and changing an assessment invalidates any adjudication tied to its older versions.
 
+## Coached practice, exposure and replacement
+
+Workspace schema v2 adds permanent exclusions, replacement events and enrollment
+attestations. New sessions use it automatically. Existing v1 sessions require an
+**explicit migration**; ordinary reads/imports refuse to silently upgrade them.
+With other review commands stopped, keep a private backup of the entire workspace,
+then run the following against your intended study directory. The examples use
+placeholder pseudonyms and query IDs; retrieve the query ID from that assessor's
+packet, not a form item number.
+
+```text
+uv run --extra dev python -m anvesha.review migrate --workspace .anvesha/reviews/my-study
+uv run --extra dev python -m anvesha.review exclude --workspace .anvesha/reviews/my-study --reviewer reviewer-a --query-id query-id-from-packet --reason coaching
+uv run --extra dev python -m anvesha.review status --workspace .anvesha/reviews/my-study
+uv run --extra dev python -m anvesha.review audit --workspace .anvesha/reviews/my-study
+```
+
+Migration is transactional and repeatable. It preserves session/signing keys,
+credentials, original assignments, all revisions and existing packet signatures.
+It does **not** interpret private operator notes or invent exclusions. The real
+pilot's previously coached items still require migration and explicit recording;
+ANV-025's implementation/testing did not read, migrate or change that pilot.
+
+Exclusion reasons are `coaching`, `label_exposure`, or `conflict_of_interest`.
+Exclusions apply to the reviewer/query throughout this session, including future
+assignments. Repeating an identical exclusion is harmless; changing or clearing it
+is refused. Known exposure can be recorded before someone receives an assignment.
+An exclusion cannot be undone by `--revise` or abstaining. Existing affected labels
+remain in audit history but are quarantined from current agreement, human-judgment
+counts, adjudication and qrels. They leave required slots pending. An old packet
+with a completed excluded/replaced row is rejected atomically, including identical
+replays. Export a fresh packet to continue unaffected work; blank unfinished rows
+in an old signed packet do not count as submissions.
+
+Privately enroll a new, distinct consenting assessor and verify language competence,
+conflicts and absence of coaching or exposure to other reviewers' labels. Use a
+stable pseudonym for the person; creating a new pseudonym for an exposed person
+does not establish independence. `--independence-attested` records the operator's
+verification, not software proof of it. Pseudonyms must also be distinct ignoring
+case, to avoid shared packet directories on Windows. Then explicitly replace the excluded slots:
+
+```text
+uv run --extra dev python -m anvesha.review enroll --workspace .anvesha/reviews/my-study --reviewer reviewer-c --independence-attested
+uv run --extra dev python -m anvesha.review replace --workspace .anvesha/reviews/my-study --reviewer reviewer-a --replacement reviewer-c --query-id query-id-from-packet --independence-attested
+uv run --extra dev python -m anvesha.review export --workspace .anvesha/reviews/my-study --reviewer reviewer-c
+```
+
+Enrollment writes a new private `credentials/reviewer-c.json` without printing its
+token or changing `credentials.json`. Supply only that person's token and new
+`packets/reviewer-c` files. Load the token for imports using the same environment
+pattern above, substituting the new credential file and pseudonym. Existing
+credential files are never overwritten. If a process crashes between writing a
+credential and committing enrollment, an orphan file can remain; inspect the
+private backup/database before recovery, and do not overwrite it blindly.
+
+Replacement moves every active excluded slot for that query in one transaction.
+It preserves the original assignment rows and the original number of required
+assessments. It refuses the adjudicator, an excluded recipient, or someone who has
+already held an assignment on the same pair. Each replacement requires explicit
+operator attestation, including when using an existing eligible reviewer. New
+packets contain neither earlier reviewers' labels nor exposure history. Keep
+`audit` output and the entire workspace private. Nothing sends invitations or
+submissions automatically. If a replacement later becomes exposed, exclude that
+person/query and replace again; history is retained and cycles are refused.
+
+Status separates eligible `latest_submissions` from `retained_latest_submissions`
+and reports query exclusions, quarantined submissions and replacement assignments.
+`integrity.replacement_pending` counts active excluded slots still needing an
+eligible assignee. Once reassigned it becomes zero, while ordinary `pending` work
+remains until that person supplies actual judgments. Single/double-review coverage
+denominators are preserved. Old adjudications become stale when the underlying
+reviewer/revision map changes; the separate adjudicator must reassess unresolved
+pairs against current reviews. Reusing an old adjudication is refused.
+
+The guard knows only declared pseudonym/query exposure in this workspace. The
+operator must handle aliases, related queries, other sessions and undisclosed
+exposure. It does not establish real identity, consent, language competence or
+statistical representativeness. Use practice material outside the study whenever
+possible. This is a trusted operator tool, not protection against an operator who
+edits SQLite or distributes other people's packets.
+
 ## Agreement, adjudication and export
 
 `status` reports graded/abstained/pending assignments and resolved pairs separately. Agreement uses only independently double-graded, nonabstained pairs. It reports raw agreement and Cohen's kappa **per reviewer pair**; it does not pool kappa across different people. Kappa is null when marginal label variation makes it undefined. Small samples are descriptive and do not establish reliable population agreement.
@@ -64,7 +145,25 @@ Import that person's responses with their own credential. They must resolve to 0
 uv run --extra dev python -m anvesha.review finalize
 ```
 
-Default finalization refuses pending or unresolved work. Explicit `--allow-partial` can export progress, marked partial with full coverage denominators. Exports stay inside the private workspace in immutable revision-fingerprint directories, preserving old snapshots. They contain qrels and a coverage/provenance receipt. Single-reviewed, agreed and adjudicated counts remain separate. A fully reviewed pilot is not the entire corpus or web; empty-result queries are retained as coverage gaps. No quality metric, training, site blocking, feedback update or public publication follows automatically. Further review and release consent are required before any private labels could be added to a public benchmark.
+Default finalization refuses pending or unresolved work. Explicit `--allow-partial` can export progress, marked partial with full coverage denominators. Exports stay inside the private workspace in immutable revision-fingerprint directories, preserving old snapshots. They contain qrels, a coverage/provenance receipt and private pseudonymous `integrity.json` events. Coverage, eligible labels and audit state come from one database snapshot. Fingerprints include label/decision revisions, import receipts and integrity state, so even an unchanged-label replay gets a fresh receipt snapshot. Single-reviewed, agreed and adjudicated counts remain separate.
+
+Before using an export, verify that it still matches the current workspace. Use
+the directory printed by `finalize`:
+
+```text
+uv run --extra dev python -m anvesha.review verify-export --workspace .anvesha/reviews/my-study --export-directory .anvesha/reviews/my-study/export/fingerprint-from-finalize
+```
+
+Verification is offline and rejects edited files or a stale state, including a
+later exclusion/replacement, revision, enrollment or new import receipt. It reports
+`partial` explicitly; a verified partial export remains incomplete. Finalize again
+for a current snapshot. Earlier exports are historical audit artifacts and must
+not be counted as current independent evidence after their labels were excluded.
+Copies outside this workspace are not automatically recalled or invalidated by
+other tools; the operator must replace derived evaluations. Legacy exports remain
+untouched and need fresh finalization under v2 before this verifier accepts them.
+
+A fully reviewed pilot is not the entire corpus or web; empty-result queries are retained as coverage gaps. No quality metric, training, site blocking, feedback update or public publication follows automatically. Further review and release consent are required before any private labels could be added to a public benchmark.
 
 ## Reproducibility and remaining study work
 

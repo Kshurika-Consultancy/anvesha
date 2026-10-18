@@ -119,6 +119,15 @@ ANV-019 starts this discipline with a pinned, published SciFact slice: 500 queri
 
 ANV-020 adds a separate multilingual snapshot and trusted local assessment workspace under [ADR 0004](../decisions/0004-multilingual-corpus-and-human-review.md). Frozen candidate/rubric metadata and separate credentials bind independent labels to review sessions. SQLite stores assignments, immutable label revisions, import receipts and version-bound adjudications. Assessment exports are immutable private snapshots with explicit coverage; they do not write to production feedback or trigger learning. Offline forms treat document text as untrusted and include no credentials. See [workflow boundaries](../review/README.md); actual assessor identity/consent/independence remains an operator responsibility.
 
+ANV-025 extends that workspace under [ADR 0011](../decisions/0011-independent-review-exposure-and-replacement.md).
+Explicit v1-to-v2 migration adds query-scoped permanent exposure exclusions,
+replacement events and enrollment attestations while preserving signed packets and
+original assignments. Current eligibility filters quarantine affected labels;
+replacement slots retain the original review count. Replacement packets stay blind,
+and old adjudications fail when the reviewer/revision map changes. Coverage, qrels
+and private audit events share one read snapshot; verification rejects obsolete
+exports. No production job, ranking, feedback or actual human judgment is changed.
+
 Adding a connector requires a tracked task, rights manifest, fixed/validated destinations, bounded work, deterministic fixtures, honest evidence labels, and source-failure tests. Adding a model requires exact artefact licensing, an optional installation path, model-output validation, adversarial evaluation, and measured gain. Changing persistence requires a migration/recovery plan and tests that preserve ownership, idempotency, snapshot, feedback, cancellation, and deletion behavior.
 
 ANV-021 adds bounded local-corpus reranking under [ADR 0005](../decisions/0005-private-research-and-optional-llm.md). ANV-022 changes new API/browser requests to default LLM ranking under [ADR 0006](../decisions/0006-llm-default-and-self-hosted-browser.md); explicit lexical mode remains free and offline. Missing model configuration rejects before acceptance. Durable jobs retain ranking mode and an accepted configuration fingerprint. A tool-free client may reorder only supplied IDs, retaining text, rights and lexical scores. Heartbeats/cancellation cover the strict-deadline wait; invalid responses/outages/configuration drift produce visible lexical fallback. Actual model/backend quality remains ANV-023. A local gateway does not establish local downstream inference.

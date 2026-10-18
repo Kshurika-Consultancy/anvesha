@@ -18,6 +18,7 @@ from contextlib import contextmanager
 from datetime import UTC, datetime
 from pathlib import Path
 
+from anvesha import review_integrity as integrity
 from anvesha.eval_data import digest, json_bytes
 
 DEFAULT_WORKSPACE = Path(".anvesha/reviews/xquad-intents-v1")
@@ -57,7 +58,7 @@ def _id(value):
 
 
 @contextmanager
-def connect(workspace):
+def connect(workspace, *, allow_legacy=False):
     path = workspace / "review.db"
     if not path.is_file():
         raise ValueError("Review workspace does not exist; initialize it first")
@@ -65,6 +66,11 @@ def connect(workspace):
     db.row_factory = sqlite3.Row
     try:
         with db:
+            version = _meta(db).get("schema_version")
+            if type(version) is not int or version not in ({1, 2} if allow_legacy else {2}):
+                if type(version) is int and version == 1:
+                    raise ValueError("Legacy workspace: run explicit review migrate first")
+                raise ValueError("Unsupported review workspace schema version")
             yield db
     finally:
         db.close()
@@ -72,6 +78,60 @@ def connect(workspace):
 
 def _meta(db):
     return {row["key"]: json.loads(row["value"]) for row in db.execute("SELECT * FROM meta")}
+
+
+def migrate_workspace(workspace):
+    """ANV-025: explicitly migrate, preserving signed packet and assessment history."""
+    with connect(workspace, allow_legacy=True) as db:
+        db.execute("BEGIN IMMEDIATE")
+        version = _meta(db)["schema_version"]
+        if version == 1:
+            for statement in integrity.SCHEMA:
+                db.execute(statement)
+            db.execute("UPDATE meta SET value='2' WHERE key='schema_version'")
+        return {"schema_version": integrity.VERSION, "migrated": version == 1}
+
+
+def exclude_query(workspace, reviewer, query_id, reason):
+    with connect(workspace) as db:
+        db.execute("BEGIN IMMEDIATE")
+        return integrity.exclude(db, _id(reviewer), _id(query_id), reason)
+
+
+def enroll_reviewer(workspace, reviewer, *, independence_attested=False):
+    reviewer = _id(reviewer)
+    path = workspace / "credentials" / f"{reviewer}.json"
+    created = False
+    try:
+        with connect(workspace) as db:
+            db.execute("BEGIN IMMEDIATE")
+            token = integrity.enroll(db, reviewer, independence_attested)
+            path.parent.mkdir(exist_ok=True)
+            with path.open("xb") as handle:
+                created = True
+                path.chmod(0o600)
+                handle.write(json_bytes({reviewer: token}))
+                handle.flush()
+                os.fsync(handle.fileno())
+    except BaseException:
+        if created:
+            path.unlink(missing_ok=True)
+        raise
+    return {"reviewer": reviewer, "credential_file": str(path)}
+
+
+def replace_assignments(workspace, reviewer, replacement, query_id, *, independence_attested=False):
+    with connect(workspace) as db:
+        db.execute("BEGIN IMMEDIATE")
+        return integrity.replace(
+            db, _id(reviewer), _id(replacement), _id(query_id), independence_attested
+        )
+
+
+def audit_history(workspace):
+    with connect(workspace) as db:
+        db.execute("BEGIN")
+        return integrity.audit(db)
 
 
 def initialize(
@@ -95,6 +155,8 @@ def initialize(
         _id(value)
     if adjudicator in reviewers:
         raise ValueError("Adjudicator must be separate from all initial reviewers")
+    if len({r.casefold() for r in [*reviewers, adjudicator]}) != len(reviewers) + 1:
+        raise ValueError("Reviewer pseudonyms must also be distinct ignoring case")
     if not 0 < double_fraction <= 1 or split not in {"development", "holdout", "all"}:
         raise ValueError("Invalid review fraction or split")
     if split != "development" and not release_holdout:
@@ -169,7 +231,7 @@ def initialize(
                 assignments.append((pid, reviewers[(index + 1) % len(reviewers)]))
     keys = {reviewer: secrets.token_urlsafe(32) for reviewer in [*reviewers, adjudicator]}
     metadata = {
-        "schema_version": 1,
+        "schema_version": integrity.VERSION,
         "session": secrets.token_hex(16),
         "signing_key": secrets.token_hex(32),
         "dataset": pool["dataset"],
@@ -193,6 +255,8 @@ def initialize(
     try:
         db.executescript(SCHEMA)
         with db:
+            for statement in integrity.SCHEMA:
+                db.execute(statement)
             db.executemany(
                 "INSERT INTO meta VALUES (?, ?)", [(k, json.dumps(v)) for k, v in metadata.items()]
             )
@@ -224,13 +288,6 @@ def _latest(db):
     for row in db.execute("SELECT * FROM decisions ORDER BY revision"):
         decisions[row["pair_id"]] = dict(row)
     return labels, decisions
-
-
-def _assignments(db):
-    result = defaultdict(list)
-    for row in db.execute("SELECT * FROM assignments ORDER BY pair_id, reviewer"):
-        result[row["pair_id"]].append(row["reviewer"])
-    return result
 
 
 def _versions(pid, assigned, labels):
@@ -294,17 +351,20 @@ def _signature(metadata, packet):
 
 def export_packet(workspace, reviewer):
     with connect(workspace) as db:
+        db.execute("BEGIN")
         who = db.execute("SELECT * FROM reviewers WHERE id=?", (reviewer,)).fetchone()
         if who is None:
             raise ValueError("Unknown reviewer")
         metadata = _meta(db)
         labels, decisions = _latest(db)
-        assigned = _assignments(db)
+        state = integrity.assignment_state(db)
+        labels = integrity.eligible_labels(state, labels)
+        assigned = state.active
         items = []
         for pair in db.execute("SELECT * FROM pairs ORDER BY id"):
             pid = pair["id"]
             if who["role"] == "reviewer":
-                if reviewer not in assigned[pid]:
+                if reviewer not in assigned[pid] or (pid, reviewer) in state.blocked:
                     continue
                 previous = labels.get((pid, reviewer))
             else:
@@ -368,7 +428,9 @@ def import_packet(workspace, packet, token, *, allow_revisions=False):
         if not hmac.compare_digest(packet.get("signature", ""), _signature(metadata, packet)):
             raise ValueError("Packet contents or assignments changed")
         labels, decisions = _latest(db)
-        assignments = _assignments(db)
+        state = integrity.assignment_state(db)
+        labels = integrity.eligible_labels(state, labels)
+        assignments = state.active
         seen, accepted, unchanged = set(), 0, 0
         for item in packet["items"]:
             pid = item["pair_id"]
@@ -378,6 +440,10 @@ def import_packet(workspace, packet, token, *, allow_revisions=False):
             grade, rationale, abstain = item["grade"], item["rationale"], item["abstain_reason"]
             if grade is None and not abstain and not rationale:
                 continue  # Unfinished rows never become negative judgments.
+            if who["role"] == "reviewer" and (
+                reviewer not in assignments[pid] or (pid, reviewer) in state.blocked
+            ):
+                raise ValueError("Excluded or replaced assignment; export a fresh packet")
             if grade is not None and (type(grade) is not int or grade not in (0, 1)):
                 raise ValueError("Grade must be integer 0/1 or an explicit abstention")
             if not isinstance(rationale, str) or not 1 <= len(rationale.strip()) <= 4000:
@@ -394,8 +460,6 @@ def import_packet(workspace, packet, token, *, allow_revisions=False):
             elif abstain is not None:
                 raise ValueError("A graded judgment cannot also abstain")
             if who["role"] == "reviewer":
-                if reviewer not in assignments[pid]:
-                    raise ValueError("Pair not assigned to this reviewer")
                 previous = labels.get((pid, reviewer))
             else:
                 versions = {r["reviewer"]: r["revision"] for r in item["review_labels"]}
@@ -487,89 +551,98 @@ def _agreement(assignments, labels):
 
 def status(workspace):
     with connect(workspace) as db:
-        metadata = _meta(db)
-        assigned = _assignments(db)
-        labels, decisions = _latest(db)
-        counts = defaultdict(int)
-        for pid, reviewers in assigned.items():
-            counts[_resolution(pid, reviewers, labels, decisions)[1]] += 1
-        by_reviewer = {}
-        for reviewer in sorted({r for rs in assigned.values() for r in rs}):
-            ids = [pid for pid, rs in assigned.items() if reviewer in rs]
-            completed = [labels[pid, reviewer] for pid in ids if (pid, reviewer) in labels]
-            by_reviewer[reviewer] = {
-                "assigned": len(ids),
-                "submitted": len(completed),
-                "abstained": sum(r["grade"] is None for r in completed),
-                "pending": len(ids) - len(completed),
-            }
-        return {
-            "session": metadata["session"],
-            "dataset": metadata["dataset"],
-            "pool_sha256": metadata["pool_sha256"],
-            "snapshot_sha256": metadata["snapshot_sha256"],
-            "rubric_id": metadata["rubric"]["id"],
-            "split": metadata["split"],
-            "assessment_origin": metadata["assessment_origin"],
-            "pairs": len(assigned),
-            "eligible_pool_pairs": metadata["eligible_pairs"],
-            "languages": metadata["languages"],
-            "queries_with_pairs": db.execute(
-                "SELECT COUNT(DISTINCT json_extract(query_json, '$.id')) FROM pairs"
-            ).fetchone()[0],
-            "pool_queries": metadata["pool_queries"],
-            "pool_empty_queries": metadata["pool_empty_queries"],
-            "double_assigned_pairs": sum(len(rs) == 2 for rs in assigned.values()),
-            "latest_submissions": len(labels),
-            "new_human_judgments": sum(row["grade"] is not None for row in labels.values())
-            if metadata["assessment_origin"] == "human_attested"
-            else 0,
-            "revisions_retained": db.execute("SELECT COUNT(*) FROM labels").fetchone()[0],
-            "import_receipts": db.execute("SELECT COUNT(*) FROM imports").fetchone()[0],
-            "resolution": {
-                key: counts[key]
-                for key in (
-                    "pending",
-                    "needs_adjudication",
-                    "single_review",
-                    "agreement",
-                    "adjudicated",
-                )
-            },
-            "reviewers": by_reviewer,
-            "pairwise_agreement": _agreement(assigned, labels),
+        db.execute("BEGIN")
+        return _status(db)
+
+
+def _status(db):
+    metadata = _meta(db)
+    state = integrity.assignment_state(db)
+    assigned = state.active
+    raw_labels, decisions = _latest(db)
+    labels = integrity.eligible_labels(state, raw_labels)
+    counts = defaultdict(int)
+    for pid, reviewers in assigned.items():
+        counts[_resolution(pid, reviewers, labels, decisions)[1]] += 1
+    by_reviewer = {}
+    for row in db.execute("SELECT id FROM reviewers WHERE role='reviewer' ORDER BY id"):
+        reviewer = row["id"]
+        ids = [pid for pid, rs in assigned.items() if reviewer in rs]
+        completed = [labels[pid, reviewer] for pid in ids if (pid, reviewer) in labels]
+        by_reviewer[reviewer] = {
+            "assigned": len(ids),
+            "submitted": len(completed),
+            "abstained": sum(r["grade"] is None for r in completed),
+            "pending": len(ids) - len(completed),
+            "excluded_assignments": sum(
+                reviewer in rs and (reviewer, state.query_ids[pid]) in state.exclusions
+                for pid, rs in state.history.items()
+            ),
         }
+    events = integrity.audit(db)
+    return {
+        "session": metadata["session"],
+        "dataset": metadata["dataset"],
+        "pool_sha256": metadata["pool_sha256"],
+        "snapshot_sha256": metadata["snapshot_sha256"],
+        "rubric_id": metadata["rubric"]["id"],
+        "split": metadata["split"],
+        "assessment_origin": metadata["assessment_origin"],
+        "pairs": len(assigned),
+        "eligible_pool_pairs": metadata["eligible_pairs"],
+        "languages": metadata["languages"],
+        "queries_with_pairs": len(set(state.query_ids.values())),
+        "pool_queries": metadata["pool_queries"],
+        "pool_empty_queries": metadata["pool_empty_queries"],
+        "double_assigned_pairs": sum(len(rs) == 2 for rs in assigned.values()),
+        "latest_submissions": len(labels),
+        "retained_latest_submissions": len(raw_labels),
+        "new_human_judgments": sum(row["grade"] is not None for row in labels.values())
+        if metadata["assessment_origin"] == "human_attested"
+        else 0,
+        "revisions_retained": db.execute("SELECT COUNT(*) FROM labels").fetchone()[0],
+        "import_receipts": db.execute("SELECT COUNT(*) FROM imports").fetchone()[0],
+        "integrity": {
+            "schema_version": integrity.VERSION,
+            "query_exclusions": len(events["exclusions"]),
+            "replacement_assignments": len(events["replacements"]),
+            "replacement_pending": len(state.blocked),
+            "quarantined_latest_submissions": len(raw_labels) - len(labels),
+            "audit_sha256": digest(json_bytes(events)),
+        },
+        "resolution": {
+            key: counts[key]
+            for key in (
+                "pending",
+                "needs_adjudication",
+                "single_review",
+                "agreement",
+                "adjudicated",
+            )
+        },
+        "reviewers": by_reviewer,
+        "pairwise_agreement": _agreement(assigned, labels),
+    }
 
 
-def export_qrels(workspace, output, *, allow_partial=False):
-    if not output.resolve().is_relative_to(workspace.resolve()):
-        raise ValueError("Assessment exports must stay inside the private workspace")
-    progress = status(workspace)
-    if (
-        progress["resolution"]["pending"] or progress["resolution"]["needs_adjudication"]
-    ) and not allow_partial:
-        raise ValueError(
-            "Review is incomplete or unresolved; use explicit --allow-partial for progress only"
-        )
+def _snapshot(db):
+    """Coverage, labels and integrity state must come from the same read transaction."""
+    progress = _status(db)
     rows = []
-    with connect(workspace) as db:
-        labels, decisions = _latest(db)
-        assigned = _assignments(db)
-        for pair in db.execute("SELECT * FROM pairs ORDER BY id"):
-            grade, resolution = _resolution(pair["id"], assigned[pair["id"]], labels, decisions)
-            if grade is not None:
-                query, doc = json.loads(pair["query_json"]), json.loads(pair["document_json"])
-                rows.append((query["id"], doc["id"], grade))
-        metadata = _meta(db)
+    raw_labels, decisions = _latest(db)
+    state = integrity.assignment_state(db)
+    labels = integrity.eligible_labels(state, raw_labels)
+    for pair in db.execute("SELECT * FROM pairs ORDER BY id"):
+        grade, _ = _resolution(pair["id"], state.active[pair["id"]], labels, decisions)
+        if grade is not None:
+            query, doc = json.loads(pair["query_json"]), json.loads(pair["document_json"])
+            rows.append((query["id"], doc["id"], grade))
+    metadata = _meta(db)
     versions = {
-        "labels": sorted((pid, r, row["revision"]) for (pid, r), row in labels.items()),
+        "labels": sorted((pid, r, row["revision"]) for (pid, r), row in raw_labels.items()),
         "decisions": sorted((pid, row["revision"]) for pid, row in decisions.items()),
     }
-    fingerprint = digest(
-        json_bytes({"rows": rows, "versions": versions, "pool": progress["pool_sha256"]})
-    )
-    destination = output / fingerprint[:20]
-    destination.mkdir(parents=True, exist_ok=True)
+    fingerprint = digest(json_bytes({"rows": rows, "versions": versions, "coverage": progress}))
     text = "query_id\tdocument_id\trelevance\n" + "".join(f"{q}\t{d}\t{g}\n" for q, d, g in rows)
     result = {
         **progress,
@@ -580,11 +653,31 @@ def export_qrels(workspace, output, *, allow_partial=False):
         "qrels_sha256": digest(text.encode()),
         "rubric_sha256": digest(json_bytes(metadata["rubric"])),
         "revision_fingerprint": fingerprint,
-        "export_directory": str(destination),
         "training_authorized": False,
         "quality_metrics_calculated": False,
     }
-    for name, raw in {"qrels.tsv": text.encode(), "coverage.json": json_bytes(result)}.items():
+    return result, {"qrels.tsv": text.encode(), "integrity.json": json_bytes(integrity.audit(db))}
+
+
+def _private_output(workspace, output):
+    if not output.resolve().is_relative_to(workspace.resolve()):
+        raise ValueError("Assessment exports must stay inside the private workspace")
+
+
+def export_qrels(workspace, output, *, allow_partial=False):
+    _private_output(workspace, output)
+    with connect(workspace) as db:
+        db.execute("BEGIN")
+        result, files = _snapshot(db)
+    if result["partial"] and not allow_partial:
+        raise ValueError(
+            "Review is incomplete or unresolved; use explicit --allow-partial for progress only"
+        )
+    destination = output / result["revision_fingerprint"][:20]
+    destination.mkdir(parents=True, exist_ok=True)
+    result["export_directory"] = str(destination.resolve())
+    files["coverage.json"] = json_bytes(result)
+    for name, raw in files.items():
         path = destination / name
         if path.exists() and path.read_bytes() != raw:
             raise ValueError("Refusing to overwrite a frozen assessment export")
@@ -592,11 +685,46 @@ def export_qrels(workspace, output, *, allow_partial=False):
     return result
 
 
+def verify_export(workspace, directory):
+    _private_output(workspace, directory)
+    with connect(workspace) as db:
+        db.execute("BEGIN")
+        current, files = _snapshot(db)
+    recorded = read_object(directory / "coverage.json")
+    current["export_directory"] = str(directory.resolve())
+    if recorded != current:
+        raise ValueError("Export is stale or changed; finalize the current integrity state again")
+    for name, raw in files.items():
+        if (directory / name).read_bytes() != raw:
+            raise ValueError("Export contents do not match the current review snapshot")
+    return {
+        "verified_current": True,
+        "partial": current["partial"],
+        "revision_fingerprint": current["revision_fingerprint"],
+        "exported_pairs": current["exported_pairs"],
+    }
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description="Private local human-review workflow; no paid services"
     )
-    parser.add_argument("command", choices=("init", "export", "import", "status", "finalize"))
+    parser.add_argument(
+        "command",
+        choices=(
+            "init",
+            "export",
+            "import",
+            "status",
+            "finalize",
+            "migrate",
+            "exclude",
+            "enroll",
+            "replace",
+            "audit",
+            "verify-export",
+        ),
+    )
     parser.add_argument("--workspace", type=Path, default=DEFAULT_WORKSPACE)
     parser.add_argument(
         "--pool",
@@ -619,6 +747,15 @@ def main(argv=None):
     parser.add_argument("--packet", type=Path)
     parser.add_argument("--revise", action="store_true")
     parser.add_argument("--allow-partial", action="store_true")
+    parser.add_argument("--query-id", help="Frozen session query ID, not form item number")
+    parser.add_argument("--reason", choices=integrity.REASONS)
+    parser.add_argument("--replacement", help="Pseudonym of an eligible replacement reviewer")
+    parser.add_argument(
+        "--independence-attested",
+        action="store_true",
+        help="Operator verified a distinct, consenting, unexposed and qualified assessor",
+    )
+    parser.add_argument("--export-directory", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "init":
@@ -660,10 +797,32 @@ def main(argv=None):
             )
         elif args.command == "status":
             result = status(args.workspace)
-        else:
+        elif args.command == "finalize":
             result = export_qrels(
                 args.workspace, args.workspace / "export", allow_partial=args.allow_partial
             )
+        elif args.command == "migrate":
+            result = migrate_workspace(args.workspace)
+        elif args.command == "exclude":
+            result = exclude_query(args.workspace, args.reviewer, args.query_id, args.reason)
+        elif args.command == "enroll":
+            result = enroll_reviewer(
+                args.workspace, args.reviewer, independence_attested=args.independence_attested
+            )
+        elif args.command == "replace":
+            result = replace_assignments(
+                args.workspace,
+                args.reviewer,
+                args.replacement,
+                args.query_id,
+                independence_attested=args.independence_attested,
+            )
+        elif args.command == "audit":
+            result = audit_history(args.workspace)
+        else:
+            if args.export_directory is None:
+                raise ValueError("--export-directory is required")
+            result = verify_export(args.workspace, args.export_directory)
         print(json.dumps(result, ensure_ascii=True, indent=2))
         return 0
     except (OSError, ValueError, KeyError, TypeError, sqlite3.Error) as exc:

@@ -774,9 +774,11 @@
         "tests/test_review_acquisition.py",
         "tests/test_intent_evaluation.py",
         "reports/evaluation/xquad-intents-v1/summary.json",
-        "docs/tracking/verification/2026-10-16-human-review.md"
+        "docs/tracking/verification/2026-10-16-human-review.md",
+        "docs/decisions/0011-independent-review-exposure-and-replacement.md",
+        "docs/tracking/verification/2026-10-18-review-integrity.md"
       ],
-      "notes": "Corpus and human-workflow implementation committed/pushed and verified locally plus cross-platform CI. Task stays in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. On 2026-10-18, user-requested coaching of the first three assigned items was recorded privately as practice only, without changing the packet/database or importing labels; unchanged SHA-256 hashes were checked. Add enforced coaching exclusions and a reviewed reassignment/replacement workflow before affected work can count as independent; current CLI does not enforce the private operator note. Leave those rows pending, do not encode coaching as abstention or edit signed assignments. No fabricated human labels, automatic training or paid dependency."
+      "notes": "Corpus and human-workflow implementation committed/pushed and verified locally plus cross-platform CI. Task stays in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. On 2026-10-18, user-requested coaching of the first three assigned items was recorded privately as practice only, without changing the packet/database or importing labels; unchanged SHA-256 hashes were checked. ANV-025 supplies enforced query-wide exclusions, blinded recorded replacement, explicit migration and current-export verification. The real legacy pilot and private practice note are untouched: an authorized trusted operator must explicitly migrate, map the three practice item IDs to query IDs, record exclusions, and obtain eligible independent replacement judgments before affected work counts. The CLI does not infer exclusions from operator notes. Leave those rows pending, do not encode coaching as abstention or edit signed assignments. No fabricated human labels, automatic training or paid dependency."
     },
     {
       "id": "ANV-021",
@@ -1066,6 +1068,52 @@
         "reports/evaluation/local-llm-contracts-v1/execution.json"
       ],
       "notes": "Completed scoped ANV-024 contract comparison from clean 536fc75. Source/protocol 1793f3a was committed/pushed before inference; source CI all five jobs passed. New per-candidate ordinal strategy stays opt-in, existing listwise default/fingerprints unchanged. All fresh development/evaluation query/profile outcomes retained, strict whole-query fallback and sanitized duplicate-ID diagnostics observed live. Valid output coverage was 16/16 pointwise vs 13/16 listwise in evaluation; paired relevance intervals include zero, so no established gain or default promotion. Tests cover hostile snippets/contract boundaries, unsupported formats, leases/cancellation/config upgrades, not semantic prompt-injection immunity. Actual main server tree stopped, record removed and port closed; ignored caches/checkpoints retained. No real reviewer work, private query/feedback or new model download. Follow-ups remain ANV-010 controlled ranking/calibration/semantic robustness, ANV-020 independent domain labels, ANV-023 actual other backends/hardware. Future unseen-reserve claims must exclude released ANV-023/024 samples. Final local 325-test/checks and process smokes passed. Results 8db584e are published with remote equality and all five jobs passed in run 39126844802. Root ownership of this completed slice is released; all model/test services and sessions are stopped. This documentation-only evidence follow-up may have its own CI run; inspect HEAD."
+    },
+    {
+      "id": "ANV-025",
+      "milestone": "M2",
+      "title": "Enforce independent-review coaching exclusions and auditable replacement assignments",
+      "status": "done",
+      "owner": "root",
+      "depends_on": [
+        "ANV-019"
+      ],
+      "acceptance": [
+        "Record query-scoped reviewer exposure exclusions before imports; reject excluded assessments and remove previously submitted excluded labels from agreement, resolutions and qrels while retaining immutable history",
+        "Provide explicit legacy workspace migration and blinded replacement enrollment/assignments with operator independence attestation; preserve the original pool, signed packets, assignment slots and separate adjudicator",
+        "Keep affected work pending until eligible replacement judgments arrive; export immutable coverage snapshots that identify exclusions, replacements and quarantined labels without including credentials or rationales",
+        "Exercise stale packets, atomic rollback, excluded abstentions, revision/adjudication invalidation, replacement chains and migration with synthetic offline fixtures only; do not submit or alter the real pilot",
+        "Document private operator commands and limits; keep ANV-020 actual human assessment and broader quality gates open; no paid or hosted service required"
+      ],
+      "validation_plan": [
+        "Focused synthetic independent-review and CLI migration/failure-path tests, then pinned full Ruff/pytest/tracking checks",
+        "Check current review history and immutable exports remain intact using synthetic fixtures; inspect diffs, commit and push to main and verify remote commit/CI"
+      ],
+      "verification": [
+        {
+          "command": "uv sync --extra dev --locked; Ruff check/format; uv run --extra dev pytest; focused synthetic review integrity checks",
+          "result": "Final full suite after explicitly closing fixture SQLite handles: 363 passed in 56.73s, including 38 new synthetic cases; existing ANV-015 warning only. Ruff lint/format and tracking passed. Focused post-fix suite also passed 38 cases in 8.74s. No real human judgments or private pilot access. All implementation acceptance criteria are met; publication is verified after commit.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "Both offline process smokes; all five archived report/data verifiers; uv build --out-dir .anvesha/dist/anv025; runtime-only installed-wheel actual CLI workflow",
+          "result": "MVP and native self-hosting smokes passed with owned-process cleanup; five offline verifiers passed with unchanged lexical fingerprints. Built wheel/sdist; wheel includes matching new/source modules and excludes private data. Runtime-only wheel CLI functional tests passed; corrected installed-wheel subprocess rerun exited 0 for exclusion rollback, blind replacement, full/partial and current/stale exports, repeatable explicit legacy migration and unchanged packet bytes. No development dependency or model/API required. The first harness cleanup failed on a harness-held SQLite handle; connections now close explicitly. Automatic approval review rejected deleting the disposable scratch directory as blocked by policy; it remains ignored, contains synthetic fixtures/runtime only, and is excluded from packages/Git. No owned services remain.",
+          "date": "2026-10-18"
+        }
+      ],
+      "references": [
+        "AGENTS.md",
+        "README.md",
+        "docs/MILESTONES.md",
+        "docs/architecture/README.md",
+        "docs/review/README.md",
+        "docs/decisions/0011-independent-review-exposure-and-replacement.md",
+        "docs/tracking/verification/2026-10-18-review-integrity.md",
+        "src/anvesha/review.py",
+        "src/anvesha/review_integrity.py",
+        "tests/test_review_integrity.py"
+      ],
+      "notes": "Implemented bounded integrity slice from clean ad024d5 after inconclusive ANV-024 relevance evidence. Root owns all files; no subagents. Query-wide exclusions quarantine current labels but retain history, preserve required review slots and signed unaffected packets; new enrollment/replacements require explicit operator independence attestation. Consistent immutable exports have a current-state verifier. Explicit schema v1 migration never runs as a read/testing side effect. Actual pilot, private practice note, forms, credentials and labels were not read or changed; ANV-020 remains open for human work. Unknown exposure/identity/consent/aliases across sessions remain operator responsibilities. No paid service, model call, new source or automatic learning. Ignored synthetic installed-wheel scratch .anvesha/verification/anv025-installed-1f6qt3gu remains because automatic approval blocked its cleanup; not a production bug or real pilot data. Final local checks and all scoped implementation acceptance criteria are complete. Publication and CI verification follow the implementation commit. ANV-020 human study gates remain open."
     }
   ]
 }

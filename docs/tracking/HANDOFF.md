@@ -2,6 +2,27 @@
 
 ## Objective
 
+2026-10-18 current turn: user again authorized choosing the next useful step,
+implementation, tests, commit and push. Root delivered scoped ANV-025 from clean
+ad024d5: enforce the known ANV-020 coaching-exclusion gap before collecting broader
+domain evidence. [ADR 0011](../decisions/0011-independent-review-exposure-and-replacement.md)
+records query-level exclusions, preserved assignment slots, blinded replacement,
+explicit transactional migration and consistent immutable exports/current verifier.
+Final full suite: 363 passed in 56.73s (38 new synthetic cases, existing ANV-015
+warning only). Ruff/format/tracking, both real-process smokes, all five artifact
+verifiers and runtime-only installed-wheel actual CLI workflow pass. See
+[verification](verification/2026-10-18-review-integrity.md). No actual pilot file,
+form, credential, label or private practice note was read/changed. All owned test
+processes ended. No model call, delegation or mandatory paid API. Ignored synthetic
+installed-wheel scratch remains after automatic approval rejected cleanup as
+"blocked by policy"; it contains no real pilot data and is excluded from Git/packages.
+Implementation acceptance is met; commit/push and CI verification follow. Keep
+ANV-020 open: operator must explicitly migrate the actual pilot, record known
+query-wide practice exclusions, enroll eligible replacements and collect real
+labels. No credentials/attestation can prove actual human independence.
+
+## Previous completed ANV-024 slice
+
 2026-10-18: user authorized selecting the next useful step, implementation, tests,
 commit and push. Root implemented ANV-024 from clean main 536fc75. Source/protocol
 freeze `1793f3a41ecb5555cf67ab0dd0f5ec4fec1ffb2b` is pushed to main; all five jobs
@@ -147,7 +168,7 @@ ANV-020 implementation: `review_data.py` prepares pinned XQuAD sources, 720 tran
 
 Local pilot at `.anvesha/reviews/xquad-intents-v1` has 200 development pairs across 52 English queries, 42 double-assigned pairs, and 242 assignments split between placeholder pseudonyms. Two reviewer forms are exported. No people have been enrolled/contacted; zero labels or import receipts exist. Verify consent/identity/language competence privately before distributing packets and separate credentials. Never copy credentials, reviewer identity mappings, raw passages or responses into Git or handoff notes. Old SciFact `review-pool.jsonl` is not silently converted into the new session format.
 
-2026-10-18 follow-up: the user opened Reviewer A's form and requested coaching on its first three items without submission. Their private practice-only records are in `.anvesha/reviews/xquad-intents-v1/practice/coaching-exclusions.json`; they contain identifiers and disposition, no grade or copied passage. Do not count those assessor/items as independent or import an assistant's suggested rationale. The original packet and review database remain unchanged, with zero submissions; SHA-256 comparisons confirmed this after recording the third practice item. ANV-020 still needs an enforced coaching-exclusion/reassignment workflow; the current CLI does not read this operator note. Leave the affected rows pending and obtain an unexposed assessor through a reviewed replacement workflow before finalizing independent results. No form submission, import, commit or push was requested for these walkthroughs.
+2026-10-18 follow-up: the user opened Reviewer A's form and requested coaching on its first three items without submission. Their private practice-only records are in `.anvesha/reviews/xquad-intents-v1/practice/coaching-exclusions.json`; they contain identifiers and disposition, no grade or copied passage. Do not count those assessor/items as independent or import an assistant's suggested rationale. The original packet and review database remain unchanged, with zero submissions; SHA-256 comparisons confirmed this after recording the third practice item. ANV-025 implements enforced exclusions/replacement, but does not migrate or read this real pilot/operator note as a development side effect. A trusted operator must explicitly migrate, map those item IDs to query IDs, record Reviewer A's query-wide exclusions and arrange an unexposed assessor before finalizing independent results. Leave affected rows pending. No actual form submission or import follows from implementing the safeguards.
 
 This ANV-020 implementation slice is committed/pushed as `ac48d2e6c3897a34cc2e9516358acc77d663d93f`; local/remote main equality was checked. All four Windows/Linux Python 3.12/3.14 jobs passed in [run 38936703068](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/38936703068). Local verification: 185 tests (37 new), Ruff, tracking, offline smoke, installed-wheel workflow/report checks and identical fresh-index repeat rankings. No smoke servers remain. A documentation follow-up records this evidence and has its own Actions run. ANV-020 stays in progress because implementation is not the same as actual independent assessment.
 
@@ -169,7 +190,7 @@ ANV-019 is complete: 30 evaluation tests and 148 full-suite tests pass; Ruff lin
 
 ## Run locally
 
-For ANV-020, use `python -m anvesha.review_data prepare --download`, `python -m anvesha.intent_evaluation run`, and the commands in [the review workflow](../review/README.md). The local pilot above already exists; `review init` correctly refuses overwrite. Use `review status` and `review export --reviewer reviewer-a` (or reviewer-b) to resume without labels. New study batches use a different `--workspace`. Explicit `--split holdout --release-holdout` is required to assign held-out queries. Only corpus preparation downloads the fixed public files; report verification/default tests are offline.
+For ANV-020, use `python -m anvesha.review_data prepare --download`, `python -m anvesha.intent_evaluation run`, and the commands in [the review workflow](../review/README.md). The local pilot above already exists; `review init` correctly refuses overwrite. Under ANV-025 its v1 workspace needs explicit `review migrate` and declared coaching exclusions before resuming independent work. Then use `review status` and `review export --reviewer reviewer-a` (or reviewer-b); obtain eligible replacement judgments for excluded slots and verify exports before use. New study batches use a different `--workspace`. Explicit `--split holdout --release-holdout` is required to assign held-out queries. Only corpus preparation downloads the fixed public files; report verification/default tests are offline.
 
 Use `uv sync --extra dev --locked`, then `uv run anvesha setup --model YOUR_INSTALLED_MODEL --seed-demo`, `uv run anvesha show-key` privately, and `uv run anvesha start`. Open the browser at loopback port 8000. `setup --lexical-only` plus an explicit lexical request/select is the model-free path. Full native/Compose/import/upgrade instructions are in [the guide](../PRIVATE_RESEARCH.md), [README](../../README.md) and [API](../API.md).
 
