@@ -1,5 +1,36 @@
 # Real local-model evaluation
 
+## ANV-024 contract comparison
+
+[ADR 0010](decisions/0010-pointwise-local-ranking-experiment.md) records why the
+next step is simpler local ranking contracts. [Protocol v1](../benchmarks/local-llm-contracts-v1/protocol.json)
+freezes four development and 16 fresh evaluation queries, excluding all ANV-023
+IDs. It compares lexical, existing listwise and opt-in pointwise grading with the
+same corpus/model/hardware/prefix and total 120-second deadline. All pointwise
+calls share that deadline. Ties retain lexical order; one failure discards all
+grades. Both profiles' failures remain in paired metrics. No automatic default
+change follows from a small pilot or higher contract validity alone.
+
+Use the same explicit pinned acquisition/server commands below. With that model
+server running, from a checkout:
+
+```text
+uv run --extra dev python -m anvesha.ranking_experiment run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json
+uv run --extra dev python -m anvesha.ranking_experiment run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --release-evaluation --resume
+uv run --extra dev python -m anvesha.ranking_experiment verify
+```
+
+The first command saves development only; the second explicitly releases
+evaluation after an unchanged complete development checkpoint. Freeze source and
+protocol first. Existing reports are never overwritten. For reproduction pass
+fresh ignored `--workspace`/`--output-dir` paths to both runs and that output path
+to verify. Metadata pins source/model/runtime/environment/hardware. Public reports
+retain benchmark IDs, metrics, bounded calls and sanitized warnings. No raw model
+outputs/reasoning, private queries or independent review data are recorded. Offline
+verification checks consistency, not proof of inference. No paid API is needed.
+
+## ANV-023 initial pilot
+
 ANV-023's first pilot tests private CPU inference against the lexical control.
 It uses public scientific data, never your queries, feedback or the independent
 review workspace. This is an explicit repository experiment, not part of normal

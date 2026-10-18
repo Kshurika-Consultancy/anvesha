@@ -2,6 +2,31 @@
 
 ## Objective
 
+2026-10-18: user authorized choosing/implementing the next useful step, testing,
+committing and pushing. Root owns ANV-024 from clean main 536fc75. Implemented
+opt-in pointwise 0–3 grading, stable lexical ties, whole-query fallback, shared
+deadline/cancellation checks and closed-vocabulary contract warnings. Existing
+listwise configurations/fingerprints remain stable. No mandatory paid service.
+
+The new `local-llm-contracts-v1` protocol selects 4 development + 16 evaluation
+queries excluding all ANV-023 IDs, by hash without labels/scores. Both contracts
+use the cached pinned Qwen/llama.cpp CPU profile, same candidate prefix and 120s
+total deadline. `anvesha.ranking_experiment` alternates profile order, rejects
+checkpoint drift, requires development before explicit evaluation release and
+retains all outcomes. Real inference/results are pending at this source freeze;
+do not claim a gain. Human-review workspaces were not used or modified.
+
+Checks before freeze: 325 pytest passed (49.31s; existing ANV-015 warning), Ruff
+lint/format, tracking, MVP and native schema/pointwise smokes, archived SciFact/
+intent/model report verifiers. The final experiment helper adjustment passed its
+9 focused tests. Source/protocol must be committed before starting the model.
+Current ports are free; cached weights/runtime are ignored. Next: explicit
+server launcher, development, unchanged evaluation release, public sanitized
+report/verification, stop owned model tree, final checks and commit/push main.
+See [evidence](verification/2026-10-18-ranking-contracts.md) for commands.
+
+## Previous completed ANV-023 slice
+
 2026-10-18: user authorized ANV-023 real local-model comparison, private/user-owned
 tooling title/description and commit/push to main. This scoped pilot is delivered/published; root ownership is released at handoff. No
 subagents used. Starting HEAD a7eb810 was clean. README/API/browser/package and

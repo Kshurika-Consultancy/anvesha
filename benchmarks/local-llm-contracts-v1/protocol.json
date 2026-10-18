@@ -1,0 +1,64 @@
+{
+  "benchmark": "scifact-v1",
+  "bootstrap_samples": 1000,
+  "bootstrap_seed": 20261016,
+  "candidate_limit": 20,
+  "context_tokens": 8192,
+  "cpu_threads": 6,
+  "excluded_protocol_sha256": "74558506d9cf032c4f2a20577c6939978b66a7dfd28244c3460310fd1406aadb",
+  "generation_seed": 20261018,
+  "id": "local-llm-contracts-v1",
+  "interpretation": "Reliability pilot, not a default-promotion gate. Fresh to this experiment, not unseen by earlier lexical evaluation or guaranteed absent from model training. No tuning on released evaluation scores or automatic promotion.",
+  "model_policy_sha256": "a657643a67801c5c85a6dd58200fab1a5b3010e757c46a94e0163321e5fa8686",
+  "output_format": "json_schema",
+  "primary_metric": "ndcg@10",
+  "profile_order": "alternate listwise/pointwise then pointwise/listwise per query",
+  "query_ids": {
+    "development": [
+      "487",
+      "26",
+      "1047",
+      "330"
+    ],
+    "evaluation": [
+      "1395",
+      "1199",
+      "218",
+      "1225",
+      "691",
+      "443",
+      "1121",
+      "1389",
+      "295",
+      "113",
+      "1226",
+      "1266",
+      "1179",
+      "859",
+      "491",
+      "993"
+    ]
+  },
+  "retrieval_depth": 50,
+  "run_budget_seconds": 5400,
+  "schema_version": 1,
+  "selection": "lowest SHA256(seed + NUL + split + NUL + id), excluding previous pilot IDs; no labels or retrieval scores",
+  "selection_seed": "local-llm-contracts-v1",
+  "strategies": {
+    "listwise": {
+      "max_calls_per_query": 1,
+      "max_tokens_per_call": 1536,
+      "prompt_sha256": "2c323cfeebbd2dc2433c01bea51b2c3cdedf03be541c5e763b90f0cb2cdd0b16",
+      "prompt_version": "candidate-rerank-v2-aliases"
+    },
+    "pointwise": {
+      "max_calls_per_query": 20,
+      "max_tokens_per_call": 32,
+      "prompt_sha256": "f90ab54d94bbfd86e36586b773c38ff7d016fbec116a4bac5d1b309a50b3d310",
+      "prompt_version": "candidate-grade-v1",
+      "ties": "original lexical order; all grades required or full lexical fallback"
+    }
+  },
+  "task": "ANV-024",
+  "timeout_seconds": 120.0
+}

@@ -152,3 +152,11 @@ has 19/24 valid permutations and five explicit fallbacks. Mean nDCG rises, but t
 paired interval spans zero, so improvement is not established. The measured source
 matches pre-evaluation commit 9905423. Reliability alternatives need a fresh frozen
 study under ANV-024; independent domain and actual gateway/backend gates remain open.
+
+ANV-024 adds the opt-in pointwise contract in [ADR 0010](../decisions/0010-pointwise-local-ranking-experiment.md).
+Sequential candidate grading shares one total deadline, uses stable lexical ties,
+and discards all tentative grades on any failure. Closed-vocabulary structural
+warnings expose failure categories without retaining model payloads. Existing
+listwise configuration identities remain stable; pointwise has its own accepted
+fingerprint. A fresh frozen comparison retains every query/profile and fallback;
+contract validity and relevance are distinct outcomes.

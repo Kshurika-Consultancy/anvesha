@@ -22,7 +22,7 @@ import httpx
 from anvesha.eval_data import SOURCE_URL, digest, json_bytes, json_lines, load_corpus, load_spec
 from anvesha.eval_metrics import aggregate, bootstrap_mean, percentile, query_metrics
 from anvesha.evaluation import _revision
-from anvesha.llm import PROMPT_VERSION, SYSTEM_PROMPT, LLMConfig, LLMReranker
+from anvesha.llm import CONTRACT_FAILURES, PROMPT_VERSION, SYSTEM_PROMPT, LLMConfig, LLMReranker
 from anvesha.store import Store
 from anvesha.worker import process_one
 
@@ -215,6 +215,7 @@ def validate_records(spec, protocol, records, *, complete=True):
                     "rerank_failed",
                 )
             }
+            | {"llm_contract:" + code for code in CONTRACT_FAILURES}
             for value in warnings
         ):
             raise ValueError("Unrecognized failure diagnostic")

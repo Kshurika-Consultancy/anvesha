@@ -1,5 +1,12 @@
 # Anvesha development status
 
+ANV-024 is in progress (2026-10-18): opt-in pointwise local grading, structural
+failure diagnostics and a fresh frozen listwise/pointwise/lexical comparison.
+The source/protocol freeze precedes real inference; measured results are pending.
+325 offline tests, lint/format/tracking, both process smokes and archived baseline
+verifiers pass. Listwise stays the default. See [current evidence](verification/2026-10-18-ranking-contracts.md)
+and [ADR 0010](../decisions/0010-pointwise-local-ranking-experiment.md).
+
 ANV-023's initial real local-model pilot is measured and verified (2026-10-18).
 Title/descriptions identify private search for user-controlled AI tools. Free
 Qwen3-4B/llama.cpp CPU inference on 24 reserved scientific queries scores 0.616925

@@ -222,7 +222,7 @@ def test_actual_worker_measurement_uses_candidate_only_output_and_visible_fallba
     assert set(row["lexical"]["documents"]) == set(row["llm"]["documents"])
     if invalid:
         assert row["llm"]["state"] == "completed_partial" and not row["llm"]["applied"]
-        assert row["llm"]["warnings"] == ["llm:invalid_response"]
+        assert row["llm"]["warnings"] == ["llm:invalid_response", "llm_contract:unknown_ids"]
         assert row["llm"]["documents"] == row["lexical"]["documents"]
     else:
         assert row["llm"]["applied"]

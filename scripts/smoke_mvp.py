@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @contextmanager
-def model_stub(output_format="json_object"):
+def model_stub(output_format="json_object", strategy="listwise"):
     """ANV-021: local synthetic protocol fixture, not an actual model/provider."""
     state = {"calls": 0, "fail": False, "ids": [], "key": secrets.token_urlsafe(32)}
 
@@ -37,13 +37,24 @@ def model_stub(output_format="json_object"):
             body = json.loads(self.rfile.read(size))
             assert body["model"] == "synthetic-smoke-model"
             supplied = json.loads(body["messages"][1]["content"])
-            state["ids"] = [item["id"] for item in supplied["candidates"]]
+            pointwise = strategy == "pointwise"
+            if pointwise:
+                assert set(supplied) == {"original_query", "candidate"}
+                assert set(supplied["candidate"]) == {"title", "snippet", "evidence_status"}
+            else:
+                state["ids"] = [item["id"] for item in supplied["candidates"]]
             assert body["response_format"]["type"] == output_format
             if output_format == "json_schema":
                 schema = body["response_format"]["json_schema"]["schema"]
-                ranked = schema["properties"]["ranked_ids"]
-                assert ranked["items"]["enum"] == state["ids"]
-                assert ranked["minItems"] == ranked["maxItems"] == len(state["ids"])
+                if pointwise:
+                    assert schema["properties"]["grade"] == {
+                        "type": "integer",
+                        "enum": [0, 1, 2, 3],
+                    }
+                else:
+                    ranked = schema["properties"]["ranked_ids"]
+                    assert ranked["items"]["enum"] == state["ids"]
+                    assert ranked["minItems"] == ranked["maxItems"] == len(state["ids"])
             else:
                 assert body["response_format"] == {"type": "json_object"}
             state["calls"] += 1
@@ -54,7 +65,11 @@ def model_stub(output_format="json_object"):
                             "finish_reason": "stop",
                             "message": {
                                 "role": "assistant",
-                                "content": json.dumps({"ranked_ids": state["ids"][::-1]}),
+                                "content": json.dumps(
+                                    {"grade": state["calls"] % 4}
+                                    if pointwise
+                                    else {"ranked_ids": state["ids"][::-1]}
+                                ),
                             },
                         }
                     ]

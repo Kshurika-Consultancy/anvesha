@@ -103,6 +103,19 @@ and the [reproduction guide](LOCAL_LLM_EVALUATION.md). The actual CPU configurat
 uses a fixed local file and loopback with no model tools or cloud routes; sampled
 connections are bounded execution evidence, not an anonymity guarantee.
 
+## ANV-024 ranking-contract review, 2026-10-18
+
+[Beyond Yes and No (NAACL 2024)](https://research.google/pubs/beyond-yes-and-no-improving-zero-shot-pointwise-llm-rankers-via-scoring-fine-grained-relevance-labels/)
+motivates testing intermediate relevance labels rather than binary decisions.
+[The setwise comparison (SIGIR 2024)](https://arxiv.org/abs/2310.09497v2) documents
+effectiveness/cost tradeoffs among pointwise, pairwise and listwise methods. These
+are reasons for a controlled experiment, not evidence of transfer to Anvesha's
+small local model. [ADR 0010](decisions/0010-pointwise-local-ranking-experiment.md)
+uses independently written ordinal generation, not copied code or scoring APIs;
+no source/model/data licensing change follows. Both profiles retain the reviewed
+llama.cpp schema API and existing rights manifests. Research method and measured
+Anvesha outcomes must remain separate.
+
 ## Maintaining this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

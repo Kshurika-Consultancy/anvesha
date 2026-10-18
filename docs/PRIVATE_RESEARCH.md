@@ -161,6 +161,18 @@ For a runtime that supports schema-constrained output, set
 `ANVESHA_LLM_OUTPUT_FORMAT=json_schema` before setup. In PowerShell, use
 `$env:ANVESHA_LLM_OUTPUT_FORMAT = 'json_schema'`; in a POSIX shell, use
 `export ANVESHA_LLM_OUTPUT_FORMAT=json_schema`.
+
+ANV-024 adds experimental per-candidate grading. Set
+`ANVESHA_LLM_STRATEGY=pointwise` before setup (PowerShell:
+`$env:ANVESHA_LLM_STRATEGY = 'pointwise'`; POSIX:
+`export ANVESHA_LLM_STRATEGY=pointwise`). Setup saves it; older files without
+`strategy` keep `listwise` even if ambient variables differ. For an existing
+private configuration, stop services, back up the file, deliberately set
+`llm.strategy`, and restart API and worker together. Listwise remains the default
+pending stronger quality evidence. Up to 20 sequential grade requests share the
+configured total deadline; one invalid grade causes whole-query lexical fallback.
+Grades only determine ordering and are not published as confidence/truth scores.
+See [the comparison method](LOCAL_LLM_EVALUATION.md).
 Setup saves it in the private configuration. Existing files
 without `output_format` keep `json_object`, the compatibility default. A saved
 file takes precedence over later environment changes. Use the same configuration

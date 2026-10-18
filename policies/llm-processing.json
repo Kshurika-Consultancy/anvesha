@@ -1,6 +1,6 @@
 {
-  "policy_version": "llm-processing-v3",
-  "task": "ANV-023",
+  "policy_version": "llm-processing-v4",
+  "task": "ANV-024",
   "reviewed_at": "2026-10-18",
   "scope": "Default-mode inference over bounded snippets from an operator-imported corpus, using an operator-configured endpoint; no training or new source discovery.",
   "default": "New API/browser requests default to llm and reject before acceptance when no model is configured. Explicit ranking=lexical performs no model call. Existing accepted jobs are unchanged; legacy lexical clients/replays must send the mode explicitly after upgrading.",
@@ -31,5 +31,7 @@
     "https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE"
   ],
   "candidate_aliases": "Short per-request aliases map back only to supplied result objects. They are not authorization or anonymization. Original public result IDs and source rights remain stable.",
-  "output_format": "json_object remains the compatibility default. Optional operator-configured json_schema requests bounded known aliases and exact array length. Client validation still rejects omissions/duplicates. No implicit format or provider fallback; the accepted fingerprint includes the format."
+  "output_format": "json_object remains the compatibility default. Optional json_schema bounds either the listwise permutation or one pointwise ordinal grade. Strict client validation still applies. No implicit format/provider fallback; accepted identity includes the format.",
+  "strategy": "listwise remains the default for new and older saved settings. Optional pointwise sends one candidate without ID per sequential call, at most 20 under a single total deadline. Every grade is required; any failure discards all grades and retains lexical results. Grades remain internal ordinal signals. No automatic promotion or training.",
+  "diagnostics": "Only closed-vocabulary structural llm_contract warnings accompany invalid_response; no raw model outputs, reasoning or private exception text."
 }

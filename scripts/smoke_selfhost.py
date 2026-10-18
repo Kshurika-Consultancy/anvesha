@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[1]
 def main():
     with (
         tempfile.TemporaryDirectory(prefix="anvesha-native-") as temporary,
-        model_stub(output_format="json_schema") as model,
+        model_stub(output_format="json_schema", strategy="pointwise") as model,
     ):
         directory = Path(temporary)
         endpoint, model_state = model
@@ -31,7 +31,9 @@ def main():
             key: value for key, value in os.environ.items() if not key.startswith("ANVESHA_")
         }
         environment.update(
-            ANVESHA_LLM_API_KEY=model_state["key"], ANVESHA_LLM_OUTPUT_FORMAT="json_schema"
+            ANVESHA_LLM_API_KEY=model_state["key"],
+            ANVESHA_LLM_OUTPUT_FORMAT="json_schema",
+            ANVESHA_LLM_STRATEGY="pointwise",
         )
         flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         setup = subprocess.run(
@@ -60,6 +62,7 @@ def main():
         settings = load_settings(config)
         key = settings.api_keys[0]
         assert settings.llm.output_format == "json_schema"
+        assert settings.llm.strategy == "pointwise"
         assert key.encode() not in setup.stdout
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", 0))
@@ -136,6 +139,10 @@ def main():
                 results = client.get(location + "/results").json()
                 assert results["total"] == 3
                 assert results["results"][0]["ranking_method"] == "llm_rerank"
+                assert results["pipeline_version"] == settings.llm.pipeline_version
+                assert model_state["calls"] == 3
+                feedback = client.post(location + "/feedback", json={"version": 1, "rating": 1})
+                assert feedback.json()["pipeline_version"] == settings.llm.pipeline_version
                 stop_owned_api()  # Child exit must shut down the sibling worker too.
                 process = start()
                 wait_for("/healthz", lambda value: value["status"] == "ok")
@@ -164,6 +171,7 @@ def main():
                 "checks": [
                     "private setup",
                     "LLM default",
+                    "saved schema/pointwise strategy and versioned feedback",
                     "packaged browser assets",
                     "separate supervised API/worker",
                     "restart persistence",

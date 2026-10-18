@@ -4,6 +4,13 @@ Record material delivered changes with task IDs and verification references. Thi
 
 ## 2026-10-18
 
+- ANV-024 implementation/freeze: added experimental pointwise ordinal relevance
+  grading with stable lexical ties, whole-query fallback and a shared deadline;
+  saved configuration/fingerprint compatibility and sanitized contract diagnostics.
+  A fresh four-development/16-evaluation protocol compares both local contracts
+  with lexical control; real results are pending at this freeze. Offline tests
+  and process smokes pass. [Evidence](verification/2026-10-18-ranking-contracts.md).
+
 - ANV-023 initial slice: clarified private search for user-controlled AI tools in
   the main title/descriptions and GitHub About. Added explicit pinned free CPU
   model acquisition/serving, a frozen evaluation harness with fallback-inclusive

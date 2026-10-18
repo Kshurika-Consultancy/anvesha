@@ -117,7 +117,9 @@ def test_optional_stage_failure_publishes_lexical_with_visible_warning(research,
         "http": "http_error",
     }
     assert status["state"] == "completed_partial"
-    assert status["warnings"] == ["llm:" + expected[failure]]
+    assert status["warnings"] == ["llm:" + expected[failure]] + (
+        ["llm_contract:invalid_envelope"] if failure == "invalid" else []
+    )
     assert len(calls) == (0 if failure in {"missing", "changed"} else 1)
     results = client.get(job["results_url"]).json()["results"]
     assert len(results) == 3 and all("ranking_method" not in item for item in results)

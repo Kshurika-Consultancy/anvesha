@@ -996,8 +996,8 @@
       "id": "ANV-024",
       "milestone": "M3",
       "title": "Improve small local-model ranking reliability and diagnostic evidence",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": [
         "ANV-021"
       ],
@@ -1012,15 +1012,27 @@
         "Offline meaningful contract/failure/upgrade regression tests and required process smokes",
         "Explicit bounded real-model runs with a new frozen protocol, complete query accounting, rights/hardware/source hashes and offline report verification"
       ],
-      "verification": [],
+      "verification": [
+        {
+          "command": "Pinned uv sync; Ruff lint/format; pytest; tracking; both process smokes; archived evaluation/intent/LLM verifiers; git diff --check",
+          "result": "Before inference: 325 tests passed (49.31s), focused experiment verifier 9 passed after its helper change, lint/format/tracking and both offline process smokes passed. Existing ANV-015 warning only. Source/protocol are prepared for freeze; real-model comparison is pending. See docs/tracking/verification/2026-10-18-ranking-contracts.md.",
+          "date": "2026-10-18"
+        }
+      ],
       "references": [
         "docs/LOCAL_LLM_EVALUATION.md",
+        "docs/decisions/0010-pointwise-local-ranking-experiment.md",
+        "docs/tracking/verification/2026-10-18-ranking-contracts.md",
+        "benchmarks/local-llm-contracts-v1/protocol.json",
+        "src/anvesha/ranking_experiment.py",
+        "tests/test_pointwise.py",
+        "tests/test_ranking_experiment.py",
         "docs/decisions/0009-opt-in-constrained-ranking-output.md",
         "reports/evaluation/local-llm-development-v2/diagnostics.json",
         "src/anvesha/llm.py",
         "docs/review/README.md"
       ],
-      "notes": "Known follow-up from ANV-023 development: v1 had four timeouts, v2 had four invalid outputs, and schema-mode v3 still had one invalid-output fallback among four development queries. No evaluation outcome was consulted to choose this follow-up. The 24-query v3 evaluation is released and complete; use a fresh frozen sample for future experiments. This task is planned, not an implemented classifier, new model, expanded corpus or quality claim. Broader independent domain evidence remains ANV-020; actual backend/hardware profiles remain ANV-023."
+      "notes": "2026-10-18 root started the user-authorized next slice from clean main 536fc75: implement an opt-in bounded pointwise relevance contract with lexical tie-breaking, sanitized failure diagnostics and whole-query fallback. Preserve listwise defaults and previous evidence. Compare both contracts and lexical control on a new label-blind frozen development/evaluation sample excluding ANV-023 IDs, using the cached free local model. Freeze source/protocol before evaluation, retain all outcomes, and run contract/lifecycle/configuration tests plus standard checks and process smokes before commit/push. No default promotion or quality claim without evidence. Known development-led follow-up: v1 had four timeouts, v2 had four invalid outputs and v3 one fallback among four development queries. Released ANV-023 evaluation scores are not an unseen tuning set. Broader independent domain evidence remains ANV-020; actual backend/hardware profiles remain ANV-023."
     }
   ]
 }

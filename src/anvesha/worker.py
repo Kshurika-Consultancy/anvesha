@@ -78,6 +78,8 @@ def process_one(
                     return True
                 except LLMError as exc:
                     warnings.append("llm:" + exc.code)
+                    if exc.diagnostic:
+                        warnings.append("llm_contract:" + exc.diagnostic)
                 except Exception:
                     warnings.append("llm:rerank_failed")
         results = results[: job["limit"]]
