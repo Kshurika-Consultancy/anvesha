@@ -2,6 +2,13 @@
 
 Tasks ANV-007, ANV-019, ANV-020. The first M2 slice establishes a reproducible baseline on real published data. It does not complete the planned multi-intent user study or the rest of M2.
 
+ANV-023 adds a separately versioned [real local-model pilot](LOCAL_LLM_EVALUATION.md)
+using these existing expert annotations. Its selection/protocol are frozen before
+inference. Operational fallbacks remain in paired metrics; raw prompts/abstracts
+stay local. A small scientific sample does not establish quality for Anvesha's
+intended coding, personal IoT/assets or private-agent integrations. Independent
+multi-intent assessment remains ANV-020. The original lexical reports are unchanged.
+
 ## Data and scope
 
 The [SciFact snapshot](../benchmarks/scifact-v1/README.md) has 5,183 scientific abstracts and 500 scientific claim queries. Development uses 200 deterministic samples from BEIR train; evaluation uses all 300 BEIR test queries. The shipped claim wording and document relevance grades come from published SciFact evidence annotations, with licences and transformations documented. **New Anvesha human assessments: zero.**

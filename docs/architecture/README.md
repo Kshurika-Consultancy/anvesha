@@ -126,3 +126,23 @@ ANV-021 adds bounded local-corpus reranking under [ADR 0005](../decisions/0005-p
 ANV-022 packages a same-origin browser with no external assets or persistent browser credentials. A private configuration and native supervisor run separate API/worker processes; child exit stops its sibling without owning accepted jobs. A non-root locked container and Compose layout persist the same local SQLite database, publish only host loopback and optionally connect an unexposed model runtime. Container fixtures establish transport/recovery, not model gains. [The self-hosting guide](../PRIVATE_RESEARCH.md) documents default-mode upgrade effects, permissions and backup/rollback. Hosted hardening and full fetching/hybrid/planning gates remain open.
 
 See [PLAN.md](../PLAN.md) for rationale, [RESEARCH.md](../RESEARCH.md) for evidence, [MILESTONES.md](../MILESTONES.md) for gates, and [AGENTS.md](../../AGENTS.md) for development continuity rules.
+
+ANV-023's [ADR 0007](../decisions/0007-local-model-quality-pilot.md) clarifies
+private search for user-owned AI tools and introduces a frozen real-model CPU
+pilot. It reuses production worker/ranking and inherited expert labels without
+changing the ranking prompt or training from feedback. [The evaluation guide](../LOCAL_LLM_EVALUATION.md)
+documents explicit acquisition, loopback/offline serving, reserved-query release,
+failure-inclusive paired metrics, provenance and limits. Real Ollama/OmniRoute
+acceptance and independent personal-tooling domain evaluation remain separate gates.
+
+[ADR 0008](../decisions/0008-compact-reranking-identifiers.md) supersedes the original
+candidate-ID wire format with compact aliases after four development-only timeouts.
+Strict permutations map back to the original results and preserve public identities.
+The separately frozen v2 protocol retains the same query sample; evaluation is
+released only after development with unchanged inference settings.
+
+[ADR 0009](../decisions/0009-opt-in-constrained-ranking-output.md) adds an optional
+schema output format to reduce missing IDs. It binds the format into the accepted
+fingerprint, keeps existing configurations in object mode, and always validates
+the full permutation on the client. Protocol v3 preserves the query sample and
+uses schema mode before releasing any evaluation request.

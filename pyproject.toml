@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "anvesha-search"
 version = "0.1.0"
-description = "Kshurika Consultancy's local-first asynchronous search API"
+description = "Private, self-hosted search for your own AI tools and personal projects"
 readme = "README.md"
 requires-python = ">=3.12"
 license = "Apache-2.0"

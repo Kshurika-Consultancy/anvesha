@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 @contextmanager
-def model_stub():
+def model_stub(output_format="json_object"):
     """ANV-021: local synthetic protocol fixture, not an actual model/provider."""
     state = {"calls": 0, "fail": False, "ids": [], "key": secrets.token_urlsafe(32)}
 
@@ -36,9 +36,16 @@ def model_stub():
             assert self.headers.get("Authorization") == "Bearer " + state["key"]
             body = json.loads(self.rfile.read(size))
             assert body["model"] == "synthetic-smoke-model"
-            assert body["response_format"] == {"type": "json_object"}
             supplied = json.loads(body["messages"][1]["content"])
             state["ids"] = [item["id"] for item in supplied["candidates"]]
+            assert body["response_format"]["type"] == output_format
+            if output_format == "json_schema":
+                schema = body["response_format"]["json_schema"]["schema"]
+                ranked = schema["properties"]["ranked_ids"]
+                assert ranked["items"]["enum"] == state["ids"]
+                assert ranked["minItems"] == ranked["maxItems"] == len(state["ids"])
+            else:
+                assert body["response_format"] == {"type": "json_object"}
             state["calls"] += 1
             payload = json.dumps(
                 {
@@ -229,7 +236,9 @@ def main():
                 run_module("anvesha.worker", "--once")
                 assert client.get(intelligent_url).json()["state"] == "completed"
                 intelligent_result = client.get(intelligent_url + "/results").json()["results"][0]
-                assert intelligent_result["id"] == model_state["ids"][-1]
+                assert intelligent_result["lexical_rank"] == len(model_state["ids"])
+                assert intelligent_result["id"].startswith("res_")
+                assert intelligent_result["id"] not in model_state["ids"]
                 assert intelligent_result["ranking_method"] == "llm_rerank"
                 receipt = client.post(
                     intelligent_url + "/feedback", json={"version": 1, "rating": 1}

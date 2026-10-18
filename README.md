@@ -1,6 +1,8 @@
-# Anvesha
+# Anvesha — Private Search for Your Own AI Tools
 
-Kshurika Consultancy's open-source, quality-first asynchronous search API. The first MVP runs locally with **no mandatory paid API, hosted LLM, GPU, or database service**.
+Anvesha is Kshurika Consultancy's open-source search engine for people who want control over their data and the tools that use it. Run it on your own computer or home server, use a local LLM, and build internal tools without a mandatory service that collects your queries or usage. **No mandatory paid API, hosted LLM, GPU, or database service.**
+
+It is a search building block for your own research, coding and development projects, personal IoT operations, asset-management tools, and private AI agents or chat systems. Those are intended integration uses: the current preview searches documents you import; it does not control devices/assets, provide a chat agent, or ship those integrations. You choose what is indexed, where models run, who can access the instance, and whether an optional external provider receives anything. Local storage, backups and model-server settings still need your care.
 
 Submit a query, receive an ID, poll its status, inspect stable sources and give feedback. Separate API/worker processes persist jobs, ownership, results and feedback in SQLite. **LLM-assisted ranking is the default**, using your configured local or compatible gateway model after FTS5/BM25 retrieval. An explicit lexical baseline runs without any model.
 

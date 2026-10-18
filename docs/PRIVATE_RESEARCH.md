@@ -1,5 +1,13 @@
 # Private research with Anvesha
 
+Anvesha is **Private Search for Your Own AI Tools**: an open-source building block
+for people running their own research, coding/development and personal tools.
+IoT/asset operations and private agents/chat can use its search API; those
+applications and control actions are not implemented by this preview. You choose
+the corpus, model location and clients, without a mandatory hosted service that
+collects search usage. Model/provider settings and local storage/backups remain
+separate trust boundaries.
+
 **LLM ranking is the default for new API and browser searches.** Use your own local
 model; no paid API or hosted account is required. The explicit lexical baseline
 works without a model. Anvesha never downloads model weights automatically.
@@ -8,6 +16,12 @@ This preview searches an imported collection. General-web discovery, query
 planning, page inspection and embeddings remain future work. Reranking is
 experimental until measured against independent labels under ANV-023. A ranker
 cannot recover a missing document or establish that a statement is true.
+
+ANV-023 introduces compact per-request candidate aliases for inference. Original
+public result IDs and feedback snapshots remain stable. Upgrade the API and
+workers together: the new prompt/wire version changes the configuration
+fingerprint, so accepted older LLM jobs can fall back visibly with
+`llm:configuration_changed`. See [ADR 0008](decisions/0008-compact-reranking-identifiers.md).
 
 ## Native setup
 
@@ -142,6 +156,19 @@ No key is required for an unauthenticated local runtime. Set `ANVESHA_LLM_API_KE
 privately before setup for an authenticated endpoint; setup saves it in the
 private file. Avoid secrets in command arguments or endpoint URLs.
 
+For a runtime that supports schema-constrained output, set
+`ANVESHA_LLM_OUTPUT_FORMAT=json_schema` before setup. In PowerShell, use
+`$env:ANVESHA_LLM_OUTPUT_FORMAT = 'json_schema'`; in a POSIX shell, use
+`export ANVESHA_LLM_OUTPUT_FORMAT=json_schema`.
+Setup saves it in the private configuration. Existing files
+without `output_format` keep `json_object`, the compatibility default. A saved
+file takes precedence over later environment changes. Use the same configuration
+for the API and worker. Schema mode asks for exactly the known candidate IDs;
+client validation still rejects omissions/duplicates if a backend ignores it.
+Unsupported formats fall back visibly, with no automatic provider/format retry.
+[ADR 0009](decisions/0009-opt-in-constrained-ranking-output.md) explains the local
+development evidence and compatibility boundary.
+
 Run [OmniRoute](https://github.com/diegosouzapw/OmniRoute) separately if desired.
 Its documented endpoint is `http://127.0.0.1:20128/v1`; pass that `--model-url` and
 an explicit configured route/model to setup. Gateway/downstream terms and its
@@ -225,3 +252,7 @@ and independent quality comparisons. ANV-009/ANV-011 own permitted source expans
 ANV-010 owns evidence-led hybrid/planning work. Scientific/multilingual lexical
 reports remain frozen baselines. Synthetic UI/protocol fixtures are not independent
 labels; the three coached pilot items remain practice only under ANV-020.
+
+See [real local-model evaluation](LOCAL_LLM_EVALUATION.md) for the explicit
+ANV-023 CPU pilot. Downloading/testing a model is separate from ordinary setup;
+no model or paid API becomes mandatory.

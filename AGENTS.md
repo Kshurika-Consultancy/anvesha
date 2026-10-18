@@ -1,6 +1,6 @@
 # Anvesha coding agent instructions
 
-Anvesha is Kshurika Consultancy's quality-first, asynchronous, open-source search API. It must run without mandatory paid APIs or hosted LLMs. This file is the repository entry point for coding agents; use the conventional uppercase filename `AGENTS.md` (Windows paths are case-insensitive).
+Anvesha is Kshurika Consultancy's private, asynchronous, open-source search engine for user-controlled AI tools and personal projects. Its purpose is local ownership of data and inference for research, coding/development, personal IoT, asset tooling and private agents/chat; those integrations must not be advertised as implemented merely because they are intended uses. It must run without mandatory paid APIs or hosted LLMs. This file is the repository entry point for coding agents; use the conventional uppercase filename `AGENTS.md` (Windows paths are case-insensitive).
 
 ## Read before working
 

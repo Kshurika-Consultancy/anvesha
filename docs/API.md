@@ -82,6 +82,14 @@ Omit/null `result_id` for overall search feedback, or pass an ID in the referenc
 
 Feedback requires a published snapshot and valid result membership; invalid references return 409. There is one current rating per owner/search/version/result. Repeated submissions replace it, keeping its feedback ID. A response includes stored rating context, pipeline version and consent, never owner secrets. No training, instant boosting or blacklisting occurs. Anonymous public crowdsourced voting is not part of this MVP.
 
+ANV-023 uses short per-request aliases for model output and maps them back to the
+same public result IDs. Operators can select schema-constrained output in private
+configuration; clients cannot choose its format or endpoint. Alias/prompt and
+format changes affect the accepted fingerprint. Upgrade API/workers together;
+older accepted LLM configurations can fall back with `llm:configuration_changed`.
+Existing result snapshots and feedback remain stable. See [ADR 0008](decisions/0008-compact-reranking-identifiers.md)
+and [ADR 0009](decisions/0009-opt-in-constrained-ranking-output.md).
+
 ## Cancellation and deletion
 
 `POST /v1/searches/{id}/cancel` immediately cancels queued/running work and invalidates publication by a worker still doing external I/O. It returns status. Cancelling a terminal job is an idempotent no-op; already published results remain. It cannot recall data already sent to Wikimedia or a model endpoint. The model stage checks cancellation and renews its lease while waiting.

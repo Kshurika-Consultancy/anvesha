@@ -1,11 +1,25 @@
 {
-  "policy_version": "llm-processing-v2",
-  "task": "ANV-022",
+  "policy_version": "llm-processing-v3",
+  "task": "ANV-023",
   "reviewed_at": "2026-10-18",
   "scope": "Default-mode inference over bounded snippets from an operator-imported corpus, using an operator-configured endpoint; no training or new source discovery.",
   "default": "New API/browser requests default to llm and reject before acceptance when no model is configured. Explicit ranking=lexical performs no model call. Existing accepted jobs are unchanged; legacy lexical clients/replays must send the mode explicitly after upgrading.",
-  "sent_fields": ["original_query", "candidate_id", "title_prefix", "snippet_prefix", "evidence_status"],
-  "not_supplied_to_model": ["result_url_fields", "client_api_keys", "full_corpus", "tools", "feedback", "reviewer_labels"],
+  "sent_fields": [
+    "original_query",
+    "per_request_candidate_alias",
+    "title_prefix",
+    "snippet_prefix",
+    "evidence_status"
+  ],
+  "not_supplied_to_model": [
+    "public_result_id_fields",
+    "result_url_fields",
+    "client_api_keys",
+    "full_corpus",
+    "tools",
+    "feedback",
+    "reviewer_labels"
+  ],
   "rights": "Operator must review corpus rights and permission to process excerpts with the selected runtime/provider. Ingestion, a gateway account or a licence string is not a blanket permission grant.",
   "retention": "Anvesha retains operational jobs/snapshots/feedback under its documented local policy, but does not persist model prompts, raw responses or reasoning. Runtime/gateway/provider retention is outside Anvesha's control.",
   "privacy": "Loopback restricts Anvesha's destination, not gateway egress. Do not claim local inference or untracked search without verifying downstream routing and logs.",
@@ -15,5 +29,7 @@
     "https://docs.ollama.com/api/openai-compatibility",
     "https://github.com/diegosouzapw/OmniRoute",
     "https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE"
-  ]
+  ],
+  "candidate_aliases": "Short per-request aliases map back only to supplied result objects. They are not authorization or anonymization. Original public result IDs and source rights remain stable.",
+  "output_format": "json_object remains the compatibility default. Optional operator-configured json_schema requests bounded known aliases and exact array length. Client validation still rejects omissions/duplicates. No implicit format or provider fallback; the accepted fingerprint includes the format."
 }

@@ -67,6 +67,18 @@ def test_setup_flags_validate_effective_endpoint_once(tmp_path, monkeypatch):
     assert load_settings(config).llm.endpoint_scope == "network"
 
 
+def test_schema_output_is_saved_and_old_configuration_keeps_object_mode(tmp_path, monkeypatch):
+    monkeypatch.setenv("ANVESHA_LLM_OUTPUT_FORMAT", "json_schema")
+    path = tmp_path / "private.json"
+    setup(path, tmp_path / "collection.db", LLMConfig.from_env(model="local"))
+    assert load_settings(path).llm.output_format == "json_schema"
+    old = json.loads(path.read_bytes())
+    old["llm"].pop("output_format")
+    path.write_text(json.dumps(old), encoding="utf-8")
+    # Saved configurations take precedence over ambient environment variables.
+    assert load_settings(path).llm.output_format == "json_object"
+
+
 @pytest.mark.parametrize(
     "field,value",
     [

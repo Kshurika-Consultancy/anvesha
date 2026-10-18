@@ -4,6 +4,15 @@ Adopted: 2026-10-16. Company: **Kshurika Consultancy**. Task: **ANV-002**.
 
 Anvesha is an open-source search API that accepts a word or sentence, returns a durable search ID, and lets clients poll for useful ranked results and submit feedback. Its priority is result quality; latency is secondary. It must work without mandatory paid APIs or hosted LLMs.
 
+The clarified audience is people who want control over their own data and internal
+tooling, rather than dependence on services that track their usage. Anvesha's title
+is **Private Search for Your Own AI Tools**: a locally run search building block
+for research, coding/development, personal IoT, asset management and private AI
+agents/chat. These are integration goals, not a claim that device control, asset
+applications or chat agents are already implemented. Keep local inference and
+private operation practical; make any external processing an operator choice with
+clear disclosure. Do not promise anonymity or control over a separate gateway.
+
 This document preserves the product direction and research rationale. It is not a completion report. [Milestones](MILESTONES.md) define delivery gates, the [task ledger](tracking/tasks.json) records actual progress, and the [architecture](architecture/README.md) distinguishes the first implementation from future capabilities. Primary sources and their review date are in [RESEARCH.md](RESEARCH.md).
 
 ## 1. Product scope and success

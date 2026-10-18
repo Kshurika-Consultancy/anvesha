@@ -20,14 +20,19 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
-    with tempfile.TemporaryDirectory(prefix="anvesha-native-") as temporary, model_stub() as model:
+    with (
+        tempfile.TemporaryDirectory(prefix="anvesha-native-") as temporary,
+        model_stub(output_format="json_schema") as model,
+    ):
         directory = Path(temporary)
         endpoint, model_state = model
         config = directory / "server.json"
         environment = {
             key: value for key, value in os.environ.items() if not key.startswith("ANVESHA_")
         }
-        environment.update(ANVESHA_LLM_API_KEY=model_state["key"])
+        environment.update(
+            ANVESHA_LLM_API_KEY=model_state["key"], ANVESHA_LLM_OUTPUT_FORMAT="json_schema"
+        )
         flags = subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0
         setup = subprocess.run(
             [
@@ -52,7 +57,9 @@ def main():
             creationflags=flags,
         )
         assert setup.returncode == 0, "Native setup failed"
-        key = load_settings(config).api_keys[0]
+        settings = load_settings(config)
+        key = settings.api_keys[0]
+        assert settings.llm.output_format == "json_schema"
         assert key.encode() not in setup.stdout
         with socket.socket() as listener:
             listener.bind(("127.0.0.1", 0))

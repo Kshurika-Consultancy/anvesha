@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "policy_version": "local-llm-pilot-v1",
+  "task": "ANV-023",
+  "reviewed_at": "2026-10-18",
+  "runtime": {
+    "name": "llama.cpp",
+    "version": "b11669",
+    "commit": "620d2225cc436ab0b001e3200e590e3b286ef9ab",
+    "license": "MIT; bundled third-party notices remain separate",
+    "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-win-cpu-x64.zip",
+    "bytes": 19537886,
+    "sha256": "37b3efcf962847ca869745fd4ccf7f5e7e8dacfeff9fa3523b4ca8cdc66d632b"
+  },
+  "model": {
+    "name": "Qwen3-4B-Instruct-2507",
+    "alias": "anvesha-qwen3-4b-q4km",
+    "quantization": "Q4_K_M",
+    "license": "Apache-2.0",
+    "manifest_sha256": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "manifest_url": "https://registry.ollama.ai/v2/library/qwen3/manifests/4b-instruct-2507-q4_K_M",
+    "url": "https://registry.ollama.ai/v2/library/qwen3/blobs/sha256:85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9",
+    "bytes": 2497280480,
+    "sha256": "85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9",
+    "license_blob_sha256": "d18a5cc71b84bc4af394a31116bd3932b42241de70c77d2b76d69a314ec8aa12"
+  },
+  "rights": {
+    "retrieval": "Explicit opt-in downloads of the pinned official runtime asset and official model-registry GGUF; no account or payment.",
+    "retention": "Local ignored workspace only; do not bundle binaries or weights in Anvesha distributions.",
+    "evaluation": "Local inference over the rights-reviewed public SciFact snapshot; no user/private data or training.",
+    "redistribution": "This repository distributes metadata and independently written code only. Runtime/model licences and notices remain separate if an operator redistributes them."
+  },
+  "privacy": "Use explicit loopback CPU serving with no tools or cloud route. Downloads are visible to GitHub/model-registry infrastructure; local inference is distinct from acquisition. This is not a network-isolation or anonymity guarantee.",
+  "references": [
+    "https://github.com/ggml-org/llama.cpp/releases/tag/b11669",
+    "https://github.com/ggml-org/llama.cpp/blob/620d2225cc436ab0b001e3200e590e3b286ef9ab/LICENSE",
+    "https://ollama.com/library/qwen3:4b-instruct-2507-q4_K_M",
+    "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507/blob/main/LICENSE"
+  ]
+}

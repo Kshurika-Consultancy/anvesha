@@ -29,7 +29,7 @@ def candidates(count=3):
 
 
 def completion(ids=None, **response_kwargs):
-    content = json.dumps({"ranked_ids": ids or ["candidate-3", "candidate-2", "candidate-1"]})
+    content = json.dumps({"ranked_ids": ids or ["c3", "c2", "c1"]})
     payload = {
         "choices": [{"finish_reason": "stop", "message": {"role": "assistant", "content": content}}]
     }
@@ -58,6 +58,9 @@ def completion(ids=None, **response_kwargs):
         {"model": "invalid model\n"},
         {"model": None},
         {"allow_network": "true"},
+        {"output_format": "unsupported"},
+        {"output_format": None},
+        {"output_format": []},
     ],
 )
 def test_invalid_configuration_is_rejected_without_echoing_values(values):
@@ -73,6 +76,9 @@ def test_endpoint_opt_in_normalization_and_configuration_identity(monkeypatch):
     assert "secret-a" not in repr(local)
     assert local.pipeline_version == LLMConfig(model="a", api_key="secret-b").pipeline_version
     assert local.pipeline_version != LLMConfig(model="b").pipeline_version
+    assert (
+        local.pipeline_version != LLMConfig(model="a", output_format="json_schema").pipeline_version
+    )
     for endpoint in (
         "http://192.168.1.8:11434/v1",
         "http://ollama:11434/v1",
@@ -89,7 +95,7 @@ def test_minimized_request_and_permutation_preserve_content_and_tail():
 
     def respond(request):
         calls.append(request)
-        return completion(["candidate-2", "candidate-1"])
+        return completion(["c2", "c1"])
 
     original = candidates(4)
     config = LLMConfig(model="research-model", api_key="model-secret", candidate_limit=2)
@@ -115,23 +121,57 @@ def test_minimized_request_and_permutation_preserve_content_and_tail():
     supplied = json.loads(body["messages"][1]["content"])
     assert supplied["original_query"] == '"specific phrase" 2025 -excluded'
     assert len(supplied["candidates"]) == 2
+    assert [item["id"] for item in supplied["candidates"]] == ["c1", "c2"]
+    assert "candidate-1" not in request.content.decode()
     assert "private.example" not in request.content.decode()
     assert "model-secret" not in request.content.decode()
     assert body["stream"] is False
+    assert body["response_format"] == {"type": "json_object"}
     assert not ({"tools", "functions"} & body.keys())
+
+
+@pytest.mark.parametrize("invalid", [False, True])
+def test_opt_in_schema_bounds_do_not_replace_client_permutation_validation(invalid):
+    def respond(request):
+        body = json.loads(request.content)
+        mode = body["response_format"]
+        assert mode["type"] == "json_schema" and mode["json_schema"]["strict"] is True
+        schema = mode["json_schema"]["schema"]
+        assert schema["required"] == ["ranked_ids"] and schema["additionalProperties"] is False
+        ids = schema["properties"]["ranked_ids"]
+        assert ids["items"]["enum"] == ["c1", "c2", "c3"]
+        assert ids["minItems"] == ids["maxItems"] == 3
+        # A backend may ignore the schema. Missing/duplicate IDs still fail closed.
+        return completion(["c1", "c2", "c2"] if invalid else ["c3", "c1", "c2"])
+
+    ranker = LLMReranker(
+        LLMConfig(model="test", output_format="json_schema"),
+        transport=httpx.MockTransport(respond),
+    )
+    if invalid:
+        with pytest.raises(LLMError, match="^invalid_response$"):
+            ranker.rerank("query", candidates(), lambda: True)
+    else:
+        assert [item["id"] for item in ranker.rerank("query", candidates(), lambda: True)] == [
+            "candidate-3",
+            "candidate-1",
+            "candidate-2",
+        ]
 
 
 @pytest.mark.parametrize(
     "content",
     [
-        {"ranked_ids": ["candidate-1", "candidate-1", "candidate-2"]},
-        {"ranked_ids": ["candidate-1"]},
-        {"ranked_ids": ["candidate-1", "candidate-2", "https://invented.example"]},
+        {"ranked_ids": ["c1", "c1", "c2"]},
+        {"ranked_ids": ["c1"]},
+        {"ranked_ids": ["c1", "c2", "c3", "c4"]},
+        {"ranked_ids": ["c1", "c2", "https://invented.example"]},
+        {"ranked_ids": ["candidate-1", "candidate-2", "candidate-3"]},
         {"ranked_ids": [1, 2, 3]},
-        {"ranked_ids": ["candidate-1", "candidate-2", "candidate-3"], "answer": "Invented"},
-        ["candidate-1", "candidate-2", "candidate-3"],
+        {"ranked_ids": ["c1", "c2", "c3"], "answer": "Invented"},
+        ["c1", "c2", "c3"],
         "```json\n{}\n```",
-        '{"ranked_ids": [], "ranked_ids": ["candidate-1", "candidate-2", "candidate-3"]}',
+        '{"ranked_ids": [], "ranked_ids": ["c1", "c2", "c3"]}',
         '{"ranked_ids": NaN}',
     ],
 )

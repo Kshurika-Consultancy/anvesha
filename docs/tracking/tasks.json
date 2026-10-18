@@ -908,19 +908,20 @@
       "id": "ANV-023",
       "milestone": "M3",
       "title": "Measure local LLM usefulness and verify real backend compatibility",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": ["ANV-020", "ANV-021"],
       "acceptance": [
-        "Run explicit bounded compatibility checks against actual local Ollama and configured OmniRoute deployments with consented non-private fixtures",
+        "Clarify Anvesha's title/description as open-source private self-hosted search for user-controlled internal tools, without claiming integrations that are not implemented",
+        "Run explicit bounded checks against a chosen real local runtime, then actual Ollama/configured OmniRoute deployments with consented non-private fixtures",
         "Pin model and route identities, prompts, source rights and hardware; compare reranking against lexical retrieval on clean development and held-out data",
         "Report regressions, failure rates, latency and resource use without counting coached examples or model-generated labels as independent human evidence",
         "Use measured coverage gaps to decide on constrained query expansion, embeddings and additional approved research sources"
       ],
       "validation_plan": ["Use independently reviewed labels and retain reproducible ranking/configuration fingerprints", "Verify no cloud routing in the claimed local configuration and publish only consented aggregate evidence"],
       "verification": [],
-      "references": ["docs/PRIVATE_RESEARCH.md", "docs/review/README.md"],
-      "notes": "Wire-contract tests establish implementation behavior, not actual model quality, every gateway/provider combination or untracked search. External source and provider policies still apply."
+      "references": ["docs/PRIVATE_RESEARCH.md", "docs/review/README.md", "README.md", "policies/models/qwen3-4b-instruct2507.json", "policies/llm-processing.json", "benchmarks/local-llm-pilot-v1/protocol.json", "benchmarks/local-llm-pilot-v2/protocol.json", "benchmarks/local-llm-pilot-v3/protocol.json", "docs/decisions/0009-opt-in-constrained-ranking-output.md", "reports/evaluation/local-llm-development-v2/diagnostics.json", "scripts/smoke_selfhost.py", ".env.example", "docs/API.md", "NOTICE", "docs/RESEARCH.md", "tests/test_selfhost.py", "reports/evaluation/local-llm-development-v1/diagnostics.json", "docs/LOCAL_LLM_EVALUATION.md", "docs/tracking/verification/2026-10-18-local-llm.md", "docs/decisions/0007-local-model-quality-pilot.md", "docs/decisions/0008-compact-reranking-identifiers.md", "src/anvesha/llm.py", "src/anvesha/llm_evaluation.py", "scripts/prepare_local_llm.py", "scripts/serve_local_llm_pilot.py", "scripts/smoke_mvp.py", "tests/test_llm.py", "tests/test_llm_evaluation.py", "tests/test_local_llm_acquisition.py"],
+      "notes": "User authorized local-model comparison, privacy/tooling purpose/title clarification and publishing main. Root owns this slice. Pinned portable llama.cpp b11669 and Qwen3-4B-Instruct-2507 Q4_K_M on Ryzen 5 4600G / 32 GB RAM; no system install or hosted inference. v1 development recorded four timeouts before evaluation release. ADR 0008/v2 introduce compact reversible aliases, preserving the selected 4 development and 24 evaluation IDs and other bounds. Tokenizer-only output size is 501 versus 96 tokens, not measured inference speedup. Focused 83 tests and full 280-test suite pass; real synthetic three-result compatibility passed. v2 development produced four invalid outputs; one bounded development replay returned 19 distinct known aliases instead of 20. No evaluation released. Optional schema-constrained output and v3 are frozen; development completed 3 applied / 1 invalid-output fallback. Preserve all earlier diagnostics. Evaluation release and final publication are pending. Inherited expert labels are not new Anvesha human judgments; never use coached/model-generated grades. ANV-020 independent research/coding/IoT/asset/private-agent coverage and actual Ollama/OmniRoute checks remain open. Default tests stay offline/model-free."
     }
   ]
 }

@@ -2,6 +2,41 @@
 
 ## Objective
 
+Active follow-up, 2026-10-18: user authorized ANV-023 real local-model comparison,
+privacy/user-owned-tooling title/description and commit/push to main. Root owns all
+new files; no delegation. Starting HEAD a7eb810 was clean. Branding now describes
+private search for user-controlled research, code/development, IoT/asset tooling
+and private agents/chat as intended integrations, not implemented applications.
+
+In-progress experiment: `benchmarks/local-llm-pilot-v3/protocol.json` freezes 4
+development and 24 evaluation SciFact IDs by label-blind hashing. The new module
+`anvesha.llm_evaluation` uses actual Store/worker/LLMReranker, retains fallback,
+pairs metrics, checkpoints privately and verifies ID-only reports offline. Full
+offline suite: 280 passed (40.43s), Ruff lint/format pass. v1 development recorded
+four 120-second timeouts, with zero evaluation calls. Public diagnostics are in
+`reports/evaluation/local-llm-development-v1`. ADR 0008/v2 use reversible `c1`..`c20`
+aliases: pinned tokenizer output size 501 versus 96 tokens, not a measured speedup.
+The v2 sample retains every original ID and other bounds. v2 development returned four invalid outputs; a structural replay found 19 distinct
+known IDs instead of 20. No evaluation was released. ADR 0009 adds optional
+`ANVESHA_LLM_OUTPUT_FORMAT=json_schema`; protocol v3 keeps all selected IDs and
+other bounds. Session 82779 finished v3 development: three applied rankings, one invalid-output
+fallback; zero evaluation queries run. Explicit unchanged release/resume is next. Full schema suite
+285 passed (39.85s), saved-format/legacy-config suite 13 passed. Original MVP/native
+process smokes pass; schema native repeat, build/archive exclusion checks and both archived lexical
+report verifiers passed. Final checks and the real evaluation remain pending. Freeze evaluated source until explicit release/resume completes;
+do not tune from evaluation outcomes. Process smokes/browser/package remain pending.
+
+Explicit downloads verified: MIT llama.cpp b11669 CPU runtime (19.5 MB) and
+Apache-2.0 Qwen3-4B-Instruct-2507 Q4_K_M GGUF (2.497 GB), under ignored
+`.anvesha/local-llm/anv023`. Pins/rights are in
+`policies/models/qwen3-4b-instruct2507.json`. No system install or hosted inference.
+`scripts/serve_local_llm_pilot.py --serve` currently owns server PID 21908 on
+loopback port 8135, CPU-only/offline, no web UI/MCP proxy or prompt logs. A real
+synthetic three-result worker check passed: completed, three LLM-reordered results,
+no warnings, 30.970 seconds. It is compatibility evidence, not quality evidence.
+Stop the owned server tree after measurement. No actual Ollama/OmniRoute instance
+was exercised. ANV-020 independent review and those backend checks remain open.
+
 The user selected Anvesha, asked to save the researched plan in this repository, break it into milestones, create agent guidance, and begin an MVP with no mandatory paid APIs. The user subsequently created https://github.com/Kshurika-Consultancy/anvesha and explicitly authorized connecting this workspace, committing the plan/MVP, and pushing main (ANV-017).
 
 Current request delivered, 2026-10-18: publish ANV-021, build ANV-022 browser/easy self-hosting and make LLM default. ANV-021 is on main as `83830bf4ace6df5702a5921f17ef3d37f991fa91`, with four CI jobs passed. ANV-022 is on main as `0193557c109939b032fafbc28eaddc60aac19d5b`, with all five jobs in Actions run 39111550834 passed, including real Docker installation/restart/private chat connectivity. Local/remote hashes matched after each push. A documentation follow-up records completion; check its own Actions run separately if assessing current HEAD. ANV-023 owns actual backend/model quality. No delegation or public service is active. ANV-020 independent review remains open and separate.

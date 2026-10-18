@@ -87,6 +87,22 @@ The [official XQuAD README](https://github.com/google-deepmind/xquad/tree/7d3052
 
 [Ollama's official compatibility documentation](https://docs.ollama.com/api/openai-compatibility) documents local `/v1/chat/completions`, non-streaming responses and JSON output formats. [OmniRoute's repository](https://github.com/diegosouzapw/OmniRoute) documents a compatible `/v1` gateway on port 20128 with a gateway key and configurable downstream routing. Its [licence](https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE) is MIT as reviewed today. This supports an independent HTTP interoperability implementation, not a guarantee about every backend/model, free-tier availability, upstream rights or local-only processing. Pin a specific route/model for evaluation; a locally running gateway and routing labels do not establish absence of external processing. [ADR 0005](decisions/0005-private-research-and-optional-llm.md) and the [processing policy](../policies/llm-processing.json) record the scope. Synthetic protocol tests are not actual model quality evidence.
 
-## Maintaining the register
+## ANV-023 local-model review, 2026-10-18
+
+The [pinned llama.cpp b11669 release](https://github.com/ggml-org/llama.cpp/releases/tag/b11669)
+provides a portable CPU runtime; its [MIT licence](https://github.com/ggml-org/llama.cpp/blob/620d2225cc436ab0b001e3200e590e3b286ef9ab/LICENSE)
+and bundled third-party notices remain separate. The [official Ollama registry entry](https://ollama.com/library/qwen3:4b-instruct-2507-q4_K_M)
+identifies the selected GGUF quantization. The [Qwen model card](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507)
+describes a non-thinking instruct model and [Apache-2.0 licence](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507/blob/main/LICENSE).
+Exact runtime/archive/weight hashes and rights boundaries are in the
+[model manifest](../policies/models/qwen3-4b-instruct2507.json). These grants do not
+relicense input documents or establish model accuracy. Acquisition is explicit;
+weights and binaries remain in the ignored local workspace. Normal search and
+offline CI never download them. See [ADR 0007](decisions/0007-local-model-quality-pilot.md)
+and the [reproduction guide](LOCAL_LLM_EVALUATION.md). The actual CPU configuration
+uses a fixed local file and loopback with no model tools or cloud routes; sampled
+connections are bounded execution evidence, not an anonymity guarantee.
+
+## Maintaining this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

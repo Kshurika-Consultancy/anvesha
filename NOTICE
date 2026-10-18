@@ -21,3 +21,10 @@ Lopyrev and Liang), and Wikipedia contributors. See that directory's README
 for source versions, attribution, transformations and licence links.
 AI-authored intent probes are explicitly distinguished from published questions.
 Raw translated passages and private assessor data are not bundled.
+
+The explicit ANV-023 evaluation bootstrap references llama.cpp (MIT, with its
+own bundled third-party notices) and Qwen3-4B-Instruct-2507 (Apache-2.0).
+Neither runtime binaries nor model weights are distributed here. Their pins,
+licence sources and permitted evaluation scope are in policies/models.
+Evaluation rankings/metrics derive from the attributed SciFact snapshot;
+the project's code licence does not relicense data or source documents.

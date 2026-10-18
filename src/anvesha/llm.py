@@ -19,7 +19,7 @@ from urllib.parse import urlsplit, urlunsplit
 import httpx
 
 MAX_RESPONSE_BYTES = 65_536
-PROMPT_VERSION = "candidate-rerank-v1"
+PROMPT_VERSION = "candidate-rerank-v2-aliases"
 SYSTEM_PROMPT = """Rank supplied search candidates by usefulness to the original query.
 Preserve the query's explicit constraints. Short ambiguous queries may have several
 plausible interpretations. Judge relevance, not a probability of truth. A supplied
@@ -75,6 +75,7 @@ class LLMConfig:
     allow_network: bool = False
     timeout_seconds: float = 60
     candidate_limit: int = 20
+    output_format: str = "json_object"
     endpoint_scope: str = field(init=False)
 
     def __post_init__(self):
@@ -96,6 +97,11 @@ class LLMConfig:
         object.__setattr__(self, "timeout_seconds", float(self.timeout_seconds))
         if type(self.candidate_limit) is not int or not 2 <= self.candidate_limit <= 20:
             raise ValueError("LLM candidate limit must be between 2 and 20")
+        if not isinstance(self.output_format, str) or self.output_format not in {
+            "json_object",
+            "json_schema",
+        }:
+            raise ValueError("LLM output format must be json_object or json_schema")
         try:
             if not isinstance(self.base_url, str) or len(self.base_url) > 512:
                 raise ValueError
@@ -165,6 +171,7 @@ class LLMConfig:
             self.allow_network,
             self.timeout_seconds,
             self.candidate_limit,
+            self.output_format,
         ]
         fingerprint = hashlib.sha256(json.dumps(material, sort_keys=True).encode()).hexdigest()
         return "m3-llm-rerank-v1-" + fingerprint[:16]
@@ -178,6 +185,7 @@ class LLMConfig:
             "allow_network": _environment_bool("ANVESHA_LLM_ALLOW_NETWORK"),
             "timeout_seconds": float(os.getenv("ANVESHA_LLM_TIMEOUT_SECONDS", "60")),
             "candidate_limit": int(os.getenv("ANVESHA_LLM_CANDIDATE_LIMIT", "20")),
+            "output_format": os.getenv("ANVESHA_LLM_OUTPUT_FORMAT", "json_object"),
         }
         return cls(**(values | overrides))
 
@@ -203,6 +211,28 @@ class LLMReranker:
                 for item in candidates
             ],
         }
+        response_format = {"type": "json_object"}
+        if self.config.output_format == "json_schema":
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "candidate_reranking",
+                    "strict": True,
+                    "schema": {
+                        "type": "object",
+                        "properties": {
+                            "ranked_ids": {
+                                "type": "array",
+                                "items": {"type": "string", "enum": [c["id"] for c in candidates]},
+                                "minItems": len(candidates),
+                                "maxItems": len(candidates),
+                            }
+                        },
+                        "required": ["ranked_ids"],
+                        "additionalProperties": False,
+                    },
+                },
+            }
         try:
             async with asyncio.timeout(self.config.timeout_seconds):
                 async with httpx.AsyncClient(
@@ -224,7 +254,7 @@ class LLMReranker:
                             "temperature": 0,
                             "max_tokens": 1536,
                             "stream": False,
-                            "response_format": {"type": "json_object"},
+                            "response_format": response_format,
                         },
                         timeout=self.config.timeout_seconds,
                     ) as response:
@@ -316,10 +346,13 @@ class LLMReranker:
         candidates = results[: self.config.candidate_limit]
         if len(candidates) < 2:
             return results
-        ids = asyncio.run(self._supervise(query, candidates, checkpoint))
-        by_id = {item["id"]: item for item in candidates}
+        # ANV-023: compact per-request aliases reduce copying work for local models.
+        # Original result IDs remain stable and never become model-generated values.
+        by_id = {f"c{index}": item for index, item in enumerate(candidates, 1)}
+        supplied = [{**item, "id": alias} for alias, item in by_id.items()]
+        ids = asyncio.run(self._supervise(query, supplied, checkpoint))
         ordered = [by_id[identifier] for identifier in ids] + results[len(candidates) :]
-        reranked = set(ids)
+        reranked = {by_id[identifier]["id"] for identifier in ids}
         return [
             {
                 **item,

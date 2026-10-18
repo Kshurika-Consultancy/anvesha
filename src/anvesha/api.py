@@ -110,12 +110,13 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         yield
 
     app = FastAPI(
-        title="Anvesha Search API",
+        title="Anvesha — Private Search for Your Own AI Tools",
         version=__version__,
         lifespan=lifespan,
         docs_url=None,
         redoc_url=None,
-        description="Local-first asynchronous search; no mandatory paid APIs or hosted models.",
+        description="Open-source search for user-controlled research, development and personal "
+        "tools; local inference with no mandatory paid API or hosted model.",
     )
     app.state.store = store
     api_key_header = APIKeyHeader(name="X-API-Key", auto_error=False)

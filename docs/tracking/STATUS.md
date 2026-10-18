@@ -1,5 +1,17 @@
 # Anvesha development status
 
+ANV-023 is active (2026-10-18): private search for user-controlled AI tools, with
+a real pinned local CPU-model pilot. Explicit downloads stay ignored; no hosted
+LLM or paid API is used. Full 280-test offline suite and a real three-result
+worker/model compatibility check pass. v1's four development requests timed out,
+with zero evaluation requests. ADR 0008/v2 add reversible compact candidate aliases
+and preserve the same 4-development / 24-evaluation IDs. Four v2 invalid outputs
+led to optional schema mode under ADR 0009. v3 development is running with the
+same sample/bounds; no evaluation has run and no relevance gain is claimed.
+Final pre-release suite: 286 passed; MVP/native schema process smokes and package
+checks pass. v3 development finished 3 applied / 1 invalid-output fallback.
+Independent multi-intent review and actual Ollama/OmniRoute checks remain open.
+
 Current direction, 2026-10-18: LLM-default private home-server research with no mandatory paid APIs. ANV-021 is published on main as `83830bf`; all four Windows/Linux CI jobs passed in [run 39109656383](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39109656383). Its bounded reranking protocol and frozen lexical fingerprints remain documented in [ANV-021 evidence](verification/2026-10-18-private-research.md).
 
 ANV-022 is complete for its scoped browser/self-hosting slice, published as `0193557`: LLM-default API/browser requests, explicit lexical baseline, same-origin assets, private setup/configuration, native supervision and non-root Compose. The 252-test suite, Ruff/tracking, process smokes, desktop/mobile browser and isolated installed-wheel checks pass. All five CI jobs passed in [run 39111550834](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39111550834), including the actual Linux container build/restart/private-network protocol fixture. All local test services are stopped. See [guide](../PRIVATE_RESEARCH.md), [ADR 0006](../decisions/0006-llm-default-and-self-hosted-browser.md) and [evidence](verification/2026-10-18-self-hosting.md). Actual model quality/live backend acceptance remains ANV-023. M2/M3 overall gates stay open; a local gateway does not establish local downstream inference.

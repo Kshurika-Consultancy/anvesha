@@ -1,0 +1,107 @@
+{
+  "experiment": "local-llm-pilot-v1",
+  "metadata": {
+    "backend": {
+      "context_tokens": 8192,
+      "cpu_model": "AMD Ryzen 5 4600G with Radeon Graphics",
+      "gpu_layers": 0,
+      "logical_processors": 12,
+      "memory_bytes": 33684578304,
+      "model_alias": "anvesha-qwen3-4b-q4km",
+      "model_sha256": "85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9",
+      "offline": true,
+      "physical_cores": 6,
+      "runtime": "llama.cpp",
+      "runtime_archive_sha256": "37b3efcf962847ca869745fd4ccf7f5e7e8dacfeff9fa3523b4ca8cdc66d632b",
+      "runtime_commit": "620d2225cc436ab0b001e3200e590e3b286ef9ab",
+      "runtime_version": "version: 0.7.0-dev (build 11669, commit 620d2225c)",
+      "seed": 20261018,
+      "server_sha256": "6a4635aeb35656153d4bfeeddf761d24ed84aada9c9108d580737cbed465141b",
+      "threads": 6,
+      "tools_enabled": false,
+      "webui": false
+    },
+    "benchmark_sha256": {
+      "document_ids.txt": "b42b9cb55780a26683df8110d34228207a9c377ebcf0c290231ac926f432db23",
+      "qrels.tsv": "b186284995f1a2853538b45a03b6dc7a7a3cc6f78b030579cb865f449949a2c4",
+      "queries.jsonl": "d45f8bb3bb152fa9fae714bd0087d9867c6494a346ddebdde1a4d0b4ecc62a18"
+    },
+    "code_sha256": {
+      "eval_data.py": "a9b9c9faadbc05ca4d07b6c71785c2d2659e6f54b70b9623ca990acb163af17e",
+      "eval_metrics.py": "8b8735f22e64ebc12de0d9d060a5d883642a8b2436705786b7011aab325c1bec",
+      "llm.py": "8b66d7a6167bb3cd275431a20cd0bdc6fcaac370d964fc4bd9ad13fbc2da4911",
+      "llm_evaluation.py": "5ede9b2ef37344bf4acc28411fed673e7f9d80983976985b8b063d0f52b757b8",
+      "providers.py": "0f98e65df0587e94d852cac7106f5693ee876a889916d0103617c3f372cb07d3",
+      "ranking.py": "ea4b42589e62af450a14df1fabc6d063e5f6bc8467e2a731fd4a2eec96a5722a",
+      "store.py": "4c5881e785aaf4c8f4fdf018d5b20cb2270140189ca689864e6a1ae0e414931d",
+      "worker.py": "9ed6fdc52b685ec520e781bc45c378a0fca764466b611f96935ff2c2e2fd92ce"
+    },
+    "corpus_sha256": "dec31c8182f3d744c7d2c09423756fd1d17cbef75808db13ba01cc0aab4d1ac6",
+    "environment": {
+      "platform": "Windows",
+      "python": "3.14.4",
+      "sqlite": "3.50.4"
+    },
+    "experiment": "local-llm-pilot-v1",
+    "lexical_reference_sha256": "08143f79b513ae16fc02eaa41e7802bad7649f7509d97a07c281e11ba55c294f",
+    "model_policy_sha256": "a657643a67801c5c85a6dd58200fab1a5b3010e757c46a94e0163321e5fa8686",
+    "model_profile": {
+      "candidate_limit": 20,
+      "endpoint_scope": "loopback",
+      "pipeline_version": "m3-llm-rerank-v1-897a3ed155e8417f",
+      "prompt_version": "candidate-rerank-v1",
+      "timeout_seconds": 120.0
+    },
+    "protocol_sha256": "6c827fd7e1264be19de13b49cb1be408c4ab894ee0869211723630a1a8579464",
+    "schema_version": 1,
+    "task": "ANV-023"
+  },
+  "origin": {
+    "code_revision_before_run": "a7eb810f202a4fdd0837878ea9e471d29508c957",
+    "started_at": "2026-10-18T09:08:42.385896+00:00"
+  },
+  "purpose": "Development-only execution diagnostics; evaluation never released; not a relevance comparison",
+  "queries": [
+    {
+      "elapsed_ms": 120289.0293,
+      "query_id": "1145",
+      "state": "completed_partial",
+      "warnings": [
+        "llm:timeout"
+      ]
+    },
+    {
+      "elapsed_ms": 120310.2069,
+      "query_id": "1265",
+      "state": "completed_partial",
+      "warnings": [
+        "llm:timeout"
+      ]
+    },
+    {
+      "elapsed_ms": 120379.5557,
+      "query_id": "946",
+      "state": "completed_partial",
+      "warnings": [
+        "llm:timeout"
+      ]
+    },
+    {
+      "elapsed_ms": 120342.2639,
+      "query_id": "1052",
+      "state": "completed_partial",
+      "warnings": [
+        "llm:timeout"
+      ]
+    }
+  ],
+  "schema_version": 1,
+  "task": "ANV-023",
+  "tokenizer_diagnostic": {
+    "aliases_output_tokens": 96,
+    "candidate_count": 20,
+    "legacy_output_tokens": 501,
+    "measurement": "tokenizer only; not inference or quality evidence",
+    "task": "ANV-023"
+  }
+}
