@@ -9,7 +9,8 @@ includes zero, so improvement is not established. All outcomes are retained:
 and [verification](verification/2026-10-18-local-llm.md). Source/protocol were frozen
 as 9905423 before evaluation. Owned model/preview are stopped; caches stay ignored.
 Final local checks passed: 286 tests (35.81s), lint/format/tracking, process smokes,
-report verifiers and package inspection. Commit/push/CI are next. ANV-024 tracks reliability with fresh evaluation. ANV-023
+report verifiers and package inspection. Freeze 9905423 and result c0fb6eb are pushed to main with matching remote hash;
+all five jobs passed in [CI run 39119704640](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39119704640), including actual container acceptance. ANV-024 tracks reliability with fresh evaluation. ANV-023
 stays in progress for actual Ollama/OmniRoute/other profiles and ANV-020 independent
 domain evidence. No mandatory paid API or hosted inference.
 

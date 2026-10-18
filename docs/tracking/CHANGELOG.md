@@ -15,7 +15,9 @@ Record material delivered changes with task IDs and verification references. Thi
   rankings, five invalid-output fallbacks and zero worker failures. Added
   resource/provenance reports, offline CI verification and launcher PID-record
   cleanup, verified by a no-inference restart. Independent domain and actual
-  gateway/backend gates remain open. [Evidence](verification/2026-10-18-local-llm.md).
+  gateway/backend gates remain open. Freeze `9905423` and result `c0fb6eb` are
+  pushed to main; all five jobs passed in [run 39119704640](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39119704640).
+  [Evidence](verification/2026-10-18-local-llm.md).
 
 - ANV-021: published commit `83830bf` to main and verified remote equality plus all four Windows/Linux Python 3.12/3.14 jobs in [run 39109656383](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39109656383).
 - ANV-022: delivered LLM-default API/browser requests with an explicit lexical baseline, missing-model guidance and visible runtime fallback. Added same-origin text-only browser rendering, memory-only keys, private saved configuration, supervised native services, and a pinned non-root Docker/Compose layout. Source commit `0193557` is on main. Local 252-test suite, process smokes, desktop/mobile browser and installed-wheel checks pass; all five jobs in [run 39111550834](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39111550834) passed, including a real container/private-network protocol/restart smoke. [Evidence](verification/2026-10-18-self-hosting.md) records completion. [ADR 0006](../decisions/0006-llm-default-and-self-hosted-browser.md) documents the default-mode upgrade. Actual model quality remains ANV-023.

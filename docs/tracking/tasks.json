@@ -945,6 +945,11 @@
           "command": "Final Ruff lint/format, pytest, tracking/diff; both process smokes; all artifact/data verifiers; package/archive inspection; no-inference launcher restart",
           "result": "Passed: 286 tests in 35.81s (one existing ANV-015 warning); stable archived ranking fingerprints; default tests offline/model-free. Saved schema and installed-wheel/native checks pass. Ownership cleanup passed and all owned ports closed. Final wheel/sdist exclude private data, binaries and weights. About description read-back verified.",
           "date": "2026-10-18"
+        },
+        {
+          "command": "git push origin main; compare git rev-parse HEAD / git ls-remote; inspect Actions run 39119704640 jobs",
+          "result": "Freeze 9905423457d0ed3e9395948aa286d6c74afc3332 and result c0fb6ebf2dc077c6713324db96c599b840cd9bb9 published to main; local/remote hashes matched and worktree clean. All five Windows/Linux Python 3.12/3.14 and actual container jobs passed, including offline model-report verification with no weights/downloads.",
+          "date": "2026-10-18"
         }
       ],
       "references": [
@@ -985,7 +990,7 @@
         "reports/evaluation/local-llm-pilot-v3/rankings.jsonl",
         "reports/evaluation/local-llm-pilot-v3/execution.json"
       ],
-      "notes": "Initial real llama.cpp/Qwen3 CPU pilot measured and verified; average score rose but the paired interval spans zero, so no established gain is claimed. Original v1/v2 development failures and unchanged selected IDs remain auditable; evaluation was frozen before release. Broader independent research/coding/IoT/asset/private-agent evidence stays ANV-020. Actual Ollama/OmniRoute and other hardware/model profiles remain ANV-023, so this task stays in_progress. ANV-024 tracks development-led contract reliability and fresh evaluation; the released 24-query sample must not be reused as unseen tuning evidence. Corrected stale owned-process metadata after helper shutdown; real no-inference restart/cleanup passed with matching PID record removed and ports closed. Measured ranking code/settings stayed unchanged. Final local documentation/checks passed (286 tests and process/artifact/package verification). Result/docs commit, authorized push and remote CI are pending. Default tests stay offline/model-free. Root owns publication."
+      "notes": "Initial real llama.cpp/Qwen3 CPU pilot measured and verified; average score rose but the paired interval spans zero, so no established gain is claimed. Original v1/v2 development failures and unchanged selected IDs remain auditable; evaluation was frozen before release. Broader independent research/coding/IoT/asset/private-agent evidence stays ANV-020. Actual Ollama/OmniRoute and other hardware/model profiles remain ANV-023, so this task stays in_progress. ANV-024 tracks development-led contract reliability and fresh evaluation; the released 24-query sample must not be reused as unseen tuning evidence. Corrected stale owned-process metadata after helper shutdown; real no-inference restart/cleanup passed with matching PID record removed and ports closed. Measured ranking code/settings stayed unchanged. Final local documentation/checks passed (286 tests and process/artifact/package verification). Freeze 9905423 and result c0fb6eb are published with remote equality and all five CI jobs in run 39119704640 passed. This documentation follow-up may have its own CI run; inspect current HEAD. Default tests stay offline/model-free. Root ownership of this scoped pilot/publication slice is released; no owned services or independent-review submissions remain."
     },
     {
       "id": "ANV-024",
