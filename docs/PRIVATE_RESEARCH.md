@@ -1,189 +1,227 @@
 # Private research with Anvesha
 
-ANV-021 builds toward a private research search service for home-server users,
-developers and small research teams. Start with documents you can legally process
-and share within your instance. Local lexical search needs no model, paid API,
-GPU or hosted account. Optional model reranking uses the same asynchronous API.
+**LLM ranking is the default for new API and browser searches.** Use your own local
+model; no paid API or hosted account is required. The explicit lexical baseline
+works without a model. Anvesha never downloads model weights automatically.
 
-The useful first outcome is: import real research material, submit a question,
-wait for its durable job and inspect stable results with original source rights.
-This preview searches an operator-supplied corpus. It is not a full-web index or
-evidence of Google-level search quality. Reranking is experimental until measured
-against independent labels under ANV-023.
+This preview searches an imported collection. General-web discovery, query
+planning, page inspection and embeddings remain future work. Reranking is
+experimental until measured against independent labels under ANV-023. A ranker
+cannot recover a missing document or establish that a statement is true.
 
 ## Native setup
 
-Use Python 3.12+ with SQLite FTS5 and uv. From the repository:
+Install Python 3.12+ with SQLite FTS5 and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+Install your model runtime separately, review the model licence/hardware needs,
+and choose an already installed local model (`ollama list` for Ollama). From the repo:
 
 ```text
 uv sync --locked
-uv run anvesha init
+uv run anvesha setup --model YOUR_INSTALLED_MODEL --seed-demo
+uv run anvesha show-key
+uv run anvesha start
 ```
 
-Save the generated API key privately. `init` does not save it. Import a reviewed
-JSON list containing `id`, `url`, `title`, `content`, `license` and `attribution`:
+Replace the model identifier. The default endpoint is `http://127.0.0.1:11434/v1`.
+A fresh package install needs download access; subsequent local search needs no
+external service. Setup saves a generated key and matching API/worker settings in
+ignored `.anvesha/server.json`, initializes `.anvesha/anvesha.db`, and refuses to
+overwrite credentials. `--seed-demo` explicitly loads three synthetic records;
+omit it for an empty collection. Keep `show-key` output private.
+
+Open [Anvesha](http://127.0.0.1:8000/), enter the client key, and search. `start`
+supervises separate API and durable worker processes; Ctrl+C stops both. A child
+exit shuts down its sibling and returns nonzero. Restarting preserves jobs and
+snapshots. The browser covers polling, cancellation, stable pagination, sources
+and Useful/Not useful feedback. Feedback stays out of learning.
+
+For a model-free installation, use `uv run anvesha setup --lexical-only --seed-demo`
+instead, then choose **Lexical baseline** in the browser or send
+`"ranking":"lexical"`. Default LLM submission returns 422 without a configured
+model; it does not silently skip the model.
+
+Custom paths use `anvesha --db /absolute/path/collection.db setup --config
+/absolute/path/server.json --model YOUR_MODEL`. Pass the same `--config` to
+`show-key`, `start`, `doctor`, `run-api`, `run-worker` and `ingest`.
+`ANVESHA_CONFIG_PATH` selects the default file for setup/service commands; doctor
+and ingest use a file only when `--config` is supplied. Saved service settings
+take precedence over environment variables. Edit the private JSON locally and
+restart both services to change models, keys or timeouts.
+
+Configuration is plaintext and can include the model key. Creation requests mode
+0600 on POSIX; on Windows restrict the parent directory's inherited ACLs. Never
+commit or upload it. `show-key` explicitly displays the client key locally.
+
+## Import your permitted documents
+
+Prepare a JSON list of `id`, `url`, `title`, `content`, `license`, `attribution`.
+[The example](../examples/documents.json) is synthetic. Use actual paths:
 
 ```text
-uv run anvesha ingest /path/to/permitted-documents.json --rights-reviewed
+uv run anvesha ingest /absolute/path/permitted-documents.json --config .anvesha/server.json --rights-reviewed
+uv run anvesha doctor --config .anvesha/server.json
 ```
 
-Use an actual path on your system; [the example file](../examples/documents.json)
-shows the format with synthetic content. URLs identify records and are never
-fetched. All API clients of the instance share this document corpus; their job
-history is owner-isolated. Per-user private document libraries are future work.
+Ingestion never fetches the URLs. Review indexing, retention, display and model
+processing rights; a licence string is not blanket permission. All clients share
+the imported corpus; job history and feedback are owner-isolated. Per-user private
+libraries remain future work. Doctor checks configuration, FTS5, database and
+document count offline without printing keys or creating a database. It does not
+prove API/worker/model reachability or quality.
 
-Set the API key, then check readiness and start the API. PowerShell:
+## Docker Compose
 
-```powershell
-$env:ANVESHA_API_KEYS = 'your-generated-key'
-uv run anvesha doctor
-uv run anvesha serve
-```
+Use Docker Engine/Desktop with Compose v2 on one host and local disk. The core
+image runs as UID/GID 10001, with locked runtime dependencies and packaged browser
+assets. The build context excludes private workspaces and credentials. Separate
+API/worker containers share a persistent volume, with read-only root filesystems,
+dropped capabilities and a host-loopback API port. Image digests are pinned.
+A fresh build needs image/package downloads.
 
-Bash:
-
-```bash
-export ANVESHA_API_KEYS='your-generated-key'
-uv run anvesha doctor
-uv run anvesha serve
-```
-
-`doctor` reports FTS5, initialized database, document count and whether optional
-model configuration exists. It makes no network requests, prints no credentials,
-does not create a database and returns exit code 1 when setup is incomplete. It
-does not prove that an API, worker, model or gateway is reachable.
-
-In a second terminal with the same database and model configuration:
+For a model runtime already accepting private Docker-network connections on the host:
 
 ```text
-uv run python -m anvesha.worker
+docker compose build
+docker compose run --rm setup setup --model YOUR_INSTALLED_MODEL --model-url http://host.docker.internal:11434/v1 --allow-model-network --seed-demo
+docker compose run --rm setup show-key
+docker compose up -d api worker
 ```
 
-Both processes must remain running. They share a SQLite file on local disk.
-Keep the API on its default loopback address. Remote/public exposure needs the
-authentication, transport and hosted-hardening review described in
-[SECURITY.md](../SECURITY.md). Container deployment and an accessible browser
-client are tracked under ANV-022; no tested Docker support is claimed here.
+A host runtime bound only to loopback may not accept Docker connections. Configure
+its intended private interface/firewall yourself; Anvesha does not change these.
+Use HTTPS for remote named/public endpoints. Do not expose an unauthenticated model port.
 
-## Optional local LLM: Ollama
+Alternatively, start the optional CPU Ollama service and explicitly install a
+chosen model before setup:
 
-Install/configure your preferred model runtime separately and review the exact
-model's licence and hardware needs. For Ollama, choose an already installed local
-model (`ollama list`). Anvesha never automatically downloads or starts a model.
-Set these in both API and worker terminals, then restart both processes:
-
-```powershell
-$env:ANVESHA_LLM_BASE_URL = 'http://127.0.0.1:11434/v1'
-$env:ANVESHA_LLM_MODEL = 'your-installed-model-name'
+```text
+docker compose --profile local-model up -d ollama
+docker compose exec ollama ollama pull YOUR_CHOSEN_MODEL
+docker compose exec ollama ollama list
+docker compose run --rm setup setup --model YOUR_CHOSEN_MODEL --model-url http://ollama:11434/v1 --allow-model-network --seed-demo
+docker compose run --rm setup show-key
+docker compose up -d api worker
 ```
 
-```bash
-export ANVESHA_LLM_BASE_URL='http://127.0.0.1:11434/v1'
-export ANVESHA_LLM_MODEL='your-installed-model-name'
+Choose one setup path; existing configuration is never overwritten by setup.
+The explicit pull downloads weights under the model's own licence; no automatic
+model download occurs. The optional runtime publishes no host model port. GPU
+configuration is an operator-specific addition; the API needs no GPU.
+[Ollama documents its Docker options](https://docs.ollama.com/docker).
+
+For a model-free container preview use `docker compose run --rm setup setup
+--lexical-only --seed-demo`, then start API/worker and explicitly select lexical.
+Open `http://127.0.0.1:8000/`; `ANVESHA_PORT` changes the host port. Keep SQLite on
+local disk. Network filesystems/multi-host workers are unsupported.
+
+Import by mounting your reviewed file read-only; on Linux, for example:
+
+```text
+docker compose run --rm -v /absolute/path/documents.json:/import/documents.json:ro setup ingest /import/documents.json --config /data/server.json --rights-reviewed
+docker compose run --rm setup doctor --config /data/server.json
+docker compose logs --tail 50 api worker
+docker compose stop api worker
+docker compose up -d api worker
 ```
 
-No LLM API key is required by Anvesha for an unauthenticated local endpoint.
-For a separately authenticated runtime, set `ANVESHA_LLM_API_KEY` privately.
-An endpoint must support non-streaming chat completions with JSON-object output.
-[Ollama's documentation](https://docs.ollama.com/api/openai-compatibility)
-describes that wire contract. Actual installed-model behavior still needs testing.
+`docker compose down` preserves volumes. `down --volumes` deletes the collection,
+operational records and saved keys; it is not a restart. Keep the Compose project
+name stable so an existing volume is selected.
 
-An endpoint on another machine/container requires
-`ANVESHA_LLM_ALLOW_NETWORK=true`. Use HTTPS for named/public endpoints. Explicitly
-approved private LAN IPs and the container names `ollama`, `omniroute` and
-`host.docker.internal` also permit HTTP. This is trusted operator configuration,
-not a browser-controlled URL or a general-purpose web fetcher.
+Container CI exercises a real build, non-root runtime, private-network synthetic
+chat endpoint, default LLM execution, feedback, queued-job/API restart, stable
+snapshots, fallback and cleanup. It does not prove actual Ollama/OmniRoute or model
+quality. See [verification](tracking/verification/2026-10-18-self-hosting.md) for the
+observed run and outstanding acceptance work.
 
-## Optional gateway: OmniRoute
+## Model runtime and OmniRoute
 
-Run and configure OmniRoute separately. Its
-[documented endpoint](https://github.com/diegosouzapw/OmniRoute) is
-`http://127.0.0.1:20128/v1`. Point `ANVESHA_LLM_BASE_URL` there, set the gateway key
-in `ANVESHA_LLM_API_KEY` and set `ANVESHA_LLM_MODEL` to an explicit configured
-route/model identifier. Review the gateway and downstream model/provider terms.
-No gateway account, paid route or cloud provider is mandatory for Anvesha.
+The endpoint must support non-streaming `/v1/chat/completions`, JSON-object output
+and an assistant message. [Ollama documents the interface](https://docs.ollama.com/api/openai-compatibility).
+No key is required for an unauthenticated local runtime. Set `ANVESHA_LLM_API_KEY`
+privately before setup for an authenticated endpoint; setup saves it in the
+private file. Avoid secrets in command arguments or endpoint URLs.
 
-**A gateway running locally can still send your query and snippets to the cloud.**
-Use a verified local-only route with external fallbacks disabled for private
-inference. Do not infer local inference from a routing label such as `auto` or
-`auto/offline`; inspect the actual configured destination. Anvesha does not inspect
-OmniRoute's internals, guarantee its provider eligibility, or verify its egress.
+Run [OmniRoute](https://github.com/diegosouzapw/OmniRoute) separately if desired.
+Its documented endpoint is `http://127.0.0.1:20128/v1`; pass that `--model-url` and
+an explicit configured route/model to setup. Gateway/downstream terms and its
+[MIT licence](https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE) remain
+separate from the Apache-2.0 core and document/model licences. No gateway code,
+weights, cloud account or paid route is bundled or required.
 
-The integration is an independently written HTTP client, with no bundled or copied
-OmniRoute code. Its [MIT licence](https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE)
-is separate from Anvesha's Apache-2.0 code and from model/data licences.
+**A local gateway can forward queries/snippets to cloud providers.** Verify its
+local-only route, external fallbacks and logs. A route label or localhost address
+does not establish local inference. Anvesha reports downstream routing as unverified.
+For another machine/container pass `--allow-model-network`; private LAN IPs and
+`ollama`, `omniroute`, `host.docker.internal` permit HTTP. Other named/public
+endpoints require HTTPS. Clients cannot select endpoints through a search request.
 
-## Request intelligent reranking
+Legacy environment-based `anvesha serve` and `python -m anvesha.worker` still work.
+Set matching database/source/model settings in both processes; client keys are
+needed only by the API. Saved-file commands reduce configuration mismatches.
 
-Existing requests stay lexical. To request the optional stage, submit:
+## Ranking behavior
 
-```json
-{"query":"your research question","sources":["local"],"limit":10,"ranking":"llm"}
-```
+Send `{"query":"your research question"}` with `X-API-Key` for default LLM ranking,
+then poll the ID and read the snapshot. Explicit `"ranking":"lexical"` selects
+the baseline. [API documentation](API.md) covers the contract. Authenticated
+capabilities expose modes, default, model configuration and document count, never
+endpoint addresses or credentials. LLM currently supports only the local source;
+optional Wikidata requests must explicitly select lexical ranking.
 
-Use `X-API-Key`, poll the returned search ID and retrieve its snapshot as shown in
-[the API guide](API.md). `GET /v1/capabilities` is authenticated and reports available
-ranking modes without exposing model credentials or endpoint addresses. LLM mode
-is accepted only when configured and only with the local source. Missing model
-configuration returns 422 before accepting a job. Enabling a model never silently
-opts existing/default requests into processing.
+The worker retrieves with BM25/RRF, then sends at most 20 candidate IDs, titles
+(240 characters each), snippets (1,200 each), evidence labels and the original
+query to the configured model. No URL field, client key, corpus, feedback, reviewer
+label or tool is supplied. Source text can contain URLs or sensitive data; review
+it before enabling external processing.
 
-The worker first retrieves with BM25/RRF, then sends at most 20 candidate IDs,
-titles (240 characters each), snippets (1,200 characters each), evidence labels
-and the original query to the configured model. It supplies no result URLs,
-client API keys, full corpus or tools. The model can only reorder the supplied
-IDs. It cannot add a result or modify source text/rights. A ranker cannot discover
-a missing document, and a short snippet can miss relevant evidence.
+Only a complete permutation of supplied IDs is accepted. Reranking precedes the
+requested result limit. Unassessed candidates retain lexical order; fewer than two
+candidates need no call. `ranking_method`/`lexical_rank` identify changed ordering;
+`score` remains the original RRF value, never a truth probability. Source text,
+URLs and rights stay intact. Prompt injection can still damage relevance.
 
-The bounded candidate prefix is reranked before the requested result limit is
-applied; any remaining candidates keep lexical order. Successful reordered results
-include `ranking_method` and `lexical_rank`. `score` remains the original RRF score,
-so it need not decrease with final rank and is never a truth probability. Fewer
-than two retrieved candidates require no model call.
+Configuration fingerprints bind endpoint/model identifiers, prompt and bounds,
+not verified weights or routes. API/worker settings must match. Model errors or
+configuration drift publish lexical results as `completed_partial` with sanitized
+`llm:*` warnings. The total model deadline defaults to 60 seconds (maximum 120),
+without application retries; worker recovery can repeat a call. Cancellation
+prevents publication but cannot recall content already sent.
 
-The accepted job's pipeline version fingerprints the endpoint/model identifier,
-prompt and bounds, not a verified model-weight or resolved gateway-route digest.
-All processes must use matching settings. If settings change or the model fails,
-the worker publishes lexical results as `completed_partial` with a sanitized
-`llm:*` warning. Model requests have no application retries and a total deadline
-(default 60 seconds, maximum 120); worker recovery can still repeat a call.
-Cancellation stops waiting and prevents publication, but cannot recall content
-already sent to a model. Snapshots and feedback remain stable and version-bound.
+## Browser, storage and upgrades
 
-## Data flow and privacy
+The `/` browser loads no CDNs/fonts, has no built-in analytics or persistent
+key/history store, uses same-origin requests and renders untrusted content as
+plain text. CSP/no-store/no-referrer headers apply. Reload disconnects; Disconnect
+also clears displayed query/results. Opening source links, extensions and the OS
+are separate trust boundaries. OpenAPI remains at `/openapi.json`; CDN-backed
+`/docs` and `/redoc` are disabled.
 
-| Configuration/use | Data transmitted by Anvesha |
-| --- | --- |
-| Local source, lexical ranking | No outbound source/model request |
-| Local source, explicit LLM ranking | Original query and bounded candidate text to the configured endpoint |
-| OmniRoute or another proxy | Same payload to the gateway; further routing depends on its configuration |
-| Explicit Wikidata source | Query to Wikimedia; this preview uses lexical ranking for that source |
+Operational queries, snapshots and feedback stay in the unencrypted local database
+until deletion. Reload/disconnect do not delete server records. Automatic expiry
+and backup deletion remain ANV-008. CLI API commands disable access logs; proxies
+and gateways log independently. There is no anonymous/untracked web-search promise.
+See [security](../SECURITY.md) and [model processing](../policies/llm-processing.json).
 
-There is no built-in analytics or automatic feedback training. Queries, results
-and feedback remain operational data in the unencrypted local database until
-deleted. Filesystem administrators, backups, model-server logs and selected
-upstreams are separate trust boundaries. Automatic expiry and backup deletion
-remain ANV-008. Access logging is disabled by the `anvesha serve` command; reverse
-proxies and other launch commands may log independently. FastAPI's existing
-interactive `/docs` and `/redoc` pages use CDN assets; avoid them for a browser
-session requiring zero external asset requests and use the API directly.
+Before upgrading stop API and worker, back up private configuration and the whole
+data directory/volume without running writers, record the source/image revision,
+then install/build and restart both services together. Preserve container UID
+10001 ownership. SQLite startup migration is additive; never run an older worker
+against new LLM jobs. Roll back with matching backup and code/image, rather than
+assuming a backwards migration.
 
-Review rights before sending document excerpts to any model, especially external
-services. Anvesha does not train a model, but cannot control downstream retention
-or training. See the [model processing policy](../policies/llm-processing.json).
-This is a private deployment option, not a promise of anonymous or untracked web
-search. No new human-review labels are created by this feature; the three coached
-pilot items remain practice only under ANV-020.
+**Default change from ANV-021:** new requests omitting ranking now use LLM
+processing. Existing accepted jobs and snapshots are unchanged. Old clients
+intending model-free work, Wikidata, or old lexical idempotency replay must send
+`"ranking":"lexical"`. Otherwise replay may conflict because it describes a
+different request. Review processing rights before upgrading an external endpoint;
+the new default can transmit new queries/snippets.
 
-## Adoption sequence and evidence gates
+## Quality gates
 
-The [ledger](tracking/tasks.json) owns statuses and acceptance criteria:
-
-1. ANV-021: usable native private-corpus setup, opt-in model protocol and safe fallback.
-2. ANV-022: tested container installation, accessible client and documented upgrades.
-3. ANV-023: actual backend acceptance, pinned model/hardware and independent quality comparisons.
-4. ANV-009/ANV-011: rights-reviewed research sources and safe acquisition to close coverage gaps.
-5. ANV-010: add constrained query planning, hybrid retrieval and further reranking only when evidence supports them.
-
-The existing scientific and multilingual lexical reports remain reference
-baselines. Synthetic protocol tests do not demonstrate a model quality improvement.
+ANV-021 establishes the bounded model protocol. ANV-022 adds the browser, LLM-default
+experience and self-hosting. ANV-023 owns actual backend/model tests, pinned hardware
+and independent quality comparisons. ANV-009/ANV-011 own permitted source expansion;
+ANV-010 owns evidence-led hybrid/planning work. Scientific/multilingual lexical
+reports remain frozen baselines. Synthetic UI/protocol fixtures are not independent
+labels; the three coached pilot items remain practice only under ANV-020.

@@ -4,9 +4,11 @@ import hashlib
 import json
 import secrets
 from contextlib import asynccontextmanager
+from importlib.resources import files
 from typing import Annotated, Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
+from fastapi.responses import HTMLResponse
 from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, field_validator
 
@@ -22,7 +24,7 @@ class SearchRequest(BaseModel):
         default_factory=lambda: ["local"], min_length=1, max_length=2
     )
     limit: StrictInt = Field(default=10, ge=1, le=50)
-    ranking: Literal["lexical", "llm"] = "lexical"
+    ranking: Literal["lexical", "llm"] = "llm"
 
     @field_validator("query")
     @classmethod
@@ -111,6 +113,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         title="Anvesha Search API",
         version=__version__,
         lifespan=lifespan,
+        docs_url=None,
+        redoc_url=None,
         description="Local-first asynchronous search; no mandatory paid APIs or hosted models.",
     )
     app.state.store = store
@@ -134,7 +138,25 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         response = await call_next(request)
         response.headers["Cache-Control"] = "no-store"
         response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["X-DNS-Prefetch-Control"] = "off"
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'none'; script-src 'self'; style-src 'self'; "
+            "connect-src 'self'; img-src 'self'; base-uri 'none'; "
+            "form-action 'self'; frame-ancestors 'none'; object-src 'none'"
+        )
         return response
+
+    @app.get("/", response_class=HTMLResponse, include_in_schema=False)
+    def browser_ui():
+        return files("anvesha").joinpath("web/index.html").read_text(encoding="utf-8")
+
+    @app.get("/assets/{name}", include_in_schema=False)
+    def browser_asset(name: str):
+        media = {"app.js": "application/javascript", "styles.css": "text/css"}
+        if name not in media:
+            raise HTTPException(404, "asset_not_found")
+        return Response(files("anvesha").joinpath("web", name).read_bytes(), media_type=media[name])
 
     @app.get("/healthz")
     def health():
@@ -144,7 +166,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def capabilities(owner: str = Depends(require_owner)):
         return {
             "sources": list(settings.enabled_sources),
-            "ranking_modes": ["lexical", "llm"] if settings.llm.enabled else ["lexical"],
+            "ranking_modes": ["llm", "lexical"] if settings.llm.enabled else ["lexical"],
+            "default_ranking": "llm",
+            "llm_configured": settings.llm.enabled,
+            "document_count": store.document_count(),
             "llm_source_scope": ["local"],
             "llm_endpoint_scope": settings.llm.endpoint_scope if settings.llm.enabled else None,
             "gateway_downstream_verified": False,

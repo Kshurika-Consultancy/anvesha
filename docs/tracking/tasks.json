@@ -839,24 +839,52 @@
         "tests/test_llm_pipeline.py",
         "scripts/smoke_mvp.py"
       ],
-      "notes": "Scoped user-directed local research preview implemented and verified locally; source fetching and the full ANV-010 quality gate remain separate. Both fresh lexical benchmark repeats match archived fingerprints exactly. Docker is unavailable on this workstation, so container build/runtime validation belongs to ANV-022. Actual model quality and live backend acceptance belong to ANV-023. No paid dependency, model download, live gateway test or new publication/deployment occurred. Changes remain local. The three private coached practice exclusions and zero-submission pilot are preserved under ANV-020."
+      "notes": "Scoped preview published to main as 83830bf4ace6df5702a5921f17ef3d37f991fa91; remote equality and all four matrix jobs in Actions run 39109656383 verified on 2026-10-18. Both lexical benchmark repeats retain archived fingerprints. ANV-022 and ADR 0006 supersede the original lexical-default decision under explicit user instruction; historic ANV-021 evidence describes its delivered behavior. Container/client adoption is ANV-022; actual model quality/backend acceptance is ANV-023; general fetching and full ANV-010 gates remain open. No paid dependency, downloaded model or public service deployment. The three private coached exclusions and zero-submission pilot remain separate under ANV-020."
     },
     {
       "id": "ANV-022",
       "milestone": "M3",
       "title": "Container deployment and accessible research clients",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": ["ANV-021"],
       "acceptance": [
+        "Make LLM ranking the default API/browser mode under the user's instruction, with explicit model-setup guidance and an explicit free lexical baseline; retain visible runtime fallback",
+        "Provide native private setup/configuration and one-command supervision of separate durable API/worker processes without automatic model downloads",
         "Verify a non-root container and Compose setup with persistent local SQLite, separate worker and private model connectivity",
         "Provide an accessible browser or client integration for submit, poll, stable results and feedback without embedded third-party assets or persistent browser secrets",
         "Exercise a fresh home-server installation, restart recovery and upgrade documentation; retain hosted-hardening limits"
       ],
       "validation_plan": ["Run container builds and real-process installation/restart tests on supported platforms", "Review browser authentication, accessibility and data flows with a real browser"],
-      "verification": [],
-      "references": ["docs/PRIVATE_RESEARCH.md"],
-      "notes": "Follow the runnable native preview with verified distribution and client ergonomics. Do not claim untested container support; Docker is not installed in the current workspace."
+      "verification": [
+        {
+          "command": "uv run --extra dev pytest",
+          "result": "Pinned local Windows/Python 3.14.4: 252 passed in 41.80 seconds; one existing ANV-015 warning",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "uv run --extra dev python scripts/smoke_mvp.py; uv run --extra dev python scripts/smoke_selfhost.py",
+          "result": "Both passed with synthetic offline model transport, LLM default, private configuration, separate API/worker supervision, persistent results and complete owned-process cleanup",
+          "date": "2026-10-18"
+        }
+      ],
+      "references": [
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/decisions/0006-llm-default-and-self-hosted-browser.md",
+        "docs/tracking/verification/2026-10-18-self-hosting.md",
+        "src/anvesha/runtime.py",
+        "src/anvesha/web/index.html",
+        "src/anvesha/web/app.js",
+        "src/anvesha/web/styles.css",
+        "tests/test_selfhost.py",
+        "scripts/smoke_selfhost.py",
+        "scripts/smoke_container.py",
+        "scripts/container_model_fixture.py",
+        "Dockerfile",
+        "compose.yaml",
+        ".dockerignore"
+      ],
+      "notes": "User authorized publishing ANV-021, then starting ANV-022 and making LLM processing the default. ANV-021 was published as 83830bf4ace6df5702a5921f17ef3d37f991fa91; local/remote main equality verified. Root owns UI/runtime/config/container/tests/docs. Docker is unavailable locally; container behavior must be verified through Linux CI before claiming acceptance. Browser fixtures must remain separate from independent human-review labels."
     },
     {
       "id": "ANV-023",

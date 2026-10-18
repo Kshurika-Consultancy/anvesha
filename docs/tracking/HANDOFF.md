@@ -4,7 +4,7 @@
 
 The user selected Anvesha, asked to save the researched plan in this repository, break it into milestones, create agent guidance, and begin an MVP with no mandatory paid APIs. The user subsequently created https://github.com/Kshurika-Consultancy/anvesha and explicitly authorized connecting this workspace, committing the plan/MVP, and pushing main (ANV-017).
 
-Current request, 2026-10-18: analyze the most useful next step for a broad open-source audience and implement progress toward private home-server research, primarily local LLMs with optional OmniRoute compatibility. ANV-021 owns the bounded private-corpus preview; ANV-022 tracks container/client adoption and ANV-023 actual model/backend quality. The earlier ANV-020 implementation was committed/pushed; its actual independent assessor requirements remain open alongside ANV-007. No delegation is active. No new publication/deployment is part of this turn.
+Current request, 2026-10-18: commit/push ANV-021 to main, then build ANV-022 browser/easy self-hosting and make LLM the default. ANV-021 was published as `83830bf4ace6df5702a5921f17ef3d37f991fa91`; local/remote equality and all four matrix jobs in Actions run 39109656383 were verified. ANV-022 is in progress with root ownership; ANV-023 owns actual backend/model quality. No delegation is active. Repository publication is authorized; no public service deployment is requested. ANV-020 independent review remains open and separate.
 
 ## Starting state
 
@@ -20,7 +20,23 @@ The repository was empty apart from `.git`, on an unborn `master` branch. No inh
 
 ## Implemented state
 
-ANV-021 is complete for its scoped experimental preview: opt-in `ranking: "llm"` for local-source requests, a bounded chat-completion client compatible with the documented Ollama/OmniRoute wire interface, strict candidate-ID permutations, total deadlines, lease renewal/cancellation and visible lexical fallback. Heartbeat I/O runs off the event loop so database lock waits cannot block network deadlines. No model/gateway is bundled or started. An additive SQLite ranking column retains legacy request hashes, snapshots and feedback; all API/worker processes must upgrade before enabling LLM jobs. Accepted pipeline fingerprints bind endpoint/model identifiers, prompt and bounds but do not prove weights or gateway routing. `GET /v1/capabilities` is authenticated; `anvesha doctor` is offline/read-only; CLI access logging defaults off. See [private research guide](../PRIVATE_RESEARCH.md), [ADR 0005](../decisions/0005-private-research-and-optional-llm.md) and [verification](verification/2026-10-18-private-research.md). Final verification: 240 tests in 39.50 seconds, Ruff, tracking, development/installed-wheel real-process smoke, and fresh repeats of both complete lexical benchmarks with unchanged fingerprints. Source, docs and tracking changes remain local and uncommitted. Keep the earlier coaching-guidance edits and private practice records intact.
+ANV-022 local state: new API requests default to LLM; missing model configuration
+rejects before acceptance and explicit lexical still works offline. Existing
+accepted jobs/evaluation helper defaults remain lexical. Packaged browser assets
+at `/` cover authentication, submit/poll/cancel, stable pagination and feedback
+with learning off. No external assets or browser storage are used; interactive
+CDN docs are disabled while OpenAPI remains. `setup` writes exclusive private
+JSON, `show-key` displays the client key locally, `start` supervises separate
+API/worker processes, and individual service commands support containers.
+See [ADR 0006](../decisions/0006-llm-default-and-self-hosted-browser.md) and
+[self-hosting evidence](verification/2026-10-18-self-hosting.md). Local 252-test
+suite, Ruff/tracking/diff checks and both process smokes pass. Browser checks,
+wheel/sdist inspection and isolated runtime-only installed-wheel native smoke
+also pass. All preview/smoke services are stopped and browser viewport restored.
+Linux Docker CI remains to finish; ANV-022 is not yet done. Never serve the separate
+private review form or treat synthetic operational feedback as human assessment.
+
+ANV-021 is published and verified for its scoped preview: bounded Ollama/OmniRoute chat wire contract, strict candidate permutations, total deadlines, lease/cancellation checks and visible lexical fallback. Heartbeat I/O does not block the async deadline. The additive ranking column retains old jobs/snapshots/feedback. Accepted fingerprints bind configured identifiers/prompt/bounds, not verified weights or routes. Its original opt-in default is superseded by ANV-022/ADR 0006. Historic ANV-021 checks: 240 tests, Ruff/tracking, development/installed-wheel process smoke and both full fresh lexical benchmark repeats with unchanged fingerprints. See [evidence](verification/2026-10-18-private-research.md). Coaching guidance/private practice records remain intact.
 
 M0/M1 are delivered. The API supports authenticated submit/poll/results/feedback/cancel/delete, client-scoped idempotency and ETag polling. A separate worker uses SQLite leases with recovery/fencing and publishes one immutable final snapshot. The local corpus uses FTS5/BM25; optional Wikidata metadata is fused by deterministic RRF. Pipeline version is `m1-rrf-v1`. Feedback defaults out of learning and never automatically changes ranking.
 
@@ -54,13 +70,13 @@ ANV-019 is complete: 30 evaluation tests and 148 full-suite tests pass; Ruff lin
 
 For ANV-020, use `python -m anvesha.review_data prepare --download`, `python -m anvesha.intent_evaluation run`, and the commands in [the review workflow](../review/README.md). The local pilot above already exists; `review init` correctly refuses overwrite. Use `review status` and `review export --reviewer reviewer-a` (or reviewer-b) to resume without labels. New study batches use a different `--workspace`. Explicit `--split holdout --release-holdout` is required to assign held-out queries. Only corpus preparation downloads the fixed public files; report verification/default tests are offline.
 
-Use `uv sync --extra dev --locked`, then `uv run --extra dev anvesha init --seed`. Set the generated key in `ANVESHA_API_KEYS` and run `uv run --extra dev anvesha serve`. In another terminal with the same DB/source configuration, run `uv run --extra dev python -m anvesha.worker`. Full instructions are in [README](../../README.md) and [API](../API.md).
+Use `uv sync --extra dev --locked`, then `uv run anvesha setup --model YOUR_INSTALLED_MODEL --seed-demo`, `uv run anvesha show-key` privately, and `uv run anvesha start`. Open the browser at loopback port 8000. `setup --lexical-only` plus an explicit lexical request/select is the model-free path. Full native/Compose/import/upgrade instructions are in [the guide](../PRIVATE_RESEARCH.md), [README](../../README.md) and [API](../API.md).
 
-An empty environment defaults to local retrieval. The demo URLs are synthetic example.org identifiers. Imports require rights review and are visible to every client of the instance. Optional Wikidata needs explicit enablement and a real identifying User-Agent; it returns English entity metadata only.
+The source defaults to local, but the HTTP ranking default is now LLM and needs model configuration. Explicit lexical mode works offline. Demo URLs are synthetic example.org identifiers. Imports require rights review and are shared by every client. Optional Wikidata needs explicit enablement, a real identifying User-Agent and explicit lexical ranking; it returns English entity metadata only.
 
 ## Next work and known limits
 
-Continue the audience direction through ANV-022 (verified container setup and accessible client) and ANV-023 (actual backend/model tests and independently measured gains). Docker is unavailable here; no Ollama or OmniRoute instance was exercised. Broader web/research-source coverage still needs ANV-009/ANV-011. A local gateway is not proof of local inference; existing interactive API docs load CDNs. The native guide describes the current boundaries. ANV-021's acceptance closes only this experimental local-corpus slice, not M2/M3 as a whole.
+Finish ANV-022 with browser/installed-wheel verification, final checks and actual Linux container CI, then continue ANV-023 actual backend/model tests and independent gains. Docker is unavailable here; no actual Ollama or OmniRoute instance was exercised. Broader source coverage needs ANV-009/ANV-011. A local gateway does not establish local inference. The browser is self-hosted and CDN-backed interactive docs are now disabled. ANV-021/ANV-022 do not complete M2/M3 overall quality gates.
 
 1. Continue ANV-020 with native-speaker review, real consenting independent assessments, adjudication/agreement, permitted external baselines, more representative current-web/locale inputs and a legacy SciFact pool adapter. The existing pilot is ready for private enrollment and packet distribution by an authorized operator. Existing SciFact/XQuAD annotations are not new Anvesha human judgments. Retain source baselines and do not tune on holdout data.
 2. ANV-008: quotas, automated retention, source-wide rate limits, strict total upstream deadlines, operational monitoring and key/tenant decisions. Current HTTP inactivity limits do not provide a strict deadline for trickling headers. Keep the deployment local.

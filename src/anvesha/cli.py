@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import os
 import secrets
 import sqlite3
 from contextlib import closing
@@ -88,7 +89,8 @@ def diagnostics(settings):
         "llm": {
             "configured": settings.llm.enabled,
             "endpoint_scope": settings.llm.endpoint_scope,
-            "request_opt_in_required": True,
+            "default_ranking": "llm",
+            "explicit_lexical_baseline_available": True,
             "gateway_downstream_verified": False,
         },
         "network_checks_performed": False,
@@ -101,9 +103,13 @@ def main(argv=None):
     sub = parser.add_subparsers(dest="command", required=True)
     init_parser = sub.add_parser("init", help="Initialize database and generate an API key")
     init_parser.add_argument("--seed", action="store_true", help="Load clearly labelled demo data")
-    sub.add_parser("doctor", help="Check local readiness without network calls or printing secrets")
+    doctor_parser = sub.add_parser(
+        "doctor", help="Check local readiness without network or secrets"
+    )
+    doctor_parser.add_argument("--config", type=Path)
     ingest_parser = sub.add_parser("ingest", help="Index a reviewed JSON list of local documents")
     ingest_parser.add_argument("file", type=Path)
+    ingest_parser.add_argument("--config", type=Path)
     ingest_parser.add_argument(
         "--rights-reviewed",
         action="store_true",
@@ -113,9 +119,78 @@ def main(argv=None):
     serve_parser = sub.add_parser("serve", help="Run the API (start a separate worker too)")
     serve_parser.add_argument("--host", default="127.0.0.1")
     serve_parser.add_argument("--port", type=int, default=8000)
+    default_config = Path(os.getenv("ANVESHA_CONFIG_PATH", ".anvesha/server.json"))
+    setup_parser = sub.add_parser("setup", help="Save a private configuration; no model downloads")
+    setup_parser.add_argument("--config", type=Path, default=default_config)
+    modes = setup_parser.add_mutually_exclusive_group(required=True)
+    modes.add_argument("--model", help="Name of a model installed in your runtime")
+    modes.add_argument("--lexical-only", action="store_true", help="Explicit model-free baseline")
+    setup_parser.add_argument("--model-url", help="Chat endpoint ending in /v1")
+    setup_parser.add_argument("--allow-model-network", action="store_true")
+    setup_parser.add_argument("--seed-demo", action="store_true")
+    for name in ("start", "run-api", "run-worker", "show-key"):
+        service = sub.add_parser(
+            name,
+            help={
+                "start": "Run API and worker together as separate supervised processes",
+                "run-api": "Run the API from private configuration",
+                "run-worker": "Run the worker from private configuration",
+                "show-key": "Print your client key locally; keep the output private",
+            }[name],
+        )
+        service.add_argument("--config", type=Path, default=default_config)
+        if name in {"start", "run-api"}:
+            service.add_argument("--host", default="127.0.0.1")
+            service.add_argument("--port", type=int, default=8000)
     args = parser.parse_args(argv)
     try:
-        settings = Settings.from_env()
+        if args.command in {"setup", "start", "run-api", "run-worker", "show-key"}:
+            from anvesha import runtime
+
+            if args.command == "setup":
+                from anvesha.llm import LLMConfig
+
+                overrides = {"model": args.model or ""}
+                if args.model_url:
+                    overrides["base_url"] = args.model_url
+                if args.allow_model_network:
+                    overrides["allow_network"] = True
+                llm = LLMConfig.from_env(**overrides)
+                runtime.setup(
+                    args.config,
+                    args.db or Path(os.getenv("ANVESHA_DB_PATH", ".anvesha/anvesha.db")),
+                    llm,
+                    demo=args.seed_demo,
+                )
+                print(f"Private configuration saved: {args.config.resolve()}")
+                print(
+                    "Run 'anvesha show-key' locally to copy the client key, then 'anvesha start'."
+                )
+                return 0
+            if args.command == "start":
+                return runtime.start(args.config.resolve(), args.host, args.port)
+            configured = runtime.load_settings(args.config)
+            if args.command == "show-key":
+                print(configured.api_keys[0])
+            elif args.command == "run-api":
+                import uvicorn
+
+                from anvesha.api import create_app
+
+                uvicorn.run(
+                    create_app(configured), host=args.host, port=args.port, access_log=False
+                )
+            else:
+                from anvesha.worker import main as worker_main
+
+                worker_main([], settings=configured)
+            return 0
+        if getattr(args, "config", None):
+            from anvesha.runtime import load_settings
+
+            settings = load_settings(args.config)
+        else:
+            settings = Settings.from_env()
         path = args.db or settings.database_path
         settings = replace(settings, database_path=path)
         if args.command == "doctor":

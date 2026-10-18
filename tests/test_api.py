@@ -24,7 +24,7 @@ def api(tmp_path):
 
 
 def submit(client, **body):
-    return client.post("/v1/searches", json={"query": "Anvesha", **body})
+    return client.post("/v1/searches", json={"query": "Anvesha", "ranking": "lexical", **body})
 
 
 def test_offline_lifecycle_snapshot_feedback_delete(api):
@@ -62,12 +62,16 @@ def test_offline_lifecycle_snapshot_feedback_delete(api):
 def test_idempotency_and_conflicting_reuse(api):
     client, _, _ = api
     headers = {"Idempotency-Key": "one-request"}
-    first = client.post("/v1/searches", headers=headers, json={"query": "search"})
-    second = client.post("/v1/searches", headers=headers, json={"query": "search"})
+    body = {"query": "search", "ranking": "lexical"}
+    first = client.post("/v1/searches", headers=headers, json=body)
+    second = client.post("/v1/searches", headers=headers, json=body)
     assert first.status_code == 202 and second.status_code == 200
     assert first.json()["id"] == second.json()["id"]
     assert second.headers["idempotency-replayed"] == "true"
-    assert client.post("/v1/searches", headers=headers, json={"query": "other"}).status_code == 409
+    assert (
+        client.post("/v1/searches", headers=headers, json={**body, "query": "other"}).status_code
+        == 409
+    )
 
 
 @pytest.mark.parametrize("key", ["", "wrong-key"])
@@ -115,12 +119,16 @@ def test_cross_client_isolation_on_all_routes(api):
 )
 def test_input_validation_and_no_silent_paid_or_unconfigured_source(api, body):
     client, _, _ = api
-    assert client.post("/v1/searches", json=body).status_code == 422
+    assert client.post("/v1/searches", json={"ranking": "lexical", **body}).status_code == 422
 
 
 def test_blank_idempotency_key_is_validation_error(api):
     client, _, _ = api
-    response = client.post("/v1/searches", headers={"Idempotency-Key": "   "}, json={"query": "x"})
+    response = client.post(
+        "/v1/searches",
+        headers={"Idempotency-Key": "   "},
+        json={"query": "x", "ranking": "lexical"},
+    )
     assert response.status_code == 422
 
 

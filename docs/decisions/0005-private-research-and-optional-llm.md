@@ -2,6 +2,10 @@
 
 Status: accepted for ANV-021, 2026-10-18.
 
+The later user-directed LLM default and browser/self-hosting path are recorded in
+[ADR 0006](0006-llm-default-and-self-hosted-browser.md). Its new default supersedes
+this ADR's lexical-default decision; the bounded model contract still applies.
+
 ## Why this step
 
 The user prioritizes open-source adoption, private home-server research and local

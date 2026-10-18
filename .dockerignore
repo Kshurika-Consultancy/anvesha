@@ -1,0 +1,12 @@
+# ANV-022: allowlist build context; private workspaces and credentials never enter it.
+**
+!pyproject.toml
+!uv.lock
+!README.md
+!LICENSE
+!NOTICE
+!src/
+!src/anvesha/
+!src/anvesha/**
+**/__pycache__/**
+**/*.pyc

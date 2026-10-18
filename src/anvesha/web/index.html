@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Anvesha · Private research</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+  <script src="/assets/app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Anvesha home"><span class="brand-mark" aria-hidden="true">a</span>anvesha<span class="preview">research preview</span></a>
+    <span class="local-note">Your collection. Your model.</span>
+  </header>
+  <main>
+    <noscript><p class="error">Enable JavaScript for this browser client, or use the documented HTTP API.</p></noscript>
+    <section class="connection" aria-labelledby="connection-title">
+      <div><h2 id="connection-title">Connect to your instance</h2><p>Your access key stays in memory for this tab. Reloading disconnects it.</p></div>
+      <form id="connect-form" class="connect-form">
+        <label for="api-key">API key</label>
+        <div class="input-row"><input id="api-key" type="password" autocomplete="off" spellcheck="false" required placeholder="Paste your instance key"><button type="submit" id="connect" disabled>Connect</button></div>
+      </form>
+      <div id="connection-state" class="connection-state" hidden><span id="connected-label">Connected</span><button id="disconnect" class="quiet" type="button">Disconnect</button></div>
+    </section>
+    <section class="search-section" aria-labelledby="search-title">
+      <div class="eyebrow">PRIVATE RESEARCH · LLM FIRST</div>
+      <h1 id="search-title">Explore your research.</h1>
+      <p class="intro">Ask a question across your imported documents. Your chosen model helps rank the results, with their original sources intact.</p>
+      <form id="search-form">
+        <label for="query">What would you like to find?</label>
+        <div class="search-box"><textarea id="query" rows="2" maxlength="2000" autocomplete="off" spellcheck="false" placeholder="Compare approaches, find evidence, follow an idea…" required></textarea><button id="search" type="submit" disabled>Search <span aria-hidden="true">↗</span></button></div>
+        <div class="search-options"><div><label for="ranking">Ranking</label><select id="ranking"><option value="llm" selected>LLM assisted · default</option><option value="lexical">Lexical baseline · no model</option></select></div><span id="collection-note">Connect to see your collection.</span></div>
+      </form>
+      <p id="model-note" class="model-note">LLM ranking uses your configured endpoint. A local gateway may forward to external providers.</p>
+      <p class="scope-note">Searches your imported collection, not the whole web. Relevance is not factual verification.</p>
+    </section>
+    <div id="error" class="error" role="alert" hidden></div>
+    <section id="job-panel" class="job-panel" aria-label="Search progress" hidden>
+      <div><strong id="job-status" role="status" aria-live="polite"></strong><p id="job-detail"></p></div>
+      <button id="cancel" class="quiet" type="button" hidden>Cancel search</button>
+    </section>
+    <div id="warnings" class="warning" role="status" hidden></div>
+    <section id="results-panel" aria-labelledby="results-title" hidden>
+      <div class="results-heading"><h2 id="results-title">Results</h2><span id="results-count"></span></div>
+      <ol id="results" class="results"></ol>
+      <button id="more" class="more" type="button" hidden>Show more results</button>
+    </section>
+    <section id="empty-state" class="empty-state"><span class="empty-symbol" aria-hidden="true">⌕</span><h2>A place to follow your questions</h2><p>Import documents you have permission to use, connect your local model, and begin exploring.</p></section>
+  </main>
+  <footer><span>Anvesha · Kshurika Consultancy</span><span>Open source · No built-in analytics · Feedback never trains automatically</span></footer>
+</body>
+</html>

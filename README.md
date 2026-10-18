@@ -2,9 +2,9 @@
 
 Kshurika Consultancy's open-source, quality-first asynchronous search API. The first MVP runs locally with **no mandatory paid API, hosted LLM, GPU, or database service**.
 
-Submit a query, receive a search ID, run a separate worker, poll the status, retrieve a stable result snapshot, and submit feedback. Jobs, ownership, results, and feedback persist in SQLite. Local retrieval uses FTS5/BM25; optional Wikidata retrieval returns structured entity metadata. Ranking defaults to deterministic reciprocal rank fusion with source provenance. An experimental, explicit opt-in can rerank local results using your own LLM endpoint.
+Submit a query, receive an ID, poll its status, inspect stable sources and give feedback. Separate API/worker processes persist jobs, ownership, results and feedback in SQLite. **LLM-assisted ranking is the default**, using your configured local or compatible gateway model after FTS5/BM25 retrieval. An explicit lexical baseline runs without any model.
 
-**Start here for private research:** [native self-hosting and local LLM guide](docs/PRIVATE_RESEARCH.md). Import your permitted documents, check readiness with `anvesha doctor`, and optionally use an Ollama or OmniRoute-compatible chat endpoint. No model, gateway or paid API is mandatory. A gateway hosted locally can still forward data to cloud providers; verify its actual routing.
+**Start here:** [native and Docker self-hosting guide](docs/PRIVATE_RESEARCH.md). Import permitted documents, connect your local model and use the bundled browser. No paid API is mandatory. A local gateway can still forward data to cloud providers; verify its routing.
 
 **Scope:** the default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. This is a private-corpus search preview, not a general-web search engine, a factual-verification system, or evidence of Google-level quality. Optional LLM reranking has protocol/failure-path tests; actual model quality gains and live backend acceptance remain unmeasured. Query planning, page inspection, embeddings, automatic retention and feedback learning remain future work.
 
@@ -23,42 +23,24 @@ From the repository directory:
 
 ```text
 uv sync --extra dev --locked
-uv run --extra dev anvesha init --seed
+uv run --extra dev anvesha setup --model YOUR_INSTALLED_MODEL --seed-demo
+uv run --extra dev anvesha show-key
+uv run --extra dev anvesha start
 ```
 
-The second command initializes `.anvesha/anvesha.db`, loads the demo corpus, and prints a random API key. It does not save that key. Keep it private and set it in your API shell. Re-running `init` generates another suggestion, but does not change an already configured key.
+Choose an already installed model after reviewing its licence and hardware needs. The endpoint defaults to `http://127.0.0.1:11434/v1` (Ollama). Setup saves a random client key and matching settings in ignored `.anvesha/server.json`; it refuses overwrite. `--seed-demo` loads three synthetic records. No model is downloaded.
 
-PowerShell:
+Open [the browser](http://127.0.0.1:8000/), paste the key shown locally, and search. The browser loads no external assets and keeps its key in tab memory. `start` supervises separate API/worker processes; Ctrl+C stops both. Restarting preserves jobs/results. The API stays on loopback; public hosting remains a later gate.
 
-```powershell
-$env:ANVESHA_API_KEYS = 'paste-the-generated-key'
-uv run --extra dev anvesha serve
-```
-
-Bash:
-
-```bash
-export ANVESHA_API_KEYS='paste-the-generated-key'
-uv run --extra dev anvesha serve
-```
-
-In a second terminal in the same repository, start the worker:
-
-```text
-uv run --extra dev python -m anvesha.worker
-```
-
-The worker does not need the client API key. Both processes must use the same database path, source configuration and optional LLM settings. Use `--once` to process at most one job and exit. The API alone leaves jobs queued by design. `uv run --extra dev anvesha doctor` checks local readiness without network calls or printing secrets.
-
-Open [interactive API docs](http://127.0.0.1:8000/docs) and use **Authorize** to enter the key. These existing interactive pages load CDN assets; use direct API calls for a browser workflow requiring no external asset requests. `/openapi.json` is the machine-readable contract. The API binds to loopback by default; public deployment is a later milestone.
+For a model-free preview, use `setup --lexical-only --seed-demo`, then explicitly select **Lexical baseline** in the browser/API. Missing model configuration produces setup guidance, not silent model-free execution. Docker Compose, private configuration, imports, OmniRoute and upgrades are covered in [the self-hosting guide](docs/PRIVATE_RESEARCH.md). `/openapi.json` remains available; CDN-backed interactive docs are disabled.
 
 ## Submit, poll and give feedback
 
-In an API-client PowerShell terminal with the same key set:
+In an API-client PowerShell terminal, set the key locally with `$env:ANVESHA_API_KEYS = uv run anvesha show-key`. This explicit example uses the lexical baseline; omit `ranking` for default LLM processing:
 
 ```powershell
 $headers = @{ 'X-API-Key' = $env:ANVESHA_API_KEYS; 'Idempotency-Key' = 'first-demo-search' }
-$job = Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/v1/searches' -Headers $headers -ContentType 'application/json' -Body '{"query":"free local search","sources":["local"],"limit":10}'
+$job = Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:8000/v1/searches' -Headers $headers -ContentType 'application/json' -Body '{"query":"free local search","sources":["local"],"limit":10,"ranking":"lexical"}'
 $status = Invoke-RestMethod -Uri "http://127.0.0.1:8000/v1/searches/$($job.id)" -Headers $headers
 $status
 ```
@@ -74,14 +56,14 @@ Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/v1/searches/$($job.id
 
 Reuse an idempotency key only for the same query/sources/limit/ranking; a different request with that key returns 409. Delete a retained job with `DELETE /v1/searches/{id}`. Automatic expiry is not implemented yet. Feedback is stored, not used to automatically train or change ranking.
 
-For optional LLM reranking, configure the endpoint/model in both processes and add `"ranking":"llm"` to a local-source search request. Existing requests stay lexical. The model can reorder supplied candidates only; invalid output or outage keeps lexical results with a visible warning. See [configuration, privacy and model bounds](docs/PRIVATE_RESEARCH.md). Upgrade all workers before enabling this preview on an existing database.
+New requests default to `ranking: "llm"`; explicitly sending that field is also supported. The model only reorders retrieved candidates. Invalid output/outage keeps lexical results with visible warnings. **Upgrade change:** old model-free clients and old lexical idempotency replays must send `"ranking":"lexical"`. Existing accepted jobs stay unchanged. See [processing limits and upgrade guidance](docs/PRIVATE_RESEARCH.md).
 
 ## Search your own permitted content
 
 Prepare a JSON list with `id`, `url`, `title`, `content`, `license`, and `attribution` for each document. See [the demonstration import](examples/documents.json). URLs are identifiers displayed in results; ingestion does not download them.
 
 ```text
-uv run --extra dev anvesha ingest examples/documents.json --rights-reviewed
+uv run --extra dev anvesha ingest examples/documents.json --config .anvesha/server.json --rights-reviewed
 ```
 
 The flag acknowledges your review of rights to store, index, and display that content. It is not an automated legal clearance. **All configured API clients share this document corpus**; job history is owner-isolated, but document-level tenant permissions are not implemented.

@@ -53,7 +53,9 @@ def reverse_candidates(request):
 
 def test_explicit_opt_in_is_durable_reranks_before_truncation_and_versions_feedback(research):
     client, store, settings = research
-    lexical = client.post("/v1/searches", json={"query": "Anvesha", "limit": 3}).json()
+    lexical = client.post(
+        "/v1/searches", json={"query": "Anvesha", "limit": 3, "ranking": "lexical"}
+    ).json()
     process_one(store)
     old = client.get(lexical["results_url"]).json()["results"]
     headers = {"Idempotency-Key": "llm-query"}
@@ -121,18 +123,18 @@ def test_optional_stage_failure_publishes_lexical_with_visible_warning(research,
     assert len(results) == 3 and all("ranking_method" not in item for item in results)
 
 
-def test_configured_model_is_not_called_by_default_and_capabilities_exclude_secrets(research):
+def test_explicit_lexical_mode_does_not_call_model_and_capabilities_exclude_secrets(research):
     client, store, settings = research
 
     def forbidden(request):
         pytest.fail("Lexical requests must not send data to an LLM")
 
-    job = client.post("/v1/searches", json={"query": "Anvesha"}).json()
+    job = client.post("/v1/searches", json={"query": "Anvesha", "ranking": "lexical"}).json()
     process_one(store, reranker=LLMReranker(settings.llm, transport=httpx.MockTransport(forbidden)))
     assert client.get(f"/v1/searches/{job['id']}").json()["state"] == "completed"
     assert job["pipeline_version"] == PIPELINE_VERSION
     capabilities = client.get("/v1/capabilities")
-    assert capabilities.json()["ranking_modes"] == ["lexical", "llm"]
+    assert capabilities.json()["ranking_modes"] == ["llm", "lexical"]
     assert "llm-private-key" not in capabilities.text and "11434" not in capabilities.text
     assert client.get("/v1/capabilities", headers={"X-API-Key": "wrong"}).status_code == 401
 
@@ -248,5 +250,5 @@ def test_serve_preserves_model_config_and_disables_access_logging(tmp_path, monk
     assert main(["--db", str(tmp_path / "override.db"), "serve"]) == 0
     app, options = called[0]
     with TestClient(app, headers={"X-API-Key": KEY}) as client:
-        assert client.get("/v1/capabilities").json()["ranking_modes"] == ["lexical", "llm"]
+        assert client.get("/v1/capabilities").json()["ranking_modes"] == ["llm", "lexical"]
     assert options["access_log"] is False

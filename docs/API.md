@@ -1,8 +1,12 @@
 # HTTP API
 
-Tasks ANV-004 and ANV-021. Base URL for local development: `http://127.0.0.1:8000`. OpenAPI is available at `/openapi.json` and interactive docs at `/docs`. JSON is the only application input/output format. Response timestamps are UTC Unix seconds. The liveness endpoint `/healthz` and API documentation are public; all `/v1/searches` operations and `/v1/capabilities` require `X-API-Key`. Interactive docs load CDN assets; direct API calls do not require them.
+Tasks ANV-004, ANV-021 and ANV-022. Base URL: `http://127.0.0.1:8000`. The self-hosted browser is at `/`; OpenAPI is at `/openapi.json`. CDN-backed `/docs` and `/redoc` are disabled. JSON is the API input/output format. Timestamps are UTC Unix seconds. Browser assets, health and OpenAPI are public; all search/capability operations require `X-API-Key`.
 
 ## Authentication and ownership
+
+Native/Compose `setup` saves keys and model/database settings in a private file
+used by `start`, `run-api` and `run-worker`. Legacy environment launches use the
+variables below. See [setup and permissions](PRIVATE_RESEARCH.md).
 
 Configure one or more strong secrets with `ANVESHA_API_KEYS`. Every key identifies a separate owner. Raw secrets are not stored in job records or returned. Invalid/missing credentials return 401; another owner's job returns the same 404 as a nonexistent job. Key rotation does not transfer old jobs; multi-key tenant identities are future work. Restrict access to the local database, which contains operational query and feedback records.
 
@@ -14,9 +18,11 @@ Configure one or more strong secrets with `ANVESHA_API_KEYS`. Every key identifi
 {"query":"free local search","sources":["local"],"limit":10}
 ```
 
-`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata` sources. `limit` is an integer from 1–50. `ranking` is `"lexical"` (default) or experimental `"llm"`. Unknown fields are rejected; language/region/date filters and query planning are not implemented. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
+`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata` sources. `limit` is an integer from 1–50. `ranking` is experimental `"llm"` (default) or explicit `"lexical"`. Unknown fields are rejected; language/region/date filters and query planning are not implemented. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
 
-LLM mode requires operator model configuration and `sources: ["local"]`; otherwise submission returns 422 (`llm_not_configured` or `llm_local_source_only`) before accepting a job. It reranks a bounded candidate prefix against the preserved original query; it does not generate queries or guarantee exact constraints. `GET /v1/capabilities` reports `sources`, `ranking_modes`, `llm_source_scope`, `llm_endpoint_scope` and `gateway_downstream_verified: false` without credentials or endpoint addresses. Model configuration alone never changes a default lexical request. See [the private research guide](PRIVATE_RESEARCH.md).
+LLM mode requires operator model configuration and `sources: ["local"]`; otherwise submission returns 422 (`llm_not_configured` or `llm_local_source_only`) before acceptance. Explicit lexical mode works without a model. `GET /v1/capabilities` reports `sources`, `ranking_modes`, `default_ranking: "llm"`, `llm_configured`, `document_count`, `llm_source_scope`, `llm_endpoint_scope` and `gateway_downstream_verified: false` without credentials or addresses. The bounded stage preserves the original query; it does not generate queries or guarantee exact constraints. See [the private research guide](PRIVATE_RESEARCH.md).
+
+**ANV-022 upgrade:** new omitted-mode requests now use LLM processing. Existing accepted jobs/snapshots are unchanged. Old lexical clients, Wikidata requests and old lexical idempotency replays must explicitly send `"ranking":"lexical"`; otherwise the input meaning changes and replay can conflict. Operators must review processing rights before using the default with external endpoints. The lexical job JSON below illustrates that explicit baseline.
 
 Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key and canonical query/sources/limit/ranking returns the existing job (200 with `Idempotency-Replayed: true`); different input returns 409. Model configuration changes do not rewrite a previously accepted job on replay. New jobs return 202 only after durable commit, with `Location`, `Retry-After: 1`, and `Idempotency-Replayed: false`. Old lexical request hashes remain valid after the additive database migration. Deleting a job removes its idempotency record, so reusing that key after deletion creates new work.
 

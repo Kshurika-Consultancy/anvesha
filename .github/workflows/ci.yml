@@ -23,5 +23,16 @@ jobs:
       - run: uv run --extra dev python -m anvesha.review_data verify
       - run: uv run --extra dev python -m anvesha.intent_evaluation verify
       - run: uv run --extra dev python scripts/smoke_mvp.py
+      - run: uv run --extra dev python scripts/smoke_selfhost.py
       - run: uv run --extra dev python scripts/check_tracking.py
       - run: git diff --check
+  container:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.8"
+          python-version: "3.12"
+      - run: uv run --extra dev python scripts/smoke_container.py

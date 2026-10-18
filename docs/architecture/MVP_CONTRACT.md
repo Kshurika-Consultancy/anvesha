@@ -1,5 +1,10 @@
 # M1 implementation contract
 
+ANV-021/ANV-022 extension: new HTTP requests default to `ranking: "llm"`, requiring
+operator model configuration and the local source. Explicit lexical requests,
+legacy stored jobs and evaluation helpers preserve M1 semantics. The current
+contract is in [API](../API.md) and [ADR 0006](../decisions/0006-llm-default-and-self-hosted-browser.md).
+
 This is the shared implementation interface for ANV-003 through ANV-006. Architectural intent is in README.md in this directory. Concrete API behavior is documented in `docs/API.md` once implemented.
 
 ## Storage

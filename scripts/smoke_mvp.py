@@ -174,7 +174,12 @@ def main():
 
             try:
                 server = start()
-                request = {"query": "free local search", "sources": ["local"], "limit": 10}
+                request = {
+                    "query": "free local search",
+                    "sources": ["local"],
+                    "limit": 10,
+                    "ranking": "lexical",
+                }
                 response = client.post(
                     "/v1/searches", json=request, headers={"Idempotency-Key": "smoke-one"}
                 )
@@ -218,7 +223,7 @@ def main():
                 assert model_state["calls"] == 0
                 assert json.loads(run_module("anvesha.cli", "doctor").stdout)["ready"]
                 intelligent = client.post(
-                    "/v1/searches", json={"query": "Anvesha", "ranking": "llm", "limit": 1}
+                    "/v1/searches", json={"query": "Anvesha", "limit": 1}
                 ).json()
                 intelligent_url = f"/v1/searches/{intelligent['id']}"
                 run_module("anvesha.worker", "--once")
@@ -253,7 +258,7 @@ def main():
                         "deletion",
                         "cancellation",
                         "offline setup diagnostics",
-                        "explicit model opt-in over real loopback HTTP with synthetic fixture",
+                        "LLM default over real loopback HTTP with synthetic fixture",
                         "candidate-only reranking before truncation",
                         "model pipeline-bound feedback and lexical fallback",
                         "server process and temporary-file cleanup",

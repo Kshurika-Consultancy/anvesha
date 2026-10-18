@@ -530,6 +530,10 @@ class Store:
                 tuple(document[field] for field in fields),
             )
 
+    def document_count(self) -> int:
+        with self._connection() as connection:
+            return connection.execute("SELECT count(*) FROM documents").fetchone()[0]
+
     def search_local(self, query: str, limit: int = 20) -> list[dict]:
         if not isinstance(query, str):
             raise ValueError("query must be text")

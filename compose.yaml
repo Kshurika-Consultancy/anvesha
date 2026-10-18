@@ -1,0 +1,45 @@
+# ANV-022: single host, local disk, private-by-default ports. Run setup first.
+x-anvesha: &anvesha
+  image: anvesha-local:dev
+  build: .
+  init: true
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+  volumes: [anvesha-data:/data]
+  extra_hosts: [host.docker.internal:host-gateway]
+
+services:
+  setup:
+    <<: *anvesha
+    profiles: [tools]
+    command: [--help]
+  api:
+    <<: *anvesha
+    command: [run-api, --host, 0.0.0.0]
+    restart: unless-stopped
+    ports: ["127.0.0.1:${ANVESHA_PORT:-8000}:8000"]
+    healthcheck:
+      test: [CMD, python, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 5s
+  worker:
+    <<: *anvesha
+    command: [run-worker]
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+  ollama:
+    # Optional CPU runtime. Model download is a separate explicit operator action.
+    image: ollama/ollama@sha256:265409e1d931028a8f7d5a32bcbafddd7bffbc6cc629d77efe9560adf692a5e7
+    profiles: [local-model]
+    restart: unless-stopped
+    volumes: [ollama-models:/root/.ollama]
+
+volumes:
+  anvesha-data:
+  ollama-models:

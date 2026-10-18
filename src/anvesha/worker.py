@@ -94,13 +94,13 @@ def process_one(
     return True
 
 
-def main() -> None:
+def main(argv=None, settings=None) -> None:
     parser = argparse.ArgumentParser(description="Process Anvesha's persisted search queue")
     parser.add_argument("--once", action="store_true", help="Process at most one job and exit")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
     from anvesha.config import Settings
 
-    settings = Settings.from_env()
+    settings = settings or Settings.from_env()
     store = Store(settings.database_path)
     store.initialize()
     worker_id = "worker_" + uuid.uuid4().hex

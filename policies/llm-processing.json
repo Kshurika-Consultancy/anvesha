@@ -1,9 +1,9 @@
 {
-  "policy_version": "llm-processing-v1",
-  "task": "ANV-021",
+  "policy_version": "llm-processing-v2",
+  "task": "ANV-022",
   "reviewed_at": "2026-10-18",
-  "scope": "Explicit optional inference over bounded snippets from an operator-imported corpus; no model training or new source discovery.",
-  "default": "Disabled; configuring a model still requires ranking=llm on each request.",
+  "scope": "Default-mode inference over bounded snippets from an operator-imported corpus, using an operator-configured endpoint; no training or new source discovery.",
+  "default": "New API/browser requests default to llm and reject before acceptance when no model is configured. Explicit ranking=lexical performs no model call. Existing accepted jobs are unchanged; legacy lexical clients/replays must send the mode explicitly after upgrading.",
   "sent_fields": ["original_query", "candidate_id", "title_prefix", "snippet_prefix", "evidence_status"],
   "not_supplied_to_model": ["result_urls", "client_api_keys", "full_corpus", "tools", "feedback", "reviewer_labels"],
   "rights": "Operator must review corpus rights and permission to process excerpts with the selected runtime/provider. Ingestion, a gateway account or a licence string is not a blanket permission grant.",

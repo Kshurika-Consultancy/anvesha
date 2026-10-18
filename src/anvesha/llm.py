@@ -170,15 +170,16 @@ class LLMConfig:
         return "m3-llm-rerank-v1-" + fingerprint[:16]
 
     @classmethod
-    def from_env(cls):
-        return cls(
-            model=os.getenv("ANVESHA_LLM_MODEL", ""),
-            base_url=os.getenv("ANVESHA_LLM_BASE_URL", "http://127.0.0.1:11434/v1"),
-            api_key=os.getenv("ANVESHA_LLM_API_KEY", ""),
-            allow_network=_environment_bool("ANVESHA_LLM_ALLOW_NETWORK"),
-            timeout_seconds=float(os.getenv("ANVESHA_LLM_TIMEOUT_SECONDS", "60")),
-            candidate_limit=int(os.getenv("ANVESHA_LLM_CANDIDATE_LIMIT", "20")),
-        )
+    def from_env(cls, **overrides):
+        values = {
+            "model": os.getenv("ANVESHA_LLM_MODEL", ""),
+            "base_url": os.getenv("ANVESHA_LLM_BASE_URL", "http://127.0.0.1:11434/v1"),
+            "api_key": os.getenv("ANVESHA_LLM_API_KEY", ""),
+            "allow_network": _environment_bool("ANVESHA_LLM_ALLOW_NETWORK"),
+            "timeout_seconds": float(os.getenv("ANVESHA_LLM_TIMEOUT_SECONDS", "60")),
+            "candidate_limit": int(os.getenv("ANVESHA_LLM_CANDIDATE_LIMIT", "20")),
+        }
+        return cls(**(values | overrides))
 
 
 class LLMReranker:
