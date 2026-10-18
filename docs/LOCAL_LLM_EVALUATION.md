@@ -21,6 +21,18 @@ returned four invalid outputs; a structural replay identified a missing ID.
 schema-constrained output. The v3 protocol uses it with the same query IDs and all
 other model/ranking bounds. No earlier evaluation queries were released.
 
+## Initial measured result
+
+The [complete v3 report](../reports/evaluation/local-llm-pilot-v3/ANALYSIS.md) accounts
+for all 4 development and 24 reserved evaluation queries. Evaluation nDCG@10 is
+0.616925 lexical versus 0.674710 LLM, paired delta +0.057786 with 95% interval
+[-0.030015, +0.157238]. **Improvement is not established.** Nineteen permutations
+were applied and five invalid outputs fell back; no query was omitted. Median/p95
+LLM time was 95.330/107.900 seconds. The observed main-server process lifetime peak
+was 11.401 GiB on this nominal 32-GB PC, including development; this is not a
+minimum-RAM or energy estimate. Source/runtime pins and resource caveats are in
+the report. The model server is stopped; cached artifacts remain ignored.
+
 ## Reproduce this Windows CPU profile
 
 Run from a checkout of this repository. Python 3.12+, SQLite FTS5, uv, sufficient
@@ -48,10 +60,11 @@ starts a CPU process on `127.0.0.1:8135`. It writes allowlisted backend evidence
 under ignored `.anvesha/local-llm/anv023/backend-info.json`. It uses a fixed local
 model, offline mode, disabled prompt logging/web UI/MCP proxy, no model tools,
 six threads and an 8,192-token context. Ctrl+C stops the owned process. Use another
-terminal for the benchmark:
+terminal for the benchmark. The repository retains the published report, so these
+reproduction commands use a fresh ignored workspace/output instead of overwriting it:
 
 ```text
-uv run --extra dev python -m anvesha.llm_evaluation run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json
+uv run --extra dev python -m anvesha.llm_evaluation run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --workspace .anvesha/evaluation/local-llm-reproduction --output-dir .anvesha/evaluation/local-llm-reproduction/report
 ```
 
 This measures development only and writes a private checkpoint, not a partial
@@ -60,8 +73,8 @@ labels or changing the protocol based on evaluation outcomes. Then explicitly
 release the reserved queries using the same code, environment, backend and settings:
 
 ```text
-uv run --extra dev python -m anvesha.llm_evaluation run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --release-evaluation --resume
-uv run --extra dev python -m anvesha.llm_evaluation verify
+uv run --extra dev python -m anvesha.llm_evaluation run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json --workspace .anvesha/evaluation/local-llm-reproduction --output-dir .anvesha/evaluation/local-llm-reproduction/report --release-evaluation --resume
+uv run --extra dev python -m anvesha.llm_evaluation verify --output-dir .anvesha/evaluation/local-llm-reproduction/report
 ```
 
 Existing output directories are not overwritten. For another execution use a
@@ -70,6 +83,9 @@ different `--workspace` and `--output-dir` after `run`; for verification pass
 require explicit resume. Model/config/source/environment drift rejects resume.
 Do not edit an existing protocol/model manifest to make new results fit it;
 version a materially changed experiment. Every planned query must be accounted for.
+If interrupted while writing the public report, keep that partial directory and
+choose a new `--output-dir` with the same checkpoint and `--resume`; never mix or
+silently overwrite evidence. A completed checkpoint needs no further model calls.
 
 Other hosts can run their own compatible model server for Anvesha's normal API;
 this pinned acquisition/server profile is specifically Windows CPU. Actual local

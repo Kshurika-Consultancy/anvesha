@@ -14,7 +14,8 @@ works without a model. Anvesha never downloads model weights automatically.
 
 This preview searches an imported collection. General-web discovery, query
 planning, page inspection and embeddings remain future work. Reranking is
-experimental until measured against independent labels under ANV-023. A ranker
+experimental: the first scientific CPU pilot has a higher mean score but does
+not establish improvement; see [results](../reports/evaluation/local-llm-pilot-v3/ANALYSIS.md). A ranker
 cannot recover a missing document or establish that a statement is true.
 
 ANV-023 introduces compact per-request candidate aliases for inference. Original

@@ -13,6 +13,15 @@ and [verification](docs/tracking/verification/2026-10-18-self-hosting.md).
 
 Submit small, reviewable changes explaining the observable problem, resulting behavior, validation evidence, and limitations. Update affected docs and handoff. Record significant architecture changes as numbered ADRs. New sources require a rights manifest; new model dependencies require their own license and resource review.
 
+For model-quality work, follow the [local evaluation guide](docs/LOCAL_LLM_EVALUATION.md).
+Freeze development/evaluation IDs, model/runtime pins, prompt, output format and
+bounds before live inference. Keep every failure in the comparison; do not select
+only successful queries or tune on released evaluation scores. Community profiles
+need their own reviewed rights and hardware evidence. Publish permitted benchmark
+IDs/metrics and sanitized counts, never private queries, prompts, model responses,
+reasoning or reviewer packets. Existing public expert labels and synthetic tests
+are not new independent human judgments. No model downloads occur in normal CI.
+
 Only contribute code/data you have rights to contribute. Independently written code is Apache-2.0; preserve third-party notices. Never submit API keys, private search records, provider payloads without export permission, or AGPL code presented as Apache-2.0. Apache-2.0 section 5 governs intentionally submitted contributions unless explicitly stated otherwise; no separate CLA or copyright assignment is introduced here.
 
 Publication, release, and deployment are separate decisions. Local completion does not authorize them.

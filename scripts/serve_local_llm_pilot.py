@@ -10,6 +10,7 @@ import os
 import subprocess
 import time
 import zipfile
+from contextlib import suppress
 from pathlib import Path
 
 import httpx
@@ -160,6 +161,11 @@ memory_bytes=[long]$pilotMemory.TotalPhysicalMemory} | ConvertTo-Json -Compress
             pass
         finally:
             stop_process(process)
+            # ANV-023: a completed run must not leave an apparently owned live PID.
+            with suppress(OSError, ValueError):
+                owned = workspace / "owned-process.json"
+                if json.loads(owned.read_bytes()) == {"pid": process.pid}:
+                    owned.unlink()
     return 0
 
 

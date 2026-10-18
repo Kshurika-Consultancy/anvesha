@@ -1,0 +1,66 @@
+{
+  "all_evaluated_files_match_commit": true,
+  "cleanup": {
+    "launcher_restart_without_inference": "Passed: verified runtime restarted, then owned process tree stopped, matching PID record removed and ports closed",
+    "model_server_tree_stopped": true,
+    "owned_preview_stopped": true,
+    "ports_8135_8140_closed": true,
+    "weights_and_runtime_retained_only_in_ignored_local_cache": true
+  },
+  "evaluated_source_commit": "9905423457d0ed3e9395948aa286d6c74afc3332",
+  "experiment": "local-llm-pilot-v3",
+  "inference": "Actual local CPU inference; no synthetic transport in the measured comparison",
+  "new_human_judgments": 0,
+  "privacy_evidence": "Fixed verified GGUF/runtime, loopback listener, offline serving, tools/web UI/MCP proxy/prompt logging disabled; sampled connections are not a firewall or packet-capture proof",
+  "resource_window": {
+    "limitations": "Observed shared-PC main-server process measurements, excluding helper/pipeline process CPU and energy; wall window includes index preparation and bookkeeping; peak working set is process lifetime, including earlier development. Warm model, not minimum hardware requirements.",
+    "main_model_server_cpu_seconds": 12546.359,
+    "process_lifetime_peak_working_set_bytes": 12242071552,
+    "samples": [
+      {
+        "captured_at": "2026-10-18T09:42:37.3621663Z",
+        "cpu_seconds": 5776.296875,
+        "listening_addresses": [
+          "127.0.0.1"
+        ],
+        "non_loopback_established": 0,
+        "peak_working_set_bytes": 8869257216,
+        "working_set_bytes": 7765106688
+      },
+      {
+        "captured_at": "2026-10-18T09:55:00.4044851Z",
+        "cpu_seconds": 8899.46875,
+        "listening_addresses": [
+          "127.0.0.1"
+        ],
+        "non_loopback_established": 0,
+        "peak_working_set_bytes": 9191493632,
+        "working_set_bytes": 8767389696
+      },
+      {
+        "captured_at": "2026-10-18T10:10:14.8497577Z",
+        "cpu_seconds": 13872.671875,
+        "listening_addresses": [
+          "127.0.0.1"
+        ],
+        "non_loopback_established": 0,
+        "peak_working_set_bytes": 11504701440,
+        "working_set_bytes": 11502874624
+      },
+      {
+        "captured_at": "2026-10-18T10:24:01.3919765Z",
+        "cpu_seconds": 18322.65625,
+        "listening_addresses": [
+          "127.0.0.1"
+        ],
+        "non_loopback_established": 0,
+        "peak_working_set_bytes": 12242071552,
+        "working_set_bytes": 12025634816
+      }
+    ],
+    "wall_seconds": 2484.03
+  },
+  "schema_version": 1,
+  "source_notice": "SciFact/BEIR attribution and source/model rights remain separate from the Apache-2.0 core",
+  "task": "ANV-023"
+}

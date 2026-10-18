@@ -146,3 +146,9 @@ schema output format to reduce missing IDs. It binds the format into the accepte
 fingerprint, keeps existing configurations in object mode, and always validates
 the full permutation on the client. Protocol v3 preserves the query sample and
 uses schema mode before releasing any evaluation request.
+
+The [completed v3 CPU pilot](../../reports/evaluation/local-llm-pilot-v3/ANALYSIS.md)
+has 19/24 valid permutations and five explicit fallbacks. Mean nDCG rises, but the
+paired interval spans zero, so improvement is not established. The measured source
+matches pre-evaluation commit 9905423. Reliability alternatives need a fresh frozen
+study under ANV-024; independent domain and actual gateway/backend gates remain open.

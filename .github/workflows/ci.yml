@@ -22,6 +22,7 @@ jobs:
       - run: uv run --extra dev python -m anvesha.evaluation verify
       - run: uv run --extra dev python -m anvesha.review_data verify
       - run: uv run --extra dev python -m anvesha.intent_evaluation verify
+      - run: uv run --extra dev python -m anvesha.llm_evaluation verify
       - run: uv run --extra dev python scripts/smoke_mvp.py
       - run: uv run --extra dev python scripts/smoke_selfhost.py
       - run: uv run --extra dev python scripts/check_tracking.py

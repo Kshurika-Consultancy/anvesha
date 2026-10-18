@@ -2,40 +2,51 @@
 
 ## Objective
 
-Active follow-up, 2026-10-18: user authorized ANV-023 real local-model comparison,
-privacy/user-owned-tooling title/description and commit/push to main. Root owns all
-new files; no delegation. Starting HEAD a7eb810 was clean. Branding now describes
-private search for user-controlled research, code/development, IoT/asset tooling
-and private agents/chat as intended integrations, not implemented applications.
+2026-10-18: user authorized ANV-023 real local-model comparison, private/user-owned
+tooling title/description and commit/push to main. Root owns publication; no
+subagents used. Starting HEAD a7eb810 was clean. README/API/browser/package and
+GitHub About identify Private Search for Your Own AI Tools; research, coding,
+IoT/assets and private agents/chat are intended integrations, not implemented apps.
 
-In-progress experiment: `benchmarks/local-llm-pilot-v3/protocol.json` freezes 4
-development and 24 evaluation SciFact IDs by label-blind hashing. The new module
-`anvesha.llm_evaluation` uses actual Store/worker/LLMReranker, retains fallback,
-pairs metrics, checkpoints privately and verifies ID-only reports offline. Full
-offline suite: 280 passed (40.43s), Ruff lint/format pass. v1 development recorded
-four 120-second timeouts, with zero evaluation calls. Public diagnostics are in
-`reports/evaluation/local-llm-development-v1`. ADR 0008/v2 use reversible `c1`..`c20`
-aliases: pinned tokenizer output size 501 versus 96 tokens, not a measured speedup.
-The v2 sample retains every original ID and other bounds. v2 development returned four invalid outputs; a structural replay found 19 distinct
-known IDs instead of 20. No evaluation was released. ADR 0009 adds optional
-`ANVESHA_LLM_OUTPUT_FORMAT=json_schema`; protocol v3 keeps all selected IDs and
-other bounds. Session 82779 finished v3 development: three applied rankings, one invalid-output
-fallback; zero evaluation queries run. Explicit unchanged release/resume is next. Full schema suite
-285 passed (39.85s), saved-format/legacy-config suite 13 passed. Original MVP/native
-process smokes pass; schema native repeat, build/archive exclusion checks and both archived lexical
-report verifiers passed. Final checks and the real evaluation remain pending. Freeze evaluated source until explicit release/resume completes;
-do not tune from evaluation outcomes. Process smokes/browser/package remain pending.
+The actual frozen v3 pilot is complete: 4 development + 24 reserved evaluation
+queries over all 5,183 SciFact documents. Results are under
+`reports/evaluation/local-llm-pilot-v3` (ANALYSIS, summary, rankings, execution).
+Evaluation nDCG@10: 0.616925 lexical / 0.674710 LLM; paired delta +0.057786 with
+95% interval [-0.030015,+0.157238]. Improvement is not established. All queries
+retained: 19 applied, 5 invalid-output lexical fallbacks, 0 worker failures;
+3 wins / 20 ties / 1 regression. Recall@50 stays 0.812500. These are inherited
+expert scientific labels, zero new Anvesha human judgments. Never tune on the
+released sample and call another run unseen. ANV-024 is planned from development
+contract failures; use fresh evaluation. ANV-020 broader independent evidence and
+actual Ollama/OmniRoute/other model/hardware profiles remain open under ANV-023.
 
-Explicit downloads verified: MIT llama.cpp b11669 CPU runtime (19.5 MB) and
-Apache-2.0 Qwen3-4B-Instruct-2507 Q4_K_M GGUF (2.497 GB), under ignored
-`.anvesha/local-llm/anv023`. Pins/rights are in
-`policies/models/qwen3-4b-instruct2507.json`. No system install or hosted inference.
-`scripts/serve_local_llm_pilot.py --serve` currently owns server PID 21908 on
-loopback port 8135, CPU-only/offline, no web UI/MCP proxy or prompt logs. A real
-synthetic three-result worker check passed: completed, three LLM-reordered results,
-no warnings, 30.970 seconds. It is compatibility evidence, not quality evidence.
-Stop the owned server tree after measurement. No actual Ollama/OmniRoute instance
-was exercised. ANV-020 independent review and those backend checks remain open.
+Model: Qwen3-4B-Instruct-2507 Q4_K_M, verified official registry GGUF; runtime MIT
+llama.cpp b11669, CPU-only, 6 threads, context 8192, seed 20261018, loopback/offline,
+no tools/web UI/MCP proxy or prompt logs. Exact pins/rights: policies/models.
+Source/protocol committed as `9905423457d0ed3e9395948aa286d6c74afc3332` before
+evaluation release. All eight measured source files still match that commit.
+v1/v2 development failures and protocols are retained; neither released evaluation.
+The source base revision captured before development was a7eb810; per-file hashes
+identify actual evaluated code. No inference used private queries or review data.
+
+All evaluation/supervisor sessions are finished. Model PID 21908/tree stopped;
+preview PID 21268 stopped/tab closed. A no-inference launcher restart/cleanup check
+also passed (owned PID 22212 stopped): launcher now removes its matching PID record.
+Ports 8135/8140 are closed. Do not act on historic PIDs. Verified binaries/weights
+remain ignored under `.anvesha/local-llm/anv023`; no system install/public service.
+Checkpoint is under `.anvesha/evaluation/local-llm-pilot-v3`; public reports refuse
+overwrite. Reproduce into fresh ignored paths using docs/LOCAL_LLM_EVALUATION.md.
+
+Pre-release: 286 tests (47.60s), Ruff/tracking/diff, MVP/native schema smokes,
+focused browser copy, build/archive exclusions, unchanged archived lexical
+verifiers and runtime-only isolated installed-wheel native/schema smoke passed.
+New offline model-report verifier passed with the actual model stopped. See
+`docs/tracking/verification/2026-10-18-local-llm.md` for resource/quality evidence.
+Screenshot `.anvesha/anv023-branding-desktop.png` is ignored, no viewport override.
+Final local checks also pass: 286 tests (35.81s), Ruff/tracking/diff, all artifact
+verifiers, both process smokes and rebuilt package/archive inspection. Result/docs
+commit, authorized push to main and CI verification remain pending. Main currently has local freeze commit 9905423; origin/main was a7eb810 at
+last read. New CI step verifies public artifacts only, never downloads/runs models.
 
 The user selected Anvesha, asked to save the researched plan in this repository, break it into milestones, create agent guidance, and begin an MVP with no mandatory paid APIs. The user subsequently created https://github.com/Kshurika-Consultancy/anvesha and explicitly authorized connecting this workspace, committing the plan/MVP, and pushing main (ANV-017).
 
@@ -111,7 +122,7 @@ The source defaults to local, but the HTTP ranking default is now LLM and needs 
 
 ## Next work and known limits
 
-Next is ANV-023 actual backend/model tests and independently measured gains. ANV-022's actual Linux container CI passed despite Docker being unavailable locally; no real Ollama/OmniRoute or model weights were exercised. Broader source coverage needs ANV-009/ANV-011. A local gateway does not establish local inference. The browser is self-hosted; CDN-backed docs are disabled. ANV-021/ANV-022 do not complete M2/M3 overall quality gates. Refresh pinned image digests and action versions during ANV-014 release maintenance.
+Next is ANV-024 ranking reliability/fresh evaluation and the remaining ANV-023 backend/model profiles. ANV-022's actual Linux container CI passed despite Docker being unavailable locally; no real Ollama/OmniRoute or model weights were exercised. Broader source coverage needs ANV-009/ANV-011. A local gateway does not establish local inference. The browser is self-hosted; CDN-backed docs are disabled. ANV-021/ANV-022 do not complete M2/M3 overall quality gates. Refresh pinned image digests and action versions during ANV-014 release maintenance.
 
 1. Continue ANV-020 with native-speaker review, real consenting independent assessments, adjudication/agreement, permitted external baselines, more representative current-web/locale inputs and a legacy SciFact pool adapter. The existing pilot is ready for private enrollment and packet distribution by an authorized operator. Existing SciFact/XQuAD annotations are not new Anvesha human judgments. Retain source baselines and do not tune on holdout data.
 2. ANV-008: quotas, automated retention, source-wide rate limits, strict total upstream deadlines, operational monitoring and key/tenant decisions. Current HTTP inactivity limits do not provide a strict deadline for trickling headers. Keep the deployment local.

@@ -8,7 +8,13 @@ Submit a query, receive an ID, poll its status, inspect stable sources and give 
 
 **Start here:** [native and Docker self-hosting guide](docs/PRIVATE_RESEARCH.md). Import permitted documents, connect your local model and use the bundled browser. No paid API is mandatory. A local gateway can still forward data to cloud providers; verify its routing.
 
-**Scope:** the default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. This is a private-corpus search preview, not a general-web search engine, a factual-verification system, or evidence of Google-level quality. Optional LLM reranking has protocol/failure-path tests; actual model quality gains and live backend acceptance remain unmeasured. Query planning, page inspection, embeddings, automatic retention and feedback learning remain future work.
+**Scope:** the default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. This is a private-corpus search preview, not a general-web search engine, a factual-verification system, or evidence of Google-level quality. LLM reranking remains experimental; broader backend and domain validation remains open. Query planning, page inspection, embeddings, automatic retention and feedback learning remain future work.
+
+The [first real local-model pilot](reports/evaluation/local-llm-pilot-v3/ANALYSIS.md)
+used Qwen3-4B on CPU. On 24 reserved scientific queries, nDCG@10 was 0.6169 for
+lexical search and 0.6747 with LLM reranking, including five invalid-output
+fallbacks. The paired 95% interval includes zero, so **improvement is not
+established**. This is a measured starting point, not a general quality claim.
 
 ## Repository navigation
 

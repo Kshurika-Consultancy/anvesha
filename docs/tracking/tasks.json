@@ -910,7 +910,10 @@
       "title": "Measure local LLM usefulness and verify real backend compatibility",
       "status": "in_progress",
       "owner": "root",
-      "depends_on": ["ANV-020", "ANV-021"],
+      "depends_on": [
+        "ANV-020",
+        "ANV-021"
+      ],
       "acceptance": [
         "Clarify Anvesha's title/description as open-source private self-hosted search for user-controlled internal tools, without claiming integrations that are not implemented",
         "Run explicit bounded checks against a chosen real local runtime, then actual Ollama/configured OmniRoute deployments with consented non-private fixtures",
@@ -918,10 +921,101 @@
         "Report regressions, failure rates, latency and resource use without counting coached examples or model-generated labels as independent human evidence",
         "Use measured coverage gaps to decide on constrained query expansion, embeddings and additional approved research sources"
       ],
-      "validation_plan": ["Use independently reviewed labels and retain reproducible ranking/configuration fingerprints", "Verify no cloud routing in the claimed local configuration and publish only consented aggregate evidence"],
+      "validation_plan": [
+        "Use independently reviewed labels and retain reproducible ranking/configuration fingerprints",
+        "Verify no cloud routing in the claimed local configuration and publish only consented aggregate evidence"
+      ],
+      "verification": [
+        {
+          "command": "Explicit pinned preparation/serving and real Store/worker/Qwen3 compatibility check",
+          "result": "Verified llama.cpp b11669 and Qwen3-4B-Instruct-2507 Q4_K_M artifact hashes; CPU-only loopback/offline inference. Three synthetic results completed without warnings in 30.970s. No paid API or hosted inference.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "python -m anvesha.llm_evaluation run --run-local-model --backend-info .anvesha/local-llm/anv023/backend-info.json; repeat with --release-evaluation --resume",
+          "result": "Complete frozen v3: 4 development + 24 reserved evaluation queries over all 5,183 documents. Code/protocol committed as 9905423 before evaluation; all 8 source hashes match. Evaluation nDCG@10 0.616925 lexical versus 0.674710 LLM; paired delta +0.057786, CI95 [-0.030015,+0.157238], improvement not established. 19 applied / 5 invalid-output fallbacks / 0 worker failures; 3 wins, 20 ties, 1 regression. No query omitted or private human label used.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.llm_evaluation verify; frozen-source/hash check; process cleanup",
+          "result": "Offline report verification passed after stopping owned model tree and preview; ports 8135/8140 closed. Archived lexical fingerprints unchanged. Four connection samples loopback-only; no packet-capture/anonymity claim. Main server lifetime peak 11.401 GiB; evaluation median/p95 model path 95.330/107.900s.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "Final Ruff lint/format, pytest, tracking/diff; both process smokes; all artifact/data verifiers; package/archive inspection; no-inference launcher restart",
+          "result": "Passed: 286 tests in 35.81s (one existing ANV-015 warning); stable archived ranking fingerprints; default tests offline/model-free. Saved schema and installed-wheel/native checks pass. Ownership cleanup passed and all owned ports closed. Final wheel/sdist exclude private data, binaries and weights. About description read-back verified.",
+          "date": "2026-10-18"
+        }
+      ],
+      "references": [
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/review/README.md",
+        "README.md",
+        "CONTRIBUTING.md",
+        "policies/models/qwen3-4b-instruct2507.json",
+        "policies/llm-processing.json",
+        "benchmarks/local-llm-pilot-v1/protocol.json",
+        "benchmarks/local-llm-pilot-v2/protocol.json",
+        "benchmarks/local-llm-pilot-v3/protocol.json",
+        "docs/decisions/0009-opt-in-constrained-ranking-output.md",
+        "reports/evaluation/local-llm-development-v2/diagnostics.json",
+        "scripts/smoke_selfhost.py",
+        ".env.example",
+        "docs/API.md",
+        "NOTICE",
+        "docs/RESEARCH.md",
+        "tests/test_selfhost.py",
+        ".github/workflows/ci.yml",
+        "reports/evaluation/local-llm-development-v1/diagnostics.json",
+        "docs/LOCAL_LLM_EVALUATION.md",
+        "docs/tracking/verification/2026-10-18-local-llm.md",
+        "docs/decisions/0007-local-model-quality-pilot.md",
+        "docs/decisions/0008-compact-reranking-identifiers.md",
+        "src/anvesha/llm.py",
+        "src/anvesha/llm_evaluation.py",
+        "scripts/prepare_local_llm.py",
+        "scripts/serve_local_llm_pilot.py",
+        "scripts/smoke_mvp.py",
+        "tests/test_llm.py",
+        "tests/test_llm_evaluation.py",
+        "tests/test_local_llm_acquisition.py",
+        "reports/evaluation/local-llm-pilot-v3/README.md",
+        "reports/evaluation/local-llm-pilot-v3/ANALYSIS.md",
+        "reports/evaluation/local-llm-pilot-v3/summary.json",
+        "reports/evaluation/local-llm-pilot-v3/rankings.jsonl",
+        "reports/evaluation/local-llm-pilot-v3/execution.json"
+      ],
+      "notes": "Initial real llama.cpp/Qwen3 CPU pilot measured and verified; average score rose but the paired interval spans zero, so no established gain is claimed. Original v1/v2 development failures and unchanged selected IDs remain auditable; evaluation was frozen before release. Broader independent research/coding/IoT/asset/private-agent evidence stays ANV-020. Actual Ollama/OmniRoute and other hardware/model profiles remain ANV-023, so this task stays in_progress. ANV-024 tracks development-led contract reliability and fresh evaluation; the released 24-query sample must not be reused as unseen tuning evidence. Corrected stale owned-process metadata after helper shutdown; real no-inference restart/cleanup passed with matching PID record removed and ports closed. Measured ranking code/settings stayed unchanged. Final local documentation/checks passed (286 tests and process/artifact/package verification). Result/docs commit, authorized push and remote CI are pending. Default tests stay offline/model-free. Root owns publication."
+    },
+    {
+      "id": "ANV-024",
+      "milestone": "M3",
+      "title": "Improve small local-model ranking reliability and diagnostic evidence",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-021"
+      ],
+      "acceptance": [
+        "Use development-only execution diagnostics to compare bounded ranking contracts, including per-candidate relevance classification as an experiment; preserve original constraints, retrieved IDs, source rights and stable snapshots",
+        "Pin each tested model/runtime/prompt/format/budget profile and freeze a fresh evaluation sample before inference; do not tune on released ANV-023 evaluation scores",
+        "Distinguish sanitized contract violations such as incomplete output and duplicate/unknown IDs without storing raw responses, reasoning or private queries",
+        "Retain failures and regressions, test adversarial snippets, unsupported formats, cancellation/leases and configuration upgrades, and report both valid-output coverage and paired relevance metrics",
+        "Keep free local inference and explicit lexical control; assess larger bounded CPU budgets when needed because quality takes priority over speed; do not promise cross-domain gain without independent non-coached evidence"
+      ],
+      "validation_plan": [
+        "Offline meaningful contract/failure/upgrade regression tests and required process smokes",
+        "Explicit bounded real-model runs with a new frozen protocol, complete query accounting, rights/hardware/source hashes and offline report verification"
+      ],
       "verification": [],
-      "references": ["docs/PRIVATE_RESEARCH.md", "docs/review/README.md", "README.md", "policies/models/qwen3-4b-instruct2507.json", "policies/llm-processing.json", "benchmarks/local-llm-pilot-v1/protocol.json", "benchmarks/local-llm-pilot-v2/protocol.json", "benchmarks/local-llm-pilot-v3/protocol.json", "docs/decisions/0009-opt-in-constrained-ranking-output.md", "reports/evaluation/local-llm-development-v2/diagnostics.json", "scripts/smoke_selfhost.py", ".env.example", "docs/API.md", "NOTICE", "docs/RESEARCH.md", "tests/test_selfhost.py", "reports/evaluation/local-llm-development-v1/diagnostics.json", "docs/LOCAL_LLM_EVALUATION.md", "docs/tracking/verification/2026-10-18-local-llm.md", "docs/decisions/0007-local-model-quality-pilot.md", "docs/decisions/0008-compact-reranking-identifiers.md", "src/anvesha/llm.py", "src/anvesha/llm_evaluation.py", "scripts/prepare_local_llm.py", "scripts/serve_local_llm_pilot.py", "scripts/smoke_mvp.py", "tests/test_llm.py", "tests/test_llm_evaluation.py", "tests/test_local_llm_acquisition.py"],
-      "notes": "User authorized local-model comparison, privacy/tooling purpose/title clarification and publishing main. Root owns this slice. Pinned portable llama.cpp b11669 and Qwen3-4B-Instruct-2507 Q4_K_M on Ryzen 5 4600G / 32 GB RAM; no system install or hosted inference. v1 development recorded four timeouts before evaluation release. ADR 0008/v2 introduce compact reversible aliases, preserving the selected 4 development and 24 evaluation IDs and other bounds. Tokenizer-only output size is 501 versus 96 tokens, not measured inference speedup. Focused 83 tests and full 280-test suite pass; real synthetic three-result compatibility passed. v2 development produced four invalid outputs; one bounded development replay returned 19 distinct known aliases instead of 20. No evaluation released. Optional schema-constrained output and v3 are frozen; development completed 3 applied / 1 invalid-output fallback. Preserve all earlier diagnostics. Evaluation release and final publication are pending. Inherited expert labels are not new Anvesha human judgments; never use coached/model-generated grades. ANV-020 independent research/coding/IoT/asset/private-agent coverage and actual Ollama/OmniRoute checks remain open. Default tests stay offline/model-free."
+      "references": [
+        "docs/LOCAL_LLM_EVALUATION.md",
+        "docs/decisions/0009-opt-in-constrained-ranking-output.md",
+        "reports/evaluation/local-llm-development-v2/diagnostics.json",
+        "src/anvesha/llm.py",
+        "docs/review/README.md"
+      ],
+      "notes": "Known follow-up from ANV-023 development: v1 had four timeouts, v2 had four invalid outputs, and schema-mode v3 still had one invalid-output fallback among four development queries. No evaluation outcome was consulted to choose this follow-up. The 24-query v3 evaluation is released and complete; use a fresh frozen sample for future experiments. This task is planned, not an implemented classifier, new model, expanded corpus or quality claim. Broader independent domain evidence remains ANV-020; actual backend/hardware profiles remain ANV-023."
     }
   ]
 }

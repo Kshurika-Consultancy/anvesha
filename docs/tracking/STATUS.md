@@ -1,16 +1,17 @@
 # Anvesha development status
 
-ANV-023 is active (2026-10-18): private search for user-controlled AI tools, with
-a real pinned local CPU-model pilot. Explicit downloads stay ignored; no hosted
-LLM or paid API is used. Full 280-test offline suite and a real three-result
-worker/model compatibility check pass. v1's four development requests timed out,
-with zero evaluation requests. ADR 0008/v2 add reversible compact candidate aliases
-and preserve the same 4-development / 24-evaluation IDs. Four v2 invalid outputs
-led to optional schema mode under ADR 0009. v3 development is running with the
-same sample/bounds; no evaluation has run and no relevance gain is claimed.
-Final pre-release suite: 286 passed; MVP/native schema process smokes and package
-checks pass. v3 development finished 3 applied / 1 invalid-output fallback.
-Independent multi-intent review and actual Ollama/OmniRoute checks remain open.
+ANV-023's initial real local-model pilot is measured and verified (2026-10-18).
+Title/descriptions identify private search for user-controlled AI tools. Free
+Qwen3-4B/llama.cpp CPU inference on 24 reserved scientific queries scores 0.616925
+lexical / 0.674710 LLM nDCG@10; paired 95% delta interval [-0.030015,+0.157238]
+includes zero, so improvement is not established. All outcomes are retained:
+19 applied / 5 invalid-output fallbacks / 0 worker failures. See [analysis](../../reports/evaluation/local-llm-pilot-v3/ANALYSIS.md)
+and [verification](verification/2026-10-18-local-llm.md). Source/protocol were frozen
+as 9905423 before evaluation. Owned model/preview are stopped; caches stay ignored.
+Final local checks passed: 286 tests (35.81s), lint/format/tracking, process smokes,
+report verifiers and package inspection. Commit/push/CI are next. ANV-024 tracks reliability with fresh evaluation. ANV-023
+stays in progress for actual Ollama/OmniRoute/other profiles and ANV-020 independent
+domain evidence. No mandatory paid API or hosted inference.
 
 Current direction, 2026-10-18: LLM-default private home-server research with no mandatory paid APIs. ANV-021 is published on main as `83830bf`; all four Windows/Linux CI jobs passed in [run 39109656383](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39109656383). Its bounded reranking protocol and frozen lexical fingerprints remain documented in [ANV-021 evidence](verification/2026-10-18-private-research.md).
 
