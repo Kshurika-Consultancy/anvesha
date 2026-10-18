@@ -6,7 +6,11 @@
 commit and push. Root implemented ANV-024 from clean main 536fc75. Source/protocol
 freeze `1793f3a41ecb5555cf67ab0dd0f5ec4fec1ffb2b` is pushed to main; all five jobs
 passed in [source CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39122584748).
-Results/evidence publication and its final checks are the current remaining step.
+Results/evidence commit `8db584e125bc2e0ffb362153a56ddaf3471829b9` is also pushed;
+local/remote hashes matched and worktree was clean. All five jobs passed in
+[result CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39126844802),
+including the new offline comparison verifier and actual container acceptance.
+This scoped task is complete; root ownership is released at this handoff.
 No subagents or mandatory paid APIs/hosted inference were used.
 
 The actual Qwen3/llama.cpp CPU comparison completed all 4 development + 16 fresh
@@ -41,8 +45,9 @@ smoke passed. Both final process smokes and package/archive inspection also pass
 all nine measured wheel Python files match source, three browser assets are
 included and private caches/config/data/weights/binaries excluded. ANV-024 is done
 for this scoped comparison; new follow-ups are recorded in ANV-010. New CI step
-verifies the comparison offline. Next: commit/push results, verify remote equality
-and CI, record publication and release root ownership.
+verifies the comparison offline. No model/test services or review submissions
+remain. This documentation-only evidence follow-up can have its own CI run;
+inspect current HEAD. Next work is the existing ANV-010/020/023 scope above.
 See [verification](verification/2026-10-18-ranking-contracts.md).
 
 ## Previous completed ANV-023 slice

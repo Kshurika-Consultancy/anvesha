@@ -1,7 +1,8 @@
 # Anvesha development status
 
-ANV-024's real CPU comparison is measured (2026-10-18); results publication is
-being finalized. Source freeze 1793f3a is pushed and all five source CI jobs pass.
+ANV-024's scoped CPU comparison is done and published (2026-10-18). Source freeze
+1793f3a and results 8db584e are on main; all five jobs passed for both, including
+the new offline verifier and actual container acceptance in [result CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39126844802).
 On 16 fresh scientific queries, nDCG@10 is 0.748850 lexical / 0.743299 listwise /
 0.793284 pointwise. Pointwise applies 16/16; listwise applies 13/16 with three
 explicit duplicate-ID fallbacks. Paired intervals include zero: improved relevance

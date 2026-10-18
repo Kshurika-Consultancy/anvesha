@@ -108,7 +108,19 @@ dependencies or real model were needed. Final build/archive inspection passed:
 93,649-byte wheel, 862,759-byte sdist at that checkpoint, all nine measured Python
 files identical to source, three browser assets present, source report included,
 private caches/configuration/databases/weights/binaries excluded. Tracking and
-`git diff --check` passed. Publication/remote CI evidence follows after push.
+`git diff --check` passed.
+
+## Publication
+
+Freeze `1793f3a41ecb5555cf67ab0dd0f5ec4fec1ffb2b` and results
+`8db584e125bc2e0ffb362153a56ddaf3471829b9` were committed/pushed to main. Local and
+remote hashes matched after each push and the worktree was clean. All five jobs
+passed for the freeze and [results run 39126844802](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39126844802):
+Windows/Linux Python 3.12/3.14, plus actual container build/restart/cleanup.
+The new report verifier passed offline in CI without weights or inference.
+This documentation-only evidence follow-up may have another CI run; inspect HEAD.
+ANV-024 is done for its scoped experiment; root ownership is released, no owned
+services are left running, and wider ANV-010/020/023 gates remain unchanged.
 
 Follow-ups remain in existing tasks: ANV-010 controlled ranking/retrieval and
 semantic injection/calibration studies, ANV-020 independent domain judgments,

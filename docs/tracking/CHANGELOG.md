@@ -12,7 +12,9 @@ Record material delivered changes with task IDs and verification references. Thi
   paired intervals include zero, so relevance improvement is not established.
   Pointwise has 16 valid rankings, listwise 13 plus three duplicate-ID fallbacks.
   Default stays listwise. Added public provenance/resources, stopped owned model
-  tree, and offline CI report verification. [Evidence](verification/2026-10-18-ranking-contracts.md).
+  tree, and offline CI report verification. Results `8db584e` are pushed with
+  matching remote hash; all five jobs passed in [CI run 39126844802](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39126844802).
+  [Evidence](verification/2026-10-18-ranking-contracts.md).
 
 - ANV-023 initial slice: clarified private search for user-controlled AI tools in
   the main title/descriptions and GitHub About. Added explicit pinned free CPU
