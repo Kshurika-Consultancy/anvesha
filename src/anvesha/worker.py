@@ -7,6 +7,7 @@ import time
 import uuid
 from collections.abc import Callable
 
+from anvesha.llm import LLMError, LLMReranker, RerankCancelled
 from anvesha.providers import ProviderError, search_wikidata
 from anvesha.ranking import rank_candidates
 from anvesha.store import Store
@@ -18,6 +19,7 @@ def process_one(
     lease_seconds: int = 60,
     wikidata_search: Callable = search_wikidata,
     enabled_sources: tuple[str, ...] | None = None,
+    reranker: LLMReranker | None = None,
 ) -> bool:
     """Claim one job and publish only while its current lease remains valid."""
     job = store.claim_job(worker_id, lease_seconds=lease_seconds, max_attempts=3)
@@ -60,7 +62,25 @@ def process_one(
             return True
         if not checkpoint("ranking"):
             return True
-        results = rank_candidates(candidates, limit=job["limit"])
+        ranking_limit = candidate_limit if job["ranking"] == "llm" else job["limit"]
+        results = rank_candidates(candidates, limit=ranking_limit)
+        if job["ranking"] == "llm" and len(results) >= 2:
+            if reranker is None or not reranker.config.enabled:
+                warnings.append("llm:not_configured")
+            elif reranker.config.pipeline_version != job["pipeline_version"]:
+                warnings.append("llm:configuration_changed")
+            else:
+                try:
+                    results = reranker.rerank(
+                        job["query"], results, lambda: checkpoint("llm_reranking")
+                    )
+                except RerankCancelled:
+                    return True
+                except LLMError as exc:
+                    warnings.append("llm:" + exc.code)
+                except Exception:
+                    warnings.append("llm:rerank_failed")
+        results = results[: job["limit"]]
         if not checkpoint("publishing"):
             return True
         store.finish_job(job["id"], token, results, warnings=warnings, partial=bool(warnings))
@@ -84,10 +104,14 @@ def main() -> None:
     store = Store(settings.database_path)
     store.initialize()
     worker_id = "worker_" + uuid.uuid4().hex
+    reranker = LLMReranker(settings.llm) if settings.llm.enabled else None
     try:
         while True:
             processed = process_one(
-                store, worker_id=worker_id, enabled_sources=settings.enabled_sources
+                store,
+                worker_id=worker_id,
+                enabled_sources=settings.enabled_sources,
+                reranker=reranker,
             )
             if args.once:
                 return

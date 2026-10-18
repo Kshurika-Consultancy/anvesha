@@ -1,6 +1,6 @@
-# M1 HTTP API
+# HTTP API
 
-Task ANV-004. Base URL for local development: `http://127.0.0.1:8000`. OpenAPI is available at `/openapi.json` and interactive docs at `/docs`. JSON is the only application input/output format. Response timestamps are UTC Unix seconds. The liveness endpoint `/healthz` and API documentation are public; all `/v1/searches` operations require `X-API-Key`.
+Tasks ANV-004 and ANV-021. Base URL for local development: `http://127.0.0.1:8000`. OpenAPI is available at `/openapi.json` and interactive docs at `/docs`. JSON is the only application input/output format. Response timestamps are UTC Unix seconds. The liveness endpoint `/healthz` and API documentation are public; all `/v1/searches` operations and `/v1/capabilities` require `X-API-Key`. Interactive docs load CDN assets; direct API calls do not require them.
 
 ## Authentication and ownership
 
@@ -14,9 +14,11 @@ Configure one or more strong secrets with `ANVESHA_API_KEYS`. Every key identifi
 {"query":"free local search","sources":["local"],"limit":10}
 ```
 
-`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata` sources. `limit` is an integer from 1–50. Unknown fields are rejected: M1 does not accept language/region/date/LLM options. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
+`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata` sources. `limit` is an integer from 1–50. `ranking` is `"lexical"` (default) or experimental `"llm"`. Unknown fields are rejected; language/region/date filters and query planning are not implemented. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
 
-Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key and canonical query/sources/limit returns the existing job (200 with `Idempotency-Replayed: true`); different input returns 409. New jobs return 202 only after durable commit, with `Location`, `Retry-After: 1`, and `Idempotency-Replayed: false`. Deleting a job removes its idempotency record, so reusing that key after deletion creates new work.
+LLM mode requires operator model configuration and `sources: ["local"]`; otherwise submission returns 422 (`llm_not_configured` or `llm_local_source_only`) before accepting a job. It reranks a bounded candidate prefix against the preserved original query; it does not generate queries or guarantee exact constraints. `GET /v1/capabilities` reports `sources`, `ranking_modes`, `llm_source_scope`, `llm_endpoint_scope` and `gateway_downstream_verified: false` without credentials or endpoint addresses. Model configuration alone never changes a default lexical request. See [the private research guide](PRIVATE_RESEARCH.md).
+
+Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key and canonical query/sources/limit/ranking returns the existing job (200 with `Idempotency-Replayed: true`); different input returns 409. Model configuration changes do not rewrite a previously accepted job on replay. New jobs return 202 only after durable commit, with `Location`, `Retry-After: 1`, and `Idempotency-Replayed: false`. Old lexical request hashes remain valid after the additive database migration. Deleting a job removes its idempotency record, so reusing that key after deletion creates new work.
 
 `GET /v1/searches/{id}` returns the public job state:
 
@@ -31,6 +33,7 @@ Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key an
   "attempts": 0,
   "results_version": 0,
   "pipeline_version": "m1-rrf-v1",
+  "ranking": "lexical",
   "warnings": [],
   "error_code": null,
   "created_at": 1792137600.0,
@@ -49,7 +52,7 @@ IDs/timestamps above are illustrative. State is separate from phase. Internal ow
 | queued | Persisted, waiting for worker |
 | running | Claimed under a lease; retrieving or ranking |
 | completed | All requested sources completed; results can still be empty or narrow |
-| completed_partial | At least one source succeeded and at least one failed/was disabled |
+| completed_partial | At least one source succeeded and a source or requested optional model stage failed/was disabled |
 | failed | All sources failed, processing failed, or worker attempts were exhausted |
 | cancelled | Owner cancelled before terminal publication |
 
@@ -57,9 +60,11 @@ There is no percentage-complete claim. M1 publishes one final snapshot, version 
 
 ## Results and feedback
 
-`GET /v1/searches/{id}/results?version=1&offset=0&limit=10` returns `search_id`, `pipeline_version`, `version`, `results`, `total`, `offset`, `next_offset`, and coverage. Version may be omitted for the current snapshot. Offset is nonnegative; page limit is 1–50. Results-unavailable or nonexistent version returns 409. Failed/cancelled jobs without snapshots have no results. Stable final snapshots make pagination repeatable; no new results are added after completion.
+`GET /v1/searches/{id}/results?version=1&offset=0&limit=10` returns `search_id`, `pipeline_version`, requested `ranking`, `version`, `results`, `total`, `offset`, `next_offset`, and coverage. Version may be omitted for the current snapshot. Offset is nonnegative; page limit is 1–50. Results-unavailable or nonexistent version returns 409. Failed/cancelled jobs without snapshots have no results. Stable final snapshots make pagination repeatable; no new results are added after completion.
 
 Each result includes `id`, `rank`, `url`, `title`, `snippet`, `sources`, `score`, `display_source`, `evidence_status`, `license`, `attribution`, and `provenance`. The score is RRF ordering, not a probability of truth. The displayed text retains the licence of its selected source, while provenance records all contributors. `local_document` means operator-imported text was available; `metadata_only` means only Wikidata label/description metadata was retrieved. Neither claims factual verification. Clients must render titles/snippets as untrusted plain text, not executable HTML.
+
+Successful model reranking adds `lexical_rank` and `ranking_method` (`llm_rerank` within the assessed prefix, `rrf` for the untouched tail). Final `rank` reflects the new order, while `score` remains the original lexical RRF value and need not be monotonic. Fewer than two candidates need no model call and retain the lexical result shape. A model failure or configuration mismatch retains lexical results, exposes an `llm:*` warning and marks the job partial. The accepted pipeline fingerprint identifies requested configuration, not proof of applied reranking, model weights or gateway routing; inspect warnings and result methods. Feedback retains that accepted pipeline version.
 
 `POST /v1/searches/{id}/feedback` body:
 
@@ -73,7 +78,7 @@ Feedback requires a published snapshot and valid result membership; invalid refe
 
 ## Cancellation and deletion
 
-`POST /v1/searches/{id}/cancel` immediately cancels queued/running work and invalidates publication by a worker still doing external I/O. It returns status. Cancelling a terminal job is an idempotent no-op; already published results remain. It cannot recall a query already sent to Wikimedia.
+`POST /v1/searches/{id}/cancel` immediately cancels queued/running work and invalidates publication by a worker still doing external I/O. It returns status. Cancelling a terminal job is an idempotent no-op; already published results remain. It cannot recall data already sent to Wikimedia or a model endpoint. The model stage checks cancellation and renews its lease while waiting.
 
 `DELETE /v1/searches/{id}` returns 204 and cascades the active database's job, snapshot, and feedback records. It invalidates a running worker's later publication. Missing/unowned jobs return 404. Automatic expiry, backup-retention management and forensic erasure are not implemented (ANV-008).
 
@@ -82,5 +87,7 @@ Feedback requires a published snapshot and valid result membership; invalid refe
 The API and worker source allowlists must agree. Enable `wikidata` explicitly and set a real `ANVESHA_WIKIDATA_USER_AGENT`. No paid keys are required. The connector makes one bounded-result English entity metadata query to a fixed host, does not follow redirects, and never fetches arbitrary result URLs. Source failures are sanitized codes such as `wikidata:missing_user_agent`, not raw response bodies.
 
 Current live networking limits include inactivity timeouts, response-size limits, and body elapsed checks. A strict total deadline including trickling headers remains tracked in ANV-008. This is another reason not to expose the M1 worker as a public unlimited service. Default offline tests mock this connector; no live availability guarantee is implied.
+
+The separate ANV-021 model client enforces a total async deadline including header/body waits (default 60, maximum 120 seconds), a 64 KiB response limit, no redirects and no environment proxies. It sends only the original query and bounded IDs/titles/snippets/evidence labels to a fixed operator endpoint. Accepted output must be a complete permutation of supplied IDs. No client can choose endpoints/models or supply tools through a search request. Non-loopback endpoint configuration requires explicit network opt-in; a local proxy can still forward externally. Its API key is never persisted in jobs. See [the processing policy](../policies/llm-processing.json).
 
 Local files are a shared operator corpus, not a per-client private document store. Request lengths and result counts are bounded, but hosted quotas, automatic retention, production metrics and source-rights policy enforcement beyond the approved built-in connectors remain tracked work. Use loopback for the current deployment.

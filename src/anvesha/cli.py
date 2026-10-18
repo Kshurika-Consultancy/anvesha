@@ -3,6 +3,9 @@
 import argparse
 import json
 import secrets
+import sqlite3
+from contextlib import closing
+from dataclasses import replace
 from pathlib import Path
 
 from anvesha.config import Settings
@@ -55,12 +58,50 @@ def validate_document(document):
     return {key: document[key] for key in required}
 
 
+def diagnostics(settings):
+    """ANV-021: offline/read-only diagnostics without printing any credentials."""
+    with closing(sqlite3.connect(":memory:")) as connection:
+        try:
+            connection.execute("CREATE VIRTUAL TABLE probe USING fts5(content)")
+            fts5 = True
+        except sqlite3.OperationalError:
+            fts5 = False
+    count = None
+    if settings.database_path.is_file():
+        try:
+            uri = settings.database_path.resolve().as_uri() + "?mode=ro"
+            connection = sqlite3.connect(uri, uri=True)
+            try:
+                count = connection.execute("SELECT count(*) FROM documents").fetchone()[0]
+                connection.execute("SELECT ranking FROM jobs LIMIT 0")
+            finally:
+                connection.close()
+        except sqlite3.Error:
+            count = None
+    return {
+        "ready": bool(fts5 and settings.api_keys and count is not None),
+        "fts5_available": fts5,
+        "api_keys_configured": bool(settings.api_keys),
+        "database_initialized": count is not None,
+        "document_count": count,
+        "enabled_sources": list(settings.enabled_sources),
+        "llm": {
+            "configured": settings.llm.enabled,
+            "endpoint_scope": settings.llm.endpoint_scope,
+            "request_opt_in_required": True,
+            "gateway_downstream_verified": False,
+        },
+        "network_checks_performed": False,
+    }
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="anvesha")
     parser.add_argument("--db", type=Path, help="SQLite file (default ANVESHA_DB_PATH)")
     sub = parser.add_subparsers(dest="command", required=True)
     init_parser = sub.add_parser("init", help="Initialize database and generate an API key")
     init_parser.add_argument("--seed", action="store_true", help="Load clearly labelled demo data")
+    sub.add_parser("doctor", help="Check local readiness without network calls or printing secrets")
     ingest_parser = sub.add_parser("ingest", help="Index a reviewed JSON list of local documents")
     ingest_parser.add_argument("file", type=Path)
     ingest_parser.add_argument(
@@ -76,20 +117,19 @@ def main(argv=None):
     try:
         settings = Settings.from_env()
         path = args.db or settings.database_path
+        settings = replace(settings, database_path=path)
+        if args.command == "doctor":
+            report = diagnostics(settings)
+            print(json.dumps(report, indent=2))
+            return 0 if report["ready"] else 1
         if args.command == "serve":
             import uvicorn
 
             from anvesha.api import create_app
 
-            settings = Settings(
-                database_path=path,
-                api_keys=settings.api_keys,
-                enabled_sources=settings.enabled_sources,
-                worker_poll_seconds=settings.worker_poll_seconds,
-            )
             if not settings.api_keys:
                 raise ValueError("Set ANVESHA_API_KEYS to a key from 'anvesha init'")
-            uvicorn.run(create_app(settings), host=args.host, port=args.port)
+            uvicorn.run(create_app(settings), host=args.host, port=args.port, access_log=False)
             return 0
         store = Store(path)
         if args.command == "init":

@@ -1,0 +1,19 @@
+{
+  "policy_version": "llm-processing-v1",
+  "task": "ANV-021",
+  "reviewed_at": "2026-10-18",
+  "scope": "Explicit optional inference over bounded snippets from an operator-imported corpus; no model training or new source discovery.",
+  "default": "Disabled; configuring a model still requires ranking=llm on each request.",
+  "sent_fields": ["original_query", "candidate_id", "title_prefix", "snippet_prefix", "evidence_status"],
+  "not_supplied_to_model": ["result_urls", "client_api_keys", "full_corpus", "tools", "feedback", "reviewer_labels"],
+  "rights": "Operator must review corpus rights and permission to process excerpts with the selected runtime/provider. Ingestion, a gateway account or a licence string is not a blanket permission grant.",
+  "retention": "Anvesha retains operational jobs/snapshots/feedback under its documented local policy, but does not persist model prompts, raw responses or reasoning. Runtime/gateway/provider retention is outside Anvesha's control.",
+  "privacy": "Loopback restricts Anvesha's destination, not gateway egress. Do not claim local inference or untracked search without verifying downstream routing and logs.",
+  "training": "No automatic training in Anvesha; separately review any downstream provider's training policy.",
+  "licensing": "Independently implemented Apache-2.0 client. No OmniRoute code or model weights are distributed; gateway, model and document licences remain separate.",
+  "references": [
+    "https://docs.ollama.com/api/openai-compatibility",
+    "https://github.com/diegosouzapw/OmniRoute",
+    "https://github.com/diegosouzapw/OmniRoute/blob/main/LICENSE"
+  ]
+}

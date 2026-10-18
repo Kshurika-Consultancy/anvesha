@@ -29,6 +29,8 @@ Default sessions include development only. Reviewing holdout requires both `--sp
 
 ## Assess and import
 
+Keep calibration outside independent assessment. Use practice queries that are absent from the assigned study query set, and never import an assistant's suggested grade or rationale as a person's independent judgment. If an assigned item is coached, privately record the affected session, reviewer and item, leave that row unjudged, and obtain an unexposed assessor's judgment through a fresh study assignment before counting it as independent. Do not use abstention to hide coaching. The current CLI does **not** enforce coaching exclusions or support reassignment; an operator note is not an import guard. Keep the affected session incomplete until a reviewed replacement workflow is available under ANV-020. Do not delete assignments or edit signed packets to force completion.
+
 An assessor opens their `packets/<pseudonym>/review.html` locally in a browser. The form renders passages as text, makes no network requests and includes no credentials or hidden system/gold labels. Read the rubric and original query, grade each record **1** or **0**, or explicitly **abstain**. Every submitted entry needs a rationale; abstentions also need a reason. Unfinished rows remain unjudged. The form requires a personal-assessment checkbox before downloading responses.
 
 There is no browser autosave. Download progress before closing. To resume, the operator imports the response file, then exports a fresh packet/form with that reviewer's own saved entries. Editing `packet.json` with the same fields is also supported. Do not alter immutable query/document/assignment/rubric fields; signatures reject such changes.

@@ -1,8 +1,10 @@
 """Explicit environment configuration shared by API and worker (ANV-004)."""
 
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+
+from anvesha.llm import LLMConfig
 
 SUPPORTED_SOURCES = frozenset({"local", "wikidata"})
 
@@ -13,6 +15,7 @@ class Settings:
     api_keys: tuple[str, ...] = ()
     enabled_sources: tuple[str, ...] = ("local",)
     worker_poll_seconds: float = 1.0
+    llm: LLMConfig = field(default_factory=LLMConfig)
 
     def __post_init__(self):
         if not self.enabled_sources or set(self.enabled_sources) - SUPPORTED_SOURCES:
@@ -36,4 +39,5 @@ class Settings:
             api_keys=parts("ANVESHA_API_KEYS"),
             enabled_sources=parts("ANVESHA_ENABLED_SOURCES", "local"),
             worker_poll_seconds=float(os.getenv("ANVESHA_WORKER_POLL_SECONDS", "1")),
+            llm=LLMConfig.from_env(),
         )

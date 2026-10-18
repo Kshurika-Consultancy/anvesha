@@ -2,9 +2,11 @@
 
 Kshurika Consultancy's open-source, quality-first asynchronous search API. The first MVP runs locally with **no mandatory paid API, hosted LLM, GPU, or database service**.
 
-Submit a query, receive a search ID, run a separate worker, poll the status, retrieve a stable result snapshot, and submit feedback. Jobs, ownership, results, and feedback persist in SQLite. Local retrieval uses FTS5/BM25; optional Wikidata retrieval returns structured entity metadata. Ranking uses deterministic reciprocal rank fusion with source provenance.
+Submit a query, receive a search ID, run a separate worker, poll the status, retrieve a stable result snapshot, and submit feedback. Jobs, ownership, results, and feedback persist in SQLite. Local retrieval uses FTS5/BM25; optional Wikidata retrieval returns structured entity metadata. Ranking defaults to deterministic reciprocal rank fusion with source provenance. An experimental, explicit opt-in can rerank local results using your own LLM endpoint.
 
-**Scope:** this is the M1 engineering foundation. The default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. It is not a general-web search engine, a factual-verification system, or evidence of Google-level quality. Import your permitted documents to search useful local content. LLM planning, page inspection, semantic reranking, automatic retention, and feedback learning are tracked future work.
+**Start here for private research:** [native self-hosting and local LLM guide](docs/PRIVATE_RESEARCH.md). Import your permitted documents, check readiness with `anvesha doctor`, and optionally use an Ollama or OmniRoute-compatible chat endpoint. No model, gateway or paid API is mandatory. A gateway hosted locally can still forward data to cloud providers; verify its actual routing.
+
+**Scope:** the default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. This is a private-corpus search preview, not a general-web search engine, a factual-verification system, or evidence of Google-level quality. Optional LLM reranking has protocol/failure-path tests; actual model quality gains and live backend acceptance remain unmeasured. Query planning, page inspection, embeddings, automatic retention and feedback learning remain future work.
 
 ## Repository navigation
 
@@ -46,9 +48,9 @@ In a second terminal in the same repository, start the worker:
 uv run --extra dev python -m anvesha.worker
 ```
 
-The worker does not need the API key. Both processes must use the same database path and source configuration. Use `--once` to process at most one job and exit. The API alone leaves jobs queued by design.
+The worker does not need the client API key. Both processes must use the same database path, source configuration and optional LLM settings. Use `--once` to process at most one job and exit. The API alone leaves jobs queued by design. `uv run --extra dev anvesha doctor` checks local readiness without network calls or printing secrets.
 
-Open [interactive API docs](http://127.0.0.1:8000/docs) and use **Authorize** to enter the key. `/openapi.json` is the machine-readable contract. The API binds to loopback by default; public deployment is a later milestone.
+Open [interactive API docs](http://127.0.0.1:8000/docs) and use **Authorize** to enter the key. These existing interactive pages load CDN assets; use direct API calls for a browser workflow requiring no external asset requests. `/openapi.json` is the machine-readable contract. The API binds to loopback by default; public deployment is a later milestone.
 
 ## Submit, poll and give feedback
 
@@ -70,7 +72,9 @@ $feedback = @{ version = 1; rating = 1; result_id = $results.results[0].id; lear
 Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/v1/searches/$($job.id)/feedback" -Headers $headers -ContentType 'application/json' -Body $feedback
 ```
 
-Reuse an idempotency key only for the same query/sources/limit; a different request with that key returns 409. Delete a retained job with `DELETE /v1/searches/{id}`. Automatic expiry is not implemented yet. Feedback is stored, not used to automatically train or change ranking.
+Reuse an idempotency key only for the same query/sources/limit/ranking; a different request with that key returns 409. Delete a retained job with `DELETE /v1/searches/{id}`. Automatic expiry is not implemented yet. Feedback is stored, not used to automatically train or change ranking.
+
+For optional LLM reranking, configure the endpoint/model in both processes and add `"ranking":"llm"` to a local-source search request. Existing requests stay lexical. The model can reorder supplied candidates only; invalid output or outage keeps lexical results with a visible warning. See [configuration, privacy and model bounds](docs/PRIVATE_RESEARCH.md). Upgrade all workers before enabling this preview on an existing database.
 
 ## Search your own permitted content
 
@@ -120,6 +124,12 @@ ANV-020 adds a [multilingual corpus](benchmarks/xquad-intents-v1/README.md) beyo
 | `ANVESHA_ENABLED_SOURCES` | `local` | Allowlist of `local` and optionally `wikidata` |
 | `ANVESHA_WORKER_POLL_SECONDS` | `1` | Idle queue polling, 0.1–60 seconds |
 | `ANVESHA_WIKIDATA_USER_AGENT` | unset | Identifying operator contact for optional live calls |
+| `ANVESHA_LLM_MODEL` | unset | Enables explicitly requested local-source reranking with your selected model |
+| `ANVESHA_LLM_BASE_URL` | `http://127.0.0.1:11434/v1` | Fixed chat endpoint; OmniRoute can use port 20128 |
+| `ANVESHA_LLM_API_KEY` | unset | Optional runtime/gateway secret; never stored in jobs |
+| `ANVESHA_LLM_ALLOW_NETWORK` | `false` | Explicitly allow a non-loopback model endpoint; does not audit gateway egress |
+| `ANVESHA_LLM_TIMEOUT_SECONDS` | `60` | Total model-call deadline, 0.1–120 seconds |
+| `ANVESHA_LLM_CANDIDATE_LIMIT` | `20` | Rerank at most 2–20 retrieved candidates |
 
 [.env.example](.env.example) documents configuration; files named `.env` are **not automatically loaded**. Set environment variables in your shell. Keys, databases, and virtual environments are git-ignored. Do not store private corpora in the repository.
 

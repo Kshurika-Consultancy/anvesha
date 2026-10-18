@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "updated_at": "2026-10-16",
+  "updated_at": "2026-10-18",
   "tasks": [
     {
       "id": "ANV-001",
@@ -776,7 +776,105 @@
         "reports/evaluation/xquad-intents-v1/summary.json",
         "docs/tracking/verification/2026-10-16-human-review.md"
       ],
-      "notes": "Corpus and human-workflow implementation committed/pushed and verified locally plus cross-platform CI. Task stays in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. No fabricated human labels, automatic training or paid dependency."
+      "notes": "Corpus and human-workflow implementation committed/pushed and verified locally plus cross-platform CI. Task stays in progress for real independent assessors/consent, native-speaker review of draft probes and rubric, double labels/adjudication/agreement, permitted external comparisons, more representative current-web/locale inputs and a legacy SciFact session adapter. The pilot uses placeholder pseudonyms and has zero assessments. On 2026-10-18, user-requested coaching of the first three assigned items was recorded privately as practice only, without changing the packet/database or importing labels; unchanged SHA-256 hashes were checked. Add enforced coaching exclusions and a reviewed reassignment/replacement workflow before affected work can count as independent; current CLI does not enforce the private operator note. Leave those rows pending, do not encode coaching as abstention or edit signed assignments. No fabricated human labels, automatic training or paid dependency."
+    },
+    {
+      "id": "ANV-021",
+      "milestone": "M3",
+      "title": "Private research preview with optional local or gateway LLM reranking",
+      "status": "done",
+      "owner": "root",
+      "depends_on": ["ANV-006", "ANV-019"],
+      "acceptance": [
+        "Record the audience, current usability gaps and a staged self-hosted research direction without claiming general-web coverage or measured LLM gains",
+        "Keep lexical search and offline tests as defaults; enable bounded LLM reranking only on explicit local-source requests with operator configuration",
+        "Support the documented Ollama and OmniRoute chat-completion wire contract without mandatory paid APIs, copied gateway code or bundled models",
+        "Validate candidate-only outputs, bound network work, maintain leases and cancellation, preserve original queries, provenance, stable snapshots and version-bound feedback",
+        "Provide read-only setup diagnostics and a reproducible native home-server guide with explicit data-flow and gateway privacy limits"
+      ],
+      "validation_plan": [
+        "Test configuration, outbound payload minimization, invalid and malicious model outputs, strict deadlines, redirects, cancellation and lexical fallback using offline transports",
+        "Test opt-in API semantics, idempotency, migration of old databases, profile mismatch, feedback provenance and no-network lexical requests",
+        "Run standard checks, real-process smoke, installed-wheel checks and unchanged lexical baseline verification"
+      ],
+      "verification": [
+        {
+          "command": "uv sync --extra dev --locked; uv run --extra dev pytest",
+          "result": "Final pinned Windows/Python 3.14.4 run: 240 passed in 39.50 seconds, including 55 new checks; one existing ANV-015 warning. Deadline regression confirms SQLite heartbeat waits cannot block HTTP timeout cancellation.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "uv run --extra dev ruff check .; uv run --extra dev ruff format --check .; uv run --extra dev python scripts/check_tracking.py; git diff --check",
+          "result": "All passed; 63 Python files formatted; task graph, references, privacy policy and reviewed diff are consistent",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "uv run --extra dev python scripts/smoke_mvp.py; uv build --out-dir .anvesha/dist-anv021; install wheel offline into isolated runtime-only environment and repeat the process smoke",
+          "result": "Development and installed-wheel real-process smokes passed, including loopback synthetic model opt-in, authenticated chat protocol, reranking before truncation, fallback, stable feedback and complete server cleanup. Source distribution excludes private workspace/credentials; no actual model/backend was contacted.",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.evaluation run --output-dir .anvesha/evaluation/anv021-scifact --compare reports/evaluation/scifact-v1/summary.json",
+          "result": "All 500 queries / three systems completed from a fresh index; exact archived ranking fingerprint 6098bc1981e868bc5b7f0cf055f27b42ba717c5a185889caeb628b20b5ef65ef and M1/BM25 parity retained",
+          "date": "2026-10-18"
+        },
+        {
+          "command": "uv run --extra dev python -m anvesha.intent_evaluation run --output-dir .anvesha/evaluation/anv021-xquad --compare reports/evaluation/xquad-intents-v1/summary.json",
+          "result": "All 756 queries / three systems completed from a fresh index; exact archived ranking fingerprint 2b7914b9dfa02982a6c7d0c185b254d3966ce32d106ab724b34ad2f8ff6e3d2a; zero new human labels",
+          "date": "2026-10-18"
+        }
+      ],
+      "references": [
+        "docs/decisions/0005-private-research-and-optional-llm.md",
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/tracking/verification/2026-10-18-private-research.md",
+        "policies/llm-processing.json",
+        "src/anvesha/llm.py",
+        "src/anvesha/config.py",
+        "src/anvesha/api.py",
+        "src/anvesha/store.py",
+        "src/anvesha/worker.py",
+        "src/anvesha/cli.py",
+        "tests/test_llm.py",
+        "tests/test_llm_pipeline.py",
+        "scripts/smoke_mvp.py"
+      ],
+      "notes": "Scoped user-directed local research preview implemented and verified locally; source fetching and the full ANV-010 quality gate remain separate. Both fresh lexical benchmark repeats match archived fingerprints exactly. Docker is unavailable on this workstation, so container build/runtime validation belongs to ANV-022. Actual model quality and live backend acceptance belong to ANV-023. No paid dependency, model download, live gateway test or new publication/deployment occurred. Changes remain local. The three private coached practice exclusions and zero-submission pilot are preserved under ANV-020."
+    },
+    {
+      "id": "ANV-022",
+      "milestone": "M3",
+      "title": "Container deployment and accessible research clients",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": ["ANV-021"],
+      "acceptance": [
+        "Verify a non-root container and Compose setup with persistent local SQLite, separate worker and private model connectivity",
+        "Provide an accessible browser or client integration for submit, poll, stable results and feedback without embedded third-party assets or persistent browser secrets",
+        "Exercise a fresh home-server installation, restart recovery and upgrade documentation; retain hosted-hardening limits"
+      ],
+      "validation_plan": ["Run container builds and real-process installation/restart tests on supported platforms", "Review browser authentication, accessibility and data flows with a real browser"],
+      "verification": [],
+      "references": ["docs/PRIVATE_RESEARCH.md"],
+      "notes": "Follow the runnable native preview with verified distribution and client ergonomics. Do not claim untested container support; Docker is not installed in the current workspace."
+    },
+    {
+      "id": "ANV-023",
+      "milestone": "M3",
+      "title": "Measure local LLM usefulness and verify real backend compatibility",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": ["ANV-020", "ANV-021"],
+      "acceptance": [
+        "Run explicit bounded compatibility checks against actual local Ollama and configured OmniRoute deployments with consented non-private fixtures",
+        "Pin model and route identities, prompts, source rights and hardware; compare reranking against lexical retrieval on clean development and held-out data",
+        "Report regressions, failure rates, latency and resource use without counting coached examples or model-generated labels as independent human evidence",
+        "Use measured coverage gaps to decide on constrained query expansion, embeddings and additional approved research sources"
+      ],
+      "validation_plan": ["Use independently reviewed labels and retain reproducible ranking/configuration fingerprints", "Verify no cloud routing in the claimed local configuration and publish only consented aggregate evidence"],
+      "verification": [],
+      "references": ["docs/PRIVATE_RESEARCH.md", "docs/review/README.md"],
+      "notes": "Wire-contract tests establish implementation behavior, not actual model quality, every gateway/provider combination or untracked search. External source and provider policies still apply."
     }
   ]
 }

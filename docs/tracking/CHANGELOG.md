@@ -2,6 +2,11 @@
 
 Record material delivered changes with task IDs and verification references. This is an engineering log, not a list of future features.
 
+## 2026-10-18
+
+- ANV-021: added an experimental private-research path with per-request local-corpus LLM reranking, Ollama/OmniRoute chat-protocol interoperability, bounded candidate-only output, total deadlines, lease/cancellation checks, explicit fallback and legacy job migration. Added offline setup diagnostics, authenticated capabilities, native setup/privacy guidance and model-processing policy. 240 local tests and both development/installed-wheel real-process smoke pass; both fresh lexical benchmark repeats retain their exact archived fingerprints. ANV-022/ANV-023 track container/client adoption and actual backend/model quality. See [evidence](verification/2026-10-18-private-research.md); no model quality or general-web claim follows.
+- ANV-020: documented separation of coached calibration from independent labels, recorded the first three user-requested practice items privately without grades, and tracked the missing exclusion/reassignment mechanism. No review submission or import was performed; original packet/database hashes and zero-submission status were checked. This is operator guidance, not an implemented import guard.
+
 ## 2026-10-16
 
 - ANV-001: added AGENTS, authoritative task ledger, context/handoff workflow, ADRs, source-policy checks, contribution/security guidance, Apache-2.0 licensing and CI.

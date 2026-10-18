@@ -22,6 +22,7 @@ class SearchRequest(BaseModel):
         default_factory=lambda: ["local"], min_length=1, max_length=2
     )
     limit: StrictInt = Field(default=10, ge=1, le=50)
+    ranking: Literal["lexical", "llm"] = "lexical"
 
     @field_validator("query")
     @classmethod
@@ -82,6 +83,7 @@ def public_job(job):
         "created_at",
         "updated_at",
         "pipeline_version",
+        "ranking",
     )
     result = {key: job[key] for key in fields if key in job}
     active = job["state"] in {"queued", "running"}
@@ -138,6 +140,17 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     def health():
         return {"status": "ok", "version": __version__}
 
+    @app.get("/v1/capabilities")
+    def capabilities(owner: str = Depends(require_owner)):
+        return {
+            "sources": list(settings.enabled_sources),
+            "ranking_modes": ["lexical", "llm"] if settings.llm.enabled else ["lexical"],
+            "llm_source_scope": ["local"],
+            "llm_endpoint_scope": settings.llm.endpoint_scope if settings.llm.enabled else None,
+            "gateway_downstream_verified": False,
+            "coverage": "configured_sources_only",
+        }
+
     @app.post("/v1/searches", status_code=202)
     def create_search(
         body: SearchRequest,
@@ -147,11 +160,22 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     ):
         if set(body.sources) - set(settings.enabled_sources):
             raise HTTPException(422, "source_not_enabled")
+        if body.ranking == "llm":
+            if not settings.llm.enabled:
+                raise HTTPException(422, "llm_not_configured")
+            if body.sources != ["local"]:
+                raise HTTPException(422, "llm_local_source_only")
         if idempotency_key is not None and not idempotency_key.strip():
             raise HTTPException(422, "invalid_idempotency_key")
         try:
             job, created = store.create_search(
-                owner, body.query, body.sources, body.limit, idempotency_key
+                owner,
+                body.query,
+                body.sources,
+                body.limit,
+                idempotency_key,
+                ranking=body.ranking,
+                pipeline_version=settings.llm.pipeline_version if body.ranking == "llm" else None,
             )
         except IdempotencyConflict as exc:
             raise HTTPException(409, "idempotency_key_conflict") from exc
@@ -199,6 +223,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "search_id": job_id,
             **snapshot,
             "pipeline_version": job["pipeline_version"],
+            "ranking": job["ranking"],
             "offset": offset,
             "next_offset": next_offset if next_offset < snapshot["total"] else None,
             "coverage": "configured_sources_only",

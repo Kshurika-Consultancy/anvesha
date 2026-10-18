@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     warnings_json TEXT NOT NULL DEFAULT '[]',
     error_code TEXT,
     pipeline_version TEXT NOT NULL,
+    ranking TEXT NOT NULL DEFAULT 'lexical',
     worker_id TEXT,
     lease_token TEXT,
     lease_until REAL,
@@ -172,6 +173,16 @@ class Store:
         try:
             connection.execute("PRAGMA journal_mode = WAL")
             connection.executescript(_SCHEMA)
+            # ANV-021: additive, serialized migration preserves accepted old jobs,
+            # their request hashes, snapshots and feedback. Upgrade every worker
+            # before enabling LLM requests on an existing instance.
+            connection.execute("BEGIN IMMEDIATE")
+            columns = {row["name"] for row in connection.execute("PRAGMA table_info(jobs)")}
+            if "ranking" not in columns:
+                connection.execute(
+                    "ALTER TABLE jobs ADD COLUMN ranking TEXT NOT NULL DEFAULT 'lexical'"
+                )
+            connection.commit()
         finally:
             connection.close()
 
@@ -182,9 +193,21 @@ class Store:
         sources: list[str],
         limit: int = 10,
         idempotency_key: str | None = None,
+        *,
+        ranking: str = "lexical",
+        pipeline_version: str | None = None,
     ) -> tuple[dict, bool]:
         _bounded_text(owner, "owner", 256)
         _bounded_text(query, "query", 2000)
+        if ranking not in {"lexical", "llm"}:
+            raise ValueError("ranking must be lexical or llm")
+        if ranking == "llm":
+            if not isinstance(pipeline_version, str) or not re.fullmatch(
+                r"m3-llm-rerank-v1-[a-f0-9]{16}", pipeline_version
+            ):
+                raise ValueError("LLM requests require a versioned configuration")
+        else:
+            pipeline_version = PIPELINE_VERSION
         _positive_integer(limit, "limit")
         if limit > 50:
             raise ValueError("limit cannot exceed 50")
@@ -193,11 +216,14 @@ class Store:
         for source in sources:
             _bounded_text(source, "source", 100)
         canonical_sources = sorted(set(sources))
+        if ranking == "llm" and canonical_sources != ["local"]:
+            raise ValueError("LLM preview supports local documents only")
         if idempotency_key is not None:
             _bounded_text(idempotency_key, "idempotency_key", 200)
-        request_hash = hashlib.sha256(
-            _json([query, canonical_sources, limit]).encode("utf-8")
-        ).hexdigest()
+        request = [query, canonical_sources, limit]
+        if ranking != "lexical":
+            request.append(ranking)
+        request_hash = hashlib.sha256(_json(request).encode("utf-8")).hexdigest()
         with self._connection(write=True) as connection:
             if idempotency_key is not None:
                 existing = connection.execute(
@@ -213,9 +239,9 @@ class Store:
             connection.execute(
                 """INSERT INTO jobs
                    (id, owner, query, sources_json, result_limit, request_hash,
-                    idempotency_key, state, phase, pipeline_version, created_at,
+                    idempotency_key, state, phase, pipeline_version, ranking, created_at,
                     updated_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, 'queued', 'queued', ?, ?, ?)""",
+                   VALUES (?, ?, ?, ?, ?, ?, ?, 'queued', 'queued', ?, ?, ?, ?)""",
                 (
                     job_id,
                     owner,
@@ -224,7 +250,8 @@ class Store:
                     limit,
                     request_hash,
                     idempotency_key,
-                    PIPELINE_VERSION,
+                    pipeline_version,
+                    ranking,
                     now,
                     now,
                 ),

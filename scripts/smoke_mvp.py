@@ -8,11 +8,68 @@ import subprocess
 import sys
 import tempfile
 import time
+from contextlib import contextmanager
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
+from threading import Thread
 
 import httpx
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+@contextmanager
+def model_stub():
+    """ANV-021: local synthetic protocol fixture, not an actual model/provider."""
+    state = {"calls": 0, "fail": False, "ids": [], "key": secrets.token_urlsafe(32)}
+
+    class Handler(BaseHTTPRequestHandler):
+        def log_message(self, *args):
+            pass
+
+        def do_POST(self):
+            size = int(self.headers.get("Content-Length", "0"))
+            if not 0 < size <= 131072:
+                self.send_error(413)
+                return
+            assert self.path == "/v1/chat/completions"
+            assert self.headers.get("Authorization") == "Bearer " + state["key"]
+            body = json.loads(self.rfile.read(size))
+            assert body["model"] == "synthetic-smoke-model"
+            assert body["response_format"] == {"type": "json_object"}
+            supplied = json.loads(body["messages"][1]["content"])
+            state["ids"] = [item["id"] for item in supplied["candidates"]]
+            state["calls"] += 1
+            payload = json.dumps(
+                {
+                    "choices": [
+                        {
+                            "finish_reason": "stop",
+                            "message": {
+                                "role": "assistant",
+                                "content": json.dumps({"ranked_ids": state["ids"][::-1]}),
+                            },
+                        }
+                    ]
+                }
+            ).encode()
+            self.send_response(500 if state["fail"] else 200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(payload)))
+            self.end_headers()
+            self.wfile.write(payload)
+
+    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    thread = Thread(target=server.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True)
+    thread.start()
+    try:
+        yield f"http://127.0.0.1:{server.server_port}/v1", state
+    finally:
+        server.shutdown()
+        server.server_close()
+        thread.join(timeout=5)
+        if thread.is_alive():
+            raise RuntimeError("Synthetic model server did not stop")
 
 
 def stop_server(process):
@@ -44,7 +101,10 @@ def stop_server(process):
 
 
 def main():
-    with tempfile.TemporaryDirectory(prefix="anvesha-smoke-") as temporary:
+    with (
+        tempfile.TemporaryDirectory(prefix="anvesha-smoke-") as temporary,
+        model_stub() as (model_endpoint, model_state),
+    ):
         directory = Path(temporary)
         environment = {
             key: value for key, value in os.environ.items() if not key.startswith("ANVESHA_")
@@ -53,6 +113,10 @@ def main():
             ANVESHA_DB_PATH=str(directory / "smoke.db"),
             ANVESHA_API_KEYS=secrets.token_urlsafe(32),
             ANVESHA_ENABLED_SOURCES="local",
+            ANVESHA_LLM_MODEL="synthetic-smoke-model",
+            ANVESHA_LLM_BASE_URL=model_endpoint,
+            ANVESHA_LLM_API_KEY=model_state["key"],
+            ANVESHA_LLM_TIMEOUT_SECONDS="5",
         )
         creationflags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
 
@@ -151,6 +215,30 @@ def main():
                 assert client.post(cancelled + "/cancel").json()["state"] == "cancelled"
                 run_module("anvesha.worker", "--once")
                 assert client.get(cancelled).json()["state"] == "cancelled"
+                assert model_state["calls"] == 0
+                assert json.loads(run_module("anvesha.cli", "doctor").stdout)["ready"]
+                intelligent = client.post(
+                    "/v1/searches", json={"query": "Anvesha", "ranking": "llm", "limit": 1}
+                ).json()
+                intelligent_url = f"/v1/searches/{intelligent['id']}"
+                run_module("anvesha.worker", "--once")
+                assert client.get(intelligent_url).json()["state"] == "completed"
+                intelligent_result = client.get(intelligent_url + "/results").json()["results"][0]
+                assert intelligent_result["id"] == model_state["ids"][-1]
+                assert intelligent_result["ranking_method"] == "llm_rerank"
+                receipt = client.post(
+                    intelligent_url + "/feedback", json={"version": 1, "rating": 1}
+                )
+                assert receipt.json()["pipeline_version"] == intelligent["pipeline_version"]
+                model_state["fail"] = True
+                fallback = client.post(
+                    "/v1/searches", json={"query": "Anvesha", "ranking": "llm"}
+                ).json()
+                run_module("anvesha.worker", "--once")
+                fallback_status = client.get(f"/v1/searches/{fallback['id']}").json()
+                assert fallback_status["state"] == "completed_partial"
+                assert fallback_status["warnings"] == ["llm:http_error"]
+                assert model_state["calls"] == 2
                 summary = {
                     "status": "passed",
                     "mode": "offline",
@@ -164,6 +252,10 @@ def main():
                         "feedback",
                         "deletion",
                         "cancellation",
+                        "offline setup diagnostics",
+                        "explicit model opt-in over real loopback HTTP with synthetic fixture",
+                        "candidate-only reranking before truncation",
+                        "model pipeline-bound feedback and lexical fallback",
                         "server process and temporary-file cleanup",
                     ],
                     "result_count": len(results),

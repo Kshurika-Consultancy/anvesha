@@ -1,5 +1,7 @@
 # Anvesha development status
 
+Current direction, 2026-10-18: make Anvesha useful for private home-server research, with local models optional and no mandatory paid APIs. ANV-021 delivers a scoped native private-corpus preview: explicit LLM reranking, documented Ollama/OmniRoute HTTP interoperability, authenticated capabilities, offline setup diagnostics and privacy/data-flow guidance. Final local checks pass with 240 tests, development/installed-wheel real-process smoke and unchanged fingerprints on both complete lexical benchmark repeats. See [guide](../PRIVATE_RESEARCH.md), [decision](../decisions/0005-private-research-and-optional-llm.md) and [evidence](verification/2026-10-18-private-research.md). Changes remain local and uncommitted; actual model quality/live backend acceptance is ANV-023 and tested container/client adoption is ANV-022. M2/M3 overall gates remain open. A locally running gateway does not prove local downstream inference or untracked search.
+
 Current objective delivered: auditable development foundations and the first runnable, no-paid-API MVP. See [verification evidence](verification/2026-10-16-mvp.md).
 
 Completed authorized follow-up: this workspace is connected to [Kshurika-Consultancy/anvesha](https://github.com/Kshurika-Consultancy/anvesha), and the initial plan/MVP is published on main (ANV-017). Origin tracking and the remote commit were verified; the M6 service pilot remains planned. See [publication evidence](verification/2026-10-16-publication.md).
