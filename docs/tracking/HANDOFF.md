@@ -1,6 +1,6 @@
 # Anvesha handoff
 
-## Current objective: ANV-028 in progress
+## Completed objective: ANV-028
 
 2026-10-20: user again authorized next useful improvement, tests, commit and push.
 Root selected a scoped discovery slice from clean main 3a8c24e; ledger before
@@ -46,10 +46,23 @@ manifest/evidence are included. Fresh runtime-only wheel imports from site-packa
 with pytest absent and passed the real-process synthetic discovery acceptance.
 New owned scratch/venv/processes cleaned. No owned preview/service remains.
 
-Remaining before completion: final tracking/diff, commit/push main and actual
-Windows/Linux/container CI acceptance. ANV-028 remains in progress. See
-[verification](verification/2026-10-20-discovery.md).
-Broader ANV-008/009/010/011/014/020/023 gates remain open. Root owns shared files.
+Implementation b829157 is pushed to main with matching local/remote hashes and
+clean tree. All five jobs passed in [implementation CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39442528908):
+Windows/Linux Python 3.12.15/3.14.8, all five process smokes and actual Linux
+container acceptance. Windows suites each passed 479; Linux passed 478 with the
+expected Windows-only regression skip. Container verified non-root/private model
+network/LLM default/restart/feedback/fallback/cleanup on SQLite 3.53.1.
+ANV-028 is done. Root ownership of the completed scope is released; this
+completion-evidence follow-up is documentation only and has its own CI.
+[Verification](verification/2026-10-20-discovery.md) contains commands/results.
+
+Broader ANV-008/009/010/011/014/020/023 gates remain open. Next usefulness work
+should measure missing-source/domain coverage and inspected-content rights before
+expanding discovery or claiming relevance gains (ANV-009/011/020). Actual local
+backend/new-source model compatibility remains unverified after the rejection;
+ANV-023 retains actual alternate-backend evidence. Preserve independent review
+exclusions/replacement slots; never substitute synthetic/practice labels. No
+further task is started automatically by this handoff.
 
 ## Objective and delivered ANV-027 slice
 

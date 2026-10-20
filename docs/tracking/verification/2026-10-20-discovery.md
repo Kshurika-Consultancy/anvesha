@@ -78,9 +78,9 @@ Final local acceptance passed:
   from that installation. New owned installed-package scratch was verified inside
   this workspace before automatic cleanup. No original model cache was involved.
 
-Actual cross-platform/container CI and publication remain pending below. Docker
-is unavailable locally, so actual Linux Compose acceptance is required in CI;
-a YAML or package inspection is not recorded as container execution.
+Actual cross-platform/container CI and publication passed as recorded below.
+Docker is unavailable locally; actual Linux Compose acceptance ran in CI, not
+as a local execution or YAML inspection.
 
 ## Real browser acceptance
 
@@ -135,8 +135,26 @@ is separate; ANV-020/023 and broader ANV-009/010/011 gates remain open.
 
 ## Publication
 
-Local/package acceptance is complete; commit/push and actual CI are pending.
-No public deployment, binary release,
+Implementation `b82915765c585d86c085390c8a989775a6946545` was committed and
+pushed to main, with matching local/remote hashes and a clean working tree.
+All five jobs passed in [implementation CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39442528908):
+
+- Windows Python 3.12.15: 479 passed in 164.74s; Windows Python 3.14.8: 479 passed
+  in 77.26s. Linux Python 3.12.15/3.14.8 passed with 478 tests plus the expected
+  Windows-only inherited-handle regression skip. Existing deprecation warning only.
+- Each matrix job passed all five process smokes, runtime identity, archived
+  verifiers, lint/format/tracking and diff checks. New discovery acceptance stayed
+  fully synthetic/offline on every platform.
+- Actual Linux Docker Compose acceptance built the current source and passed
+  non-root operation, private model network, LLM default, durable restart,
+  feedback/fallback and scoped cleanup. Container reported Python 3.14.8 and
+  SQLite 3.53.1/source c88b220; no actual model or external discovery was used.
+
+ANV-028's scoped acceptance is complete. This completion-evidence follow-up is
+only documentation and has its own CI; inspect current HEAD for that run. Root
+ownership of the completed scope is released. No owned test/preview services
+remain. Newly owned scratch was cleaned; prior ignored ANV-025 scratch was not
+inspected or changed. No public deployment, binary release,
 mandatory paid service, automatic training, source auto-enabling or new human
 judgment. Actual service DB/configuration and independent-review pilot remain
 untouched.

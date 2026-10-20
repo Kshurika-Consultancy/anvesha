@@ -12,8 +12,10 @@ Record material delivered changes with task IDs and verification references. Thi
   actual desktop/mobile checks, primary-source rights manifest and operator guide.
   Two bounded public probes passed; actual-model compatibility remains unverified
   after an automatic approval rejection. Final 479 tests, five process smokes,
-  archived verifiers and runtime-only installed-wheel acceptance passed. Actual
-  CI and publication are pending.
+  archived verifiers and runtime-only installed-wheel acceptance passed. Published
+  b829157 with matching local/remote main; all five jobs passed in
+  [implementation CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39442528908),
+  including actual container acceptance.
   See [verification](verification/2026-10-20-discovery.md).
 
 - ANV-027: added reviewed Python/SQLite acquisition hashes, actual runtime/FTS5

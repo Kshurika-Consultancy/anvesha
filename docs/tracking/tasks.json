@@ -1267,7 +1267,7 @@
       "id": "ANV-028",
       "milestone": "M3",
       "title": "Add opt-in Wikipedia article discovery and LLM ranking across approved sources",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": [
         "ANV-006",
@@ -1313,6 +1313,11 @@
           "command": "uv build --out-dir .anvesha/dist/anv028; fresh runtime-only wheel install with locked hashed dependencies; installed interpreter scripts/smoke_discovery.py",
           "result": "31-entry/320100-byte wheel, 11 changed source/assets match; 169-entry sdist includes new guide/ADR/source manifest/script/regressions/evidence. No private data/weights/binaries. Site-packages import, pytest absent, SQLite 3.53.1; installed multiprocess synthetic discovery acceptance passed; new scoped scratch cleaned.",
           "date": "2026-10-20"
+        },
+        {
+          "command": "git commit; git push origin main; git ls-remote origin refs/heads/main; GitHub Actions run 39442528908 and job logs",
+          "result": "Implementation b82915765c585d86c085390c8a989775a6946545 pushed; local/remote match and tree clean. All five jobs passed: Windows/Linux Python 3.12.15/3.14.8 (Windows 479; Linux 478 plus expected Windows-only skip), five offline process smokes, archived verifiers/runtime identity and actual non-root/private-model-network/LLM-default/restart/feedback/fallback Docker Compose acceptance. No actual model/provider in CI.",
+          "date": "2026-10-20"
         }
       ],
       "references": [
@@ -1336,7 +1341,7 @@
         "docs/tracking/verification/2026-10-20-discovery.md",
         "AGENTS.md"
       ],
-      "notes": "Selected from clean main 3a8c24e; ledger before behavior, root owns all files and no delegation. Narrow English Wikipedia discovery metadata, fixed endpoint and source rights review; no article/API prose, arbitrary fetching or general-web quality claim. Approved-source LLM protocol and visible fallback preserve rights/lifecycle. Explicit operator identity/source enablement and per-request/browser live selection; local remains default. Durable shared Wikimedia 429/503/maxlag waiting periods are not hosted quota/concurrency/deadline controls. Final local checks/package acceptance complete; actual cross-platform/container CI and publication pending. Additional actual-model compatibility run was rejected before execution by automatic approval review (blocked by policy); not retried, so no new actual-model or quality evidence. Actual private service/review data and model cache untouched; no paid API, model download, real independent judgment or public deployment."
+      "notes": "Selected from clean main 3a8c24e; ledger before behavior, root owns all files and no delegation. Narrow English Wikipedia discovery metadata, fixed endpoint and source rights review; no article/API prose, arbitrary fetching or general-web quality claim. Approved-source LLM protocol and visible fallback preserve rights/lifecycle. Explicit operator identity/source enablement and per-request/browser live selection; local remains default. Durable shared Wikimedia 429/503/maxlag waiting periods are not hosted quota/concurrency/deadline controls. All scoped acceptance complete. Final local checks/package acceptance and all five Windows/Linux/container CI jobs passed; implementation b829157 is pushed to main with matching local/remote hashes. No owned services; root ownership of completed scope released. Completion-evidence follow-up is documentation only with its own CI. Additional actual-model compatibility run was rejected before execution by automatic approval review (blocked by policy); not retried, so no new actual-model or quality evidence. Actual private service/review data and model cache untouched; no paid API, model download, real independent judgment or public deployment."
     }
   ]
 }
