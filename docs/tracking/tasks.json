@@ -329,8 +329,8 @@
       "id": "ANV-008",
       "milestone": "M2",
       "title": "Hosted-service hardening and retention",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": [
         "ANV-006"
       ],
@@ -345,8 +345,12 @@
         "Relevant automated tests and documentation review; record exact commands on completion"
       ],
       "verification": [],
-      "references": [],
-      "notes": "Known M1 gaps: strict total upstream deadline including trickling headers; hosted query/feedback quotas; automated retention and backup policy; operational metrics; API key-to-tenant rotation; per-document tenant ACLs if private corpora are added. Keep local-loopback deployment until the applicable controls are implemented."
+      "references": [
+        "docs/decisions/0012-private-search-retention.md",
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/RESEARCH.md"
+      ],
+      "notes": "ANV-026 delivers the scoped operational expiry/worker-cleanup controls with legacy preservation; the broader hosted-service gate remains incomplete. Remaining gaps: strict total upstream deadline including trickling headers; hosted query/feedback quotas; backup/restore retention and explicit legacy-history backfill; operational metrics; API key-to-tenant rotation; per-document tenant ACLs if private corpora are added. ANV-027 separately tracks SQLite WAL-reset runtime/vendor patch verification. Keep local-loopback deployment until applicable controls are implemented."
     },
     {
       "id": "ANV-009",
@@ -1119,6 +1123,90 @@
         "tests/test_review_integrity.py"
       ],
       "notes": "Implemented bounded integrity slice from clean ad024d5 after inconclusive ANV-024 relevance evidence. Root owns all files; no subagents. Query-wide exclusions quarantine current labels but retain history, preserve required review slots and signed unaffected packets; new enrollment/replacements require explicit operator independence attestation. Consistent immutable exports have a current-state verifier. Explicit schema v1 migration never runs as a read/testing side effect. Actual pilot, private practice note, forms, credentials and labels were not read or changed; ANV-020 remains open for human work. Unknown exposure/identity/consent/aliases across sessions remain operator responsibilities. No paid service, model call, new source or automatic learning. Ignored synthetic installed-wheel scratch .anvesha/verification/anv025-installed-1f6qt3gu remains because automatic approval blocked its cleanup; not a production bug or real pilot data. Final local checks and all scoped implementation acceptance criteria are complete. Implementation 7764642 is published with matching local/remote hashes and all five jobs passed in run 39142333841. Root ownership of this completed scope is released; no owned services remain. ANV-020 human study gates remain open. Documentation-only evidence follow-up has its own CI; inspect current HEAD."
+    },
+    {
+      "id": "ANV-026",
+      "milestone": "M2",
+      "title": "Bound retention of private search jobs, snapshots and feedback",
+      "status": "done",
+      "owner": "root",
+      "depends_on": [
+        "ANV-006",
+        "ANV-022"
+      ],
+      "acceptance": [
+        "Persist an operator-configured expiry with each new accepted search and expose it to authenticated clients; new setups default to seven days with explicit indefinite opt-out",
+        "Preserve old jobs and saved configurations through additive migration; changing configuration or replaying an idempotency key must not extend an accepted deadline",
+        "At the deadline deny expired job/status/results/feedback/cancellation access consistently with unknown/unowned jobs, reject worker heartbeat/publication and prevent reclaim; allow client-scoped key reuse only as new work",
+        "Automatically remove expired operational rows and dependent snapshots/feedback in bounded worker batches; support explicit offline operator dry-run/apply without touching documents or independent-review data",
+        "Validate restart, migrations, concurrency, exact-boundary expiry, stale workers, idempotency, saved settings and real-process cleanup with synthetic offline fixtures; keep source/model stages free and optional",
+        "Document actual retention/deletion scope and WAL/backups/copies limitations without claiming forensic erasure or hosted readiness; leave other ANV-008 hardening gates open"
+      ],
+      "validation_plan": [
+        "Focused deterministic Store/API/config/worker/CLI regressions with a controlled clock, plus real local-process retention acceptance",
+        "Pinned full Ruff/pytest/tracking checks, both required process smokes, archived report verifiers, diff/package inspection, commit/push and cross-platform CI"
+      ],
+      "verification": [
+        {
+          "command": "uv sync --extra dev --locked; Ruff check/format; pytest; focused retention/CLI/setup checks",
+          "result": "Final full suite after doctor migration-readiness correction: 401 tests passed in 84.09s, including 38 new synthetic retention cases. Ruff lint/format and tracking passed; only existing ANV-015 warning. Focused retention/CLI/setup suite also passed 64 cases in 12.54s. No tests skipped, real model called or actual private service/review DB accessed. All scoped implementation acceptance criteria are met.",
+          "date": "2026-10-20"
+        },
+        {
+          "command": "scripts/smoke_mvp.py; scripts/smoke_selfhost.py; scripts/smoke_retention.py; five archived report/data verifiers; uv build; archive inspection",
+          "result": "Three real-process offline smokes passed with owned-process cleanup. New retention smoke covers persisted eight-second deadline, separate worker, completed/queued expiry while worker stopped, API restart, ETag, access before cleanup, read-only preview, cascade, key reuse, explicit apply and corpus preservation. All five archived verifiers passed with unchanged published fingerprints (not a new quality experiment). Wheel/sdist built; six changed runtime modules match source and private data is excluded. Fresh runtime-only installed wheel imports came from site-packages with pytest absent; the actual retention smoke passed from that installation. All subprocesses/connections and the new venv/synthetic scratch were cleaned. Final MVP smoke also passed.",
+          "date": "2026-10-20"
+        }
+      ],
+      "references": [
+        "src/anvesha/store.py",
+        "src/anvesha/api.py",
+        "src/anvesha/config.py",
+        "src/anvesha/runtime.py",
+        "src/anvesha/cli.py",
+        "src/anvesha/retention.py",
+        "scripts/smoke_retention.py",
+        "tests/test_retention.py",
+        ".github/workflows/ci.yml",
+        ".env.example",
+        "README.md",
+        "SECURITY.md",
+        "docs/API.md",
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/architecture/README.md",
+        "docs/MILESTONES.md",
+        "docs/RESEARCH.md",
+        "docs/decisions/0012-private-search-retention.md",
+        "docs/tracking/verification/2026-10-20-retention.md",
+        "policies/llm-processing.json"
+      ],
+      "notes": "Implemented scoped private-search retention from clean 8e0c283, with ledger/ADR before behavior changes. New setup/environment defaults seven days, explicit zero indefinite, old jobs null and old saved configurations zero; no implicit legacy-history deletion/backfill. Expiry guards cover client access and worker eligibility/publication, regardless of cleanup lag. Bounded pruning cascades only operational rows. Actual service/review databases, keys, private queries, coaching notes and labels remain untouched. All tests use synthetic data/protocol fixtures; no paid API, real model or new source. Root owns all files; no delegation. SQLite runtime/vendor WAL-reset patch evidence remains a separate planned ANV-027 finding; no corruption observed or runtime replacement attempted. ANV-008 hosted controls and ANV-020 human study remain open. Final checks and package acceptance passed, and all scoped implementation acceptance criteria are complete. Commit/push and CI verification follow. No owned services remain and new package-check scratch is cleaned; historical ANV-025 scratch was untouched."
+    },
+    {
+      "id": "ANV-027",
+      "milestone": "M2",
+      "title": "Verify and remediate SQLite WAL-reset patch status in supported runtimes",
+      "status": "planned",
+      "owner": "unassigned",
+      "depends_on": [
+        "ANV-006"
+      ],
+      "acceptance": [
+        "Inventory actual SQLite/runtime versions and vendor backports for local Windows/Linux and pinned container/CI distributions",
+        "Select maintained runtime builds with verified WAL-reset fixes without unsafe DLL replacement, changing journaling blindly or bypassing vendor patch evidence",
+        "Expose actionable version/patch diagnostics and document supported update/backup/rollback paths without claiming application tests prove an upstream race fix",
+        "Validate no-paid-API installation, concurrency/restart/data-integrity and packaging acceptance on the supported runtime builds"
+      ],
+      "validation_plan": [
+        "Review official SQLite fix/vendor evidence, record exact runtime identities, then run concurrency/process/packaging checks on selected patched distributions"
+      ],
+      "verification": [],
+      "references": [
+        "docs/RESEARCH.md",
+        "docs/architecture/README.md",
+        "SECURITY.md"
+      ],
+      "notes": "Discovered during ANV-026 primary-source review on 2026-10-20. Official SQLite WAL page documents the reset-race fixes; local Python reports SQLite 3.50.4, within the upstream affected version range. Vendor patch status is unverified; no corruption was observed. Runtime replacement/patch certification is separate from operational-retention behavior and remains a concrete follow-up. Do not infer patch status from passing functional tests or version numbers alone when vendor backports exist."
     }
   ]
 }

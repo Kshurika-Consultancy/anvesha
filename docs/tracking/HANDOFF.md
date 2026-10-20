@@ -2,6 +2,32 @@
 
 ## Objective
 
+2026-10-20 current turn: user authorized selecting the next useful improvement,
+implementation, tests, commit and push. Root selected ANV-026 from clean 8e0c283:
+private search retention under the broader open ANV-008 gate. Ledger/ADR were added
+before behavior changes. Implemented initial nullable expires_at migration,
+seven-day new-setup default with legacy saved settings effective zero, live
+Store/API eligibility guards, idempotent key reuse after expiry, bounded cleanup
+before worker claims, private read-only prune preview and explicit apply.
+[ADR 0012](../decisions/0012-private-search-retention.md) records the contract.
+Code/docs are implemented and verified: final 401 tests passed in 84.09s (38 new
+retention cases, existing ANV-015 warning only), Ruff/format/tracking, five archived
+report verifiers and all three process smokes passed. A runtime-only installed
+wheel passed actual HTTP/API/worker restart/expiry/cascade/prune acceptance;
+imports came from site-packages with pytest absent. Six changed runtime modules
+in the wheel match source and private artifacts are excluded. All owned services
+ended; new installed-wheel scratch was cleaned. Commit/push/CI remain.
+[Evidence](verification/2026-10-20-retention.md) tracks commands and observations.
+ANV-027 records the separately discovered SQLite WAL-reset runtime/vendor patch gap
+(local version 3.50.4, no corruption observed, vendor patch status unverified).
+That concrete runtime review is a priority follow-up; no upstream fix is claimed
+from passing application tests. ANV-008 broader hosted controls and ANV-020 human
+study remain open. Root owns all files pending publication;
+no delegation, actual private database/review access, paid API or hosted inference.
+Do not repeat or clean up the historical ANV-025 scratch as a side effect here.
+
+## Previous completed ANV-025 slice
+
 2026-10-18 current turn: user again authorized choosing the next useful step,
 implementation, tests, commit and push. Root delivered scoped ANV-025 from clean
 ad024d5: enforce the known ANV-020 coaching-exclusion gap before collecting broader

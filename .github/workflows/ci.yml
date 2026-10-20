@@ -26,6 +26,7 @@ jobs:
       - run: uv run --extra dev python -m anvesha.ranking_experiment verify
       - run: uv run --extra dev python scripts/smoke_mvp.py
       - run: uv run --extra dev python scripts/smoke_selfhost.py
+      - run: uv run --extra dev python scripts/smoke_retention.py
       - run: uv run --extra dev python scripts/check_tracking.py
       - run: git diff --check
   container:

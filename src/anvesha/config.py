@@ -5,6 +5,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from anvesha.llm import LLMConfig
+from anvesha.retention import DEFAULT_SECONDS, seconds_from_env, validate_seconds
 
 SUPPORTED_SOURCES = frozenset({"local", "wikidata"})
 
@@ -16,8 +17,10 @@ class Settings:
     enabled_sources: tuple[str, ...] = ("local",)
     worker_poll_seconds: float = 1.0
     llm: LLMConfig = field(default_factory=LLMConfig)
+    retention_seconds: int = DEFAULT_SECONDS
 
     def __post_init__(self):
+        validate_seconds(self.retention_seconds)
         if not self.enabled_sources or set(self.enabled_sources) - SUPPORTED_SOURCES:
             raise ValueError("Enabled sources must be local and/or wikidata")
         if not 0.1 <= self.worker_poll_seconds <= 60:
@@ -40,4 +43,5 @@ class Settings:
             enabled_sources=parts("ANVESHA_ENABLED_SOURCES", "local"),
             worker_poll_seconds=float(os.getenv("ANVESHA_WORKER_POLL_SECONDS", "1")),
             llm=LLMConfig.from_env(),
+            retention_seconds=seconds_from_env(),
         )

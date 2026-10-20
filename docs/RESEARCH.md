@@ -116,6 +116,19 @@ no source/model/data licensing change follows. Both profiles retain the reviewed
 llama.cpp schema API and existing rights manifests. Research method and measured
 Anvesha outcomes must remain separate.
 
+## ANV-026 storage review, 2026-10-20
+
+[SQLite foreign-key actions](https://www.sqlite.org/foreignkeys.html#fk_actions)
+support transactional dependent-row cleanup. [Secure-delete documentation](https://www.sqlite.org/pragma.html#pragma_secure_delete)
+and [WAL documentation](https://www.sqlite.org/wal.html) bound erasure claims; Anvesha
+implements logical deletion, not forensic erasure or backup cleanup.
+
+The same official WAL page reports a reset-race fix in 3.51.3, with 3.50.7 and
+3.44.6 backports. Local Python reports SQLite 3.50.4, in the upstream affected
+version range; vendor patch status is unverified. ANV-027 tracks runtime/vendor
+evidence and remediation. Passing application tests does not establish that fix.
+No corruption was observed and no runtime was replaced in ANV-026.
+
 ## Maintaining this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

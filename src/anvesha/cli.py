@@ -11,6 +11,7 @@ from pathlib import Path
 
 from anvesha.config import Settings
 from anvesha.ranking import canonicalize_url
+from anvesha.retention import CLEANUP_BATCH, seconds_from_env
 from anvesha.store import Store
 
 DEMO_DOCUMENTS = [
@@ -74,7 +75,7 @@ def diagnostics(settings):
             connection = sqlite3.connect(uri, uri=True)
             try:
                 count = connection.execute("SELECT count(*) FROM documents").fetchone()[0]
-                connection.execute("SELECT ranking FROM jobs LIMIT 0")
+                connection.execute("SELECT ranking, expires_at FROM jobs LIMIT 0")
             finally:
                 connection.close()
         except sqlite3.Error:
@@ -86,6 +87,9 @@ def diagnostics(settings):
         "database_initialized": count is not None,
         "document_count": count,
         "enabled_sources": list(settings.enabled_sources),
+        "retention_seconds": settings.retention_seconds,
+        "retention_applies_to": "new_searches",
+        "expiry_cleanup": "separate_worker_or_explicit_prune",
         "llm": {
             "configured": settings.llm.enabled,
             "endpoint_scope": settings.llm.endpoint_scope,
@@ -116,6 +120,12 @@ def main(argv=None):
         required=True,
         help="Confirm rights to index, store, and display this content to all instance clients",
     )
+    prune_parser = sub.add_parser(
+        "prune", help="Preview expired search deletion; --apply deletes one bounded batch"
+    )
+    prune_parser.add_argument("--config", type=Path)
+    prune_parser.add_argument("--apply", action="store_true")
+    prune_parser.add_argument("--batch-size", type=int, default=CLEANUP_BATCH)
     serve_parser = sub.add_parser("serve", help="Run the API (start a separate worker too)")
     serve_parser.add_argument("--host", default="127.0.0.1")
     serve_parser.add_argument("--port", type=int, default=8000)
@@ -128,6 +138,11 @@ def main(argv=None):
     setup_parser.add_argument("--model-url", help="Chat endpoint ending in /v1")
     setup_parser.add_argument("--allow-model-network", action="store_true")
     setup_parser.add_argument("--seed-demo", action="store_true")
+    setup_parser.add_argument(
+        "--retention-seconds",
+        type=int,
+        help="New search lifetime; default seven days, 0 explicitly keeps history indefinitely",
+    )
     for name in ("start", "run-api", "run-worker", "show-key"):
         service = sub.add_parser(
             name,
@@ -156,13 +171,22 @@ def main(argv=None):
                 if args.allow_model_network:
                     overrides["allow_network"] = True
                 llm = LLMConfig.from_env(**overrides)
-                runtime.setup(
+                saved = runtime.setup(
                     args.config,
                     args.db or Path(os.getenv("ANVESHA_DB_PATH", ".anvesha/anvesha.db")),
                     llm,
                     demo=args.seed_demo,
+                    retention_seconds=(
+                        args.retention_seconds
+                        if args.retention_seconds is not None
+                        else seconds_from_env()
+                    ),
                 )
                 print(f"Private configuration saved: {args.config.resolve()}")
+                print(
+                    f"New search retention: {saved.retention_seconds} seconds "
+                    "from acceptance (0 means indefinite)."
+                )
                 print(
                     "Run 'anvesha show-key' locally to copy the client key, then 'anvesha start'."
                 )
@@ -207,6 +231,11 @@ def main(argv=None):
             uvicorn.run(create_app(settings), host=args.host, port=args.port, access_log=False)
             return 0
         store = Store(path)
+        if args.command == "prune":
+            print(
+                json.dumps(store.prune_expired(limit=args.batch_size, apply=args.apply), indent=2)
+            )
+            return 0
         if args.command == "init":
             store.initialize()
             if args.seed:

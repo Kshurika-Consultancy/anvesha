@@ -16,6 +16,8 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
+from anvesha.retention import CLEANUP_BATCH, MAX_BATCH, validate_seconds
+
 PIPELINE_VERSION = "m1-rrf-v1"
 
 
@@ -45,6 +47,7 @@ CREATE TABLE IF NOT EXISTS jobs (
     error_code TEXT,
     pipeline_version TEXT NOT NULL,
     ranking TEXT NOT NULL DEFAULT 'lexical',
+    expires_at REAL,
     worker_id TEXT,
     lease_token TEXT,
     lease_until REAL,
@@ -85,6 +88,7 @@ CREATE TABLE IF NOT EXISTS documents (
     license TEXT NOT NULL,
     attribution TEXT NOT NULL
 );
+CREATE INDEX IF NOT EXISTS feedback_job_snapshot ON feedback(job_id, version);
 CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(
     title, content, content='documents', content_rowid='rowid'
 );
@@ -144,8 +148,13 @@ class Store:
             raise ValueError("Store requires a persistent database file")
         self.path = Path(path).expanduser().resolve()
 
-    def _open(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.path, timeout=30, isolation_level=None)
+    def _open(self, *, read_only: bool = False) -> sqlite3.Connection:
+        connection = sqlite3.connect(
+            self.path.as_uri() + "?mode=ro" if read_only else self.path,
+            uri=read_only,
+            timeout=30,
+            isolation_level=None,
+        )
         connection.row_factory = sqlite3.Row
         connection.execute("PRAGMA foreign_keys = ON")
         connection.execute("PRAGMA busy_timeout = 30000")
@@ -155,8 +164,10 @@ class Store:
         return connection
 
     @contextmanager
-    def _connection(self, *, write: bool = False) -> Iterator[sqlite3.Connection]:
-        connection = self._open()
+    def _connection(
+        self, *, write: bool = False, read_only: bool = False
+    ) -> Iterator[sqlite3.Connection]:
+        connection = self._open(read_only=read_only)
         try:
             connection.execute("BEGIN IMMEDIATE" if write else "BEGIN")
             yield connection
@@ -182,6 +193,10 @@ class Store:
                 connection.execute(
                     "ALTER TABLE jobs ADD COLUMN ranking TEXT NOT NULL DEFAULT 'lexical'"
                 )
+            # ANV-026: null preserves all existing deadlines/legacy history.
+            if "expires_at" not in columns:
+                connection.execute("ALTER TABLE jobs ADD COLUMN expires_at REAL")
+            connection.execute("CREATE INDEX IF NOT EXISTS jobs_expiry ON jobs(expires_at, id)")
             connection.commit()
         finally:
             connection.close()
@@ -196,7 +211,9 @@ class Store:
         *,
         ranking: str = "lexical",
         pipeline_version: str | None = None,
+        retention_seconds: int = 0,
     ) -> tuple[dict, bool]:
+        validate_seconds(retention_seconds)
         _bounded_text(owner, "owner", 256)
         _bounded_text(query, "query", 2000)
         if ranking not in {"lexical", "llm"}:
@@ -225,23 +242,28 @@ class Store:
             request.append(ranking)
         request_hash = hashlib.sha256(_json(request).encode("utf-8")).hexdigest()
         with self._connection(write=True) as connection:
+            now = time.time()
             if idempotency_key is not None:
                 existing = connection.execute(
                     "SELECT * FROM jobs WHERE owner = ? AND idempotency_key = ?",
                     (owner, idempotency_key),
                 ).fetchone()
+                if existing is not None and (
+                    existing["expires_at"] is not None and existing["expires_at"] <= now
+                ):
+                    connection.execute("DELETE FROM jobs WHERE id = ?", (existing["id"],))
+                    existing = None
                 if existing is not None:
                     if existing["request_hash"] != request_hash:
                         raise IdempotencyConflict("key already used for another request")
                     return _job(existing), False
             job_id = f"srch_{uuid.uuid4().hex}"
-            now = time.time()
             connection.execute(
                 """INSERT INTO jobs
                    (id, owner, query, sources_json, result_limit, request_hash,
                     idempotency_key, state, phase, pipeline_version, ranking, created_at,
-                    updated_at)
-                   VALUES (?, ?, ?, ?, ?, ?, ?, 'queued', 'queued', ?, ?, ?, ?)""",
+                    updated_at, expires_at)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, 'queued', 'queued', ?, ?, ?, ?, ?)""",
                 (
                     job_id,
                     owner,
@@ -254,6 +276,7 @@ class Store:
                     ranking,
                     now,
                     now,
+                    now + retention_seconds if retention_seconds else None,
                 ),
             )
             return _job(
@@ -263,7 +286,9 @@ class Store:
     def get_job(self, owner: str, job_id: str) -> dict | None:
         with self._connection() as connection:
             row = connection.execute(
-                "SELECT * FROM jobs WHERE id = ? AND owner = ?", (job_id, owner)
+                """SELECT * FROM jobs WHERE id = ? AND owner = ?
+                   AND (expires_at IS NULL OR expires_at > ?)""",
+                (job_id, owner, time.time()),
             ).fetchone()
             return _job(row) if row is not None else None
 
@@ -275,18 +300,21 @@ class Store:
         _positive_integer(max_attempts, "max_attempts")
         with self._connection(write=True) as connection:
             now = time.time()
+            self._prune(connection, now, CLEANUP_BATCH)
             connection.execute(
                 """UPDATE jobs SET state = 'failed', phase = 'failed',
                        error_code = 'worker_attempts_exhausted', updated_at = ?,
                        lease_token = NULL, lease_until = NULL, worker_id = NULL
-                   WHERE state = 'running' AND lease_until <= ? AND attempts >= ?""",
-                (now, now, max_attempts),
+                   WHERE state = 'running' AND lease_until <= ? AND attempts >= ?
+                     AND (expires_at IS NULL OR expires_at > ?)""",
+                (now, now, max_attempts, now),
             )
             row = connection.execute(
                 """SELECT id FROM jobs WHERE attempts < ? AND
                      (state = 'queued' OR (state = 'running' AND lease_until <= ?))
+                     AND (expires_at IS NULL OR expires_at > ?)
                    ORDER BY created_at, id LIMIT 1""",
-                (max_attempts, now),
+                (max_attempts, now, now),
             ).fetchone()
             if row is None:
                 return None
@@ -322,8 +350,8 @@ class Store:
                 """UPDATE jobs SET lease_until = ?, updated_at = ?,
                        phase = COALESCE(?, phase)
                    WHERE id = ? AND state = 'running' AND lease_token = ?
-                     AND lease_until > ?""",
-                (now + lease_seconds, now, phase, job_id, lease_token, now),
+                     AND lease_until > ? AND (expires_at IS NULL OR expires_at > ?)""",
+                (now + lease_seconds, now, phase, job_id, lease_token, now, now),
             )
             return changed.rowcount == 1
 
@@ -365,8 +393,9 @@ class Store:
             now = time.time()
             row = connection.execute(
                 """SELECT id FROM jobs WHERE id = ? AND state = 'running'
-                   AND lease_token = ? AND lease_until > ?""",
-                (job_id, lease_token, now),
+                   AND lease_token = ? AND lease_until > ?
+                   AND (expires_at IS NULL OR expires_at > ?)""",
+                (job_id, lease_token, now, now),
             ).fetchone()
             if row is None:
                 return False
@@ -389,22 +418,28 @@ class Store:
 
     def cancel_job(self, owner: str, job_id: str) -> dict | None:
         with self._connection(write=True) as connection:
+            now = time.time()
             connection.execute(
                 """UPDATE jobs SET state = 'cancelled', phase = 'cancelled',
                        updated_at = ?, lease_token = NULL, lease_until = NULL,
                        worker_id = NULL
-                   WHERE id = ? AND owner = ? AND state IN ('queued', 'running')""",
-                (time.time(), job_id, owner),
+                   WHERE id = ? AND owner = ? AND state IN ('queued', 'running')
+                     AND (expires_at IS NULL OR expires_at > ?)""",
+                (now, job_id, owner, now),
             )
             row = connection.execute(
-                "SELECT * FROM jobs WHERE id = ? AND owner = ?", (job_id, owner)
+                """SELECT * FROM jobs WHERE id = ? AND owner = ?
+                   AND (expires_at IS NULL OR expires_at > ?)""",
+                (job_id, owner, now),
             ).fetchone()
             return _job(row) if row is not None else None
 
     def delete_job(self, owner: str, job_id: str) -> bool:
         with self._connection(write=True) as connection:
             changed = connection.execute(
-                "DELETE FROM jobs WHERE id = ? AND owner = ?", (job_id, owner)
+                """DELETE FROM jobs WHERE id = ? AND owner = ?
+                   AND (expires_at IS NULL OR expires_at > ?)""",
+                (job_id, owner, time.time()),
             )
             return changed.rowcount == 1
 
@@ -421,8 +456,9 @@ class Store:
         _positive_integer(limit, "limit")
         with self._connection() as connection:
             job = connection.execute(
-                "SELECT results_version FROM jobs WHERE id = ? AND owner = ?",
-                (job_id, owner),
+                """SELECT results_version FROM jobs WHERE id = ? AND owner = ?
+                   AND (expires_at IS NULL OR expires_at > ?)""",
+                (job_id, owner, time.time()),
             ).fetchone()
             if job is None:
                 return None
@@ -472,8 +508,9 @@ class Store:
             row = connection.execute(
                 """SELECT snapshots.results_json, jobs.pipeline_version
                    FROM snapshots JOIN jobs ON jobs.id = snapshots.job_id
-                   WHERE jobs.id = ? AND jobs.owner = ? AND snapshots.version = ?""",
-                (job_id, owner, version),
+                   WHERE jobs.id = ? AND jobs.owner = ? AND snapshots.version = ?
+                     AND (jobs.expires_at IS NULL OR jobs.expires_at > ?)""",
+                (job_id, owner, version, time.time()),
             ).fetchone()
             if row is None:
                 raise FeedbackError("published snapshot not found")
@@ -514,6 +551,40 @@ class Store:
                     (owner, job_id, version, result_id or ""),
                 ).fetchone()
             )
+
+    @staticmethod
+    def _prune(connection, now, limit):
+        return connection.execute(
+            """DELETE FROM jobs WHERE id IN
+               (SELECT id FROM jobs WHERE expires_at <= ? ORDER BY expires_at, id LIMIT ?)""",
+            (now, limit),
+        ).rowcount
+
+    def prune_expired(self, *, limit: int = CLEANUP_BATCH, apply: bool = False) -> dict:
+        """ANV-026: one operator batch; dry-run never creates or migrates a database."""
+        if type(limit) is not int or not 1 <= limit <= MAX_BATCH:
+            raise ValueError("prune limit must be an integer between 1 and 500")
+        if type(apply) is not bool:
+            raise ValueError("apply must be a boolean")
+        if not self.path.is_file():
+            raise ValueError("Initialize/upgrade the database before pruning")
+        with self._connection(write=apply, read_only=not apply) as connection:
+            columns = {row["name"] for row in connection.execute("PRAGMA table_info(jobs)")}
+            if "expires_at" not in columns:
+                raise ValueError("Initialize/upgrade the database before pruning")
+            now = time.time()
+            count = connection.execute(
+                """SELECT count(*) FROM (SELECT id FROM jobs WHERE expires_at <= ?
+                   ORDER BY expires_at, id LIMIT ?)""",
+                (now, limit),
+            ).fetchone()[0]
+            deleted = self._prune(connection, now, limit) if apply else 0
+            return {
+                "apply": apply,
+                "batch_size": limit,
+                "eligible_jobs": count,
+                "deleted_jobs": deleted,
+            }
 
     def upsert_document(self, document: dict) -> None:
         fields = ("id", "url", "title", "content", "license", "attribution")

@@ -12,17 +12,23 @@ from pathlib import Path
 
 from anvesha.config import Settings
 from anvesha.llm import LLMConfig
+from anvesha.retention import DEFAULT_SECONDS
 from anvesha.store import Store
 
 
-def setup(path, database, llm, *, demo=False):
+def setup(path, database, llm, *, demo=False, retention_seconds=DEFAULT_SECONDS):
     path = Path(path).expanduser().resolve()
     database = Path(database).expanduser().resolve()
     if path.exists():
         raise ValueError("Configuration already exists; refusing to overwrite credentials")
     if path == database:
         raise ValueError("Configuration and database must be different files")
-    settings = Settings(database_path=database, api_keys=(secrets.token_urlsafe(32),), llm=llm)
+    settings = Settings(
+        database_path=database,
+        api_keys=(secrets.token_urlsafe(32),),
+        llm=llm,
+        retention_seconds=retention_seconds,
+    )
     model = asdict(llm)
     model.pop("endpoint_scope")
     data = {
@@ -31,6 +37,7 @@ def setup(path, database, llm, *, demo=False):
         "api_keys": list(settings.api_keys),
         "enabled_sources": list(settings.enabled_sources),
         "worker_poll_seconds": settings.worker_poll_seconds,
+        "retention_seconds": settings.retention_seconds,
         "llm": model,
     }
     store = Store(database)
@@ -64,7 +71,11 @@ def load_settings(path):
             "worker_poll_seconds",
             "llm",
         }
-        if not isinstance(data, dict) or set(data) != expected or data["schema_version"] != 1:
+        if (
+            not isinstance(data, dict)
+            or set(data) - {"retention_seconds"} != expected
+            or data["schema_version"] != 1
+        ):
             raise ValueError
         if (
             not isinstance(data["api_keys"], list)
@@ -85,6 +96,8 @@ def load_settings(path):
             enabled_sources=tuple(data["enabled_sources"]),
             worker_poll_seconds=data["worker_poll_seconds"],
             llm=LLMConfig(**data["llm"]),
+            # ANV-026: missing saved policy preserves legacy indefinite retention.
+            retention_seconds=data.get("retention_seconds", 0),
         )
     except (OSError, ValueError, TypeError, KeyError):
         raise ValueError(

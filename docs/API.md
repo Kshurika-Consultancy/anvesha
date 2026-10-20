@@ -1,6 +1,6 @@
 # HTTP API
 
-Tasks ANV-004, ANV-021 and ANV-022. Base URL: `http://127.0.0.1:8000`. The self-hosted browser is at `/`; OpenAPI is at `/openapi.json`. CDN-backed `/docs` and `/redoc` are disabled. JSON is the API input/output format. Timestamps are UTC Unix seconds. Browser assets, health and OpenAPI are public; all search/capability operations require `X-API-Key`.
+Tasks ANV-004, ANV-021, ANV-022 and ANV-026. Base URL: `http://127.0.0.1:8000`. The self-hosted browser is at `/`; OpenAPI is at `/openapi.json`. CDN-backed `/docs` and `/redoc` are disabled. JSON is the API input/output format. Timestamps are UTC Unix seconds. Browser assets, health and OpenAPI are public; all search/capability operations require `X-API-Key`.
 
 ## Authentication and ownership
 
@@ -26,6 +26,12 @@ LLM mode requires operator model configuration and `sources: ["local"]`; otherwi
 
 Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key and canonical query/sources/limit/ranking returns the existing job (200 with `Idempotency-Replayed: true`); different input returns 409. Model configuration changes do not rewrite a previously accepted job on replay. New jobs return 202 only after durable commit, with `Location`, `Retry-After: 1`, and `Idempotency-Replayed: false`. Old lexical request hashes remain valid after the additive database migration. Deleting a job removes its idempotency record, so reusing that key after deletion creates new work.
 
+ANV-026 also bounds idempotency by retention. Replay before expiry keeps the original
+`expires_at`, even if operator policy changed. At expiry, the same owner's key can
+accept a **new** search (202/new ID), even with different input; the old job and its
+dependent rows are removed in that transaction. No permanent tombstone or replay
+guarantee survives expiry/deletion. Client request bodies cannot set retention.
+
 `GET /v1/searches/{id}` returns the public job state:
 
 ```json
@@ -44,6 +50,7 @@ Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key an
   "error_code": null,
   "created_at": 1792137600.0,
   "updated_at": 1792137600.0,
+  "expires_at": 1792742400.0,
   "next_poll_after_ms": 1000,
   "results_available": false,
   "results_url": "/v1/searches/srch_example/results",
@@ -52,6 +59,12 @@ Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key an
 ```
 
 IDs/timestamps above are illustrative. State is separate from phase. Internal owner hashes, worker identifiers and lease tokens are omitted. `ETag` supports `If-None-Match` and 304 polling; clients should remember the last ETag without persisting private responses in shared caches. Responses use `Cache-Control: no-store`.
+
+`expires_at` is the persisted UTC Unix deadline, or null for indefinite/legacy jobs.
+Authenticated capabilities additionally report `retention_seconds`,
+`retention_applies_to: "new_searches"`, and
+`expiry_cleanup: "separate_worker_or_explicit_prune"`. These describe the current
+policy for future submissions; the individual job's deadline is authoritative.
 
 | State | Meaning |
 | --- | --- |
@@ -66,7 +79,7 @@ There is no percentage-complete claim. M1 publishes one final snapshot, version 
 
 ## Results and feedback
 
-`GET /v1/searches/{id}/results?version=1&offset=0&limit=10` returns `search_id`, `pipeline_version`, requested `ranking`, `version`, `results`, `total`, `offset`, `next_offset`, and coverage. Version may be omitted for the current snapshot. Offset is nonnegative; page limit is 1–50. Results-unavailable or nonexistent version returns 409. Failed/cancelled jobs without snapshots have no results. Stable final snapshots make pagination repeatable; no new results are added after completion.
+`GET /v1/searches/{id}/results?version=1&offset=0&limit=10` returns `search_id`, `pipeline_version`, requested `ranking`, `expires_at`, `version`, `results`, `total`, `offset`, `next_offset`, and coverage. Version may be omitted for the current snapshot. Offset is nonnegative; page limit is 1–50. Results-unavailable or nonexistent version returns 409. Failed/cancelled jobs without snapshots have no results. Stable final snapshots make pagination repeatable during the retained lifetime; no new results are added after completion.
 
 Each result includes `id`, `rank`, `url`, `title`, `snippet`, `sources`, `score`, `display_source`, `evidence_status`, `license`, `attribution`, and `provenance`. The score is RRF ordering, not a probability of truth. The displayed text retains the licence of its selected source, while provenance records all contributors. `local_document` means operator-imported text was available; `metadata_only` means only Wikidata label/description metadata was retrieved. Neither claims factual verification. Clients must render titles/snippets as untrusted plain text, not executable HTML.
 
@@ -105,7 +118,36 @@ and [ADR 0009](decisions/0009-opt-in-constrained-ranking-output.md).
 
 `POST /v1/searches/{id}/cancel` immediately cancels queued/running work and invalidates publication by a worker still doing external I/O. It returns status. Cancelling a terminal job is an idempotent no-op; already published results remain. It cannot recall data already sent to Wikimedia or a model endpoint. The model stage checks cancellation and renews its lease while waiting.
 
-`DELETE /v1/searches/{id}` returns 204 and cascades the active database's job, snapshot, and feedback records. It invalidates a running worker's later publication. Missing/unowned jobs return 404. Automatic expiry, backup-retention management and forensic erasure are not implemented (ANV-008).
+`DELETE /v1/searches/{id}` returns 204 and cascades the active database's job, snapshot, and feedback records. It invalidates a running worker's later publication. Missing/unowned/expired jobs return 404.
+
+## Operational retention
+
+New environment-based installations and setup files default to 604800 seconds
+(seven days) from durable acceptance. The operator may choose an integer from 0 to
+31536000 seconds; zero means indefinite. Existing jobs migrate with a null deadline.
+Old saved configurations missing `retention_seconds` load as zero, regardless of
+ambient environment. Policy edits affect only future searches, including when
+switching back to zero. Upgrade API and workers together. See
+[operator commands](PRIVATE_RESEARCH.md#search-history-retention) and
+[ADR 0012](decisions/0012-private-search-retention.md).
+
+At `now >= expires_at`, every job state becomes inaccessible, including queued or
+running work. Authenticated status/results/feedback/cancel/delete return the same
+404 as unknown/unowned IDs; stale `If-None-Match` cannot produce 304. Invalid request
+syntax/authentication still returns its usual 422/401. Workers cannot reclaim,
+renew or publish expired work. Expiry does not recall data already sent, client
+copies or an in-flight model request; checkpoints stop remaining work.
+
+The separate worker removes at most 100 expired jobs before each claim, including
+idle iterations and after restart, cascading snapshots/feedback. Deletion can lag
+during a long-running job or when workers are stopped; SQL access guards remain
+effective. Explicit local `anvesha prune` previews one batch; `--apply` deletes it.
+No extra scheduler or hosted API is required. Imported documents, configurations,
+review data and model files are unaffected. Retention does not authorize training.
+
+This is logical deletion in the active database. SQLite pages/WAL, backups and
+other copies are outside that guarantee; backup cleanup and forensic erasure are
+not implemented. See [SQLite's deletion limits](https://www.sqlite.org/pragma.html#pragma_secure_delete).
 
 ## Provider configuration and operational bounds
 
@@ -124,4 +166,4 @@ models, strategy or tools through a search request. Network destinations require
 operator opt-in; a local proxy can still forward externally. Model keys are never
 persisted in jobs. See [the processing policy](../policies/llm-processing.json).
 
-Local files are a shared operator corpus, not a per-client private document store. Request lengths and result counts are bounded, but hosted quotas, automatic retention, production metrics and source-rights policy enforcement beyond the approved built-in connectors remain tracked work. Use loopback for the current deployment.
+Local files are a shared operator corpus, not a per-client private document store. Request lengths and result counts are bounded, but hosted quotas, backup/restore retention, production metrics and source-rights policy enforcement beyond the approved built-in connectors remain tracked work. Use loopback for the current deployment.

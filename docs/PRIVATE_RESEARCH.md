@@ -251,10 +251,76 @@ are separate trust boundaries. OpenAPI remains at `/openapi.json`; CDN-backed
 `/docs` and `/redoc` are disabled.
 
 Operational queries, snapshots and feedback stay in the unencrypted local database
-until deletion. Reload/disconnect do not delete server records. Automatic expiry
-and backup deletion remain ANV-008. CLI API commands disable access logs; proxies
+until explicit deletion or their recorded expiry. Reload/disconnect do not delete
+server records. ANV-026 adds search-history expiry; backup deletion remains ANV-008.
+CLI API commands disable access logs; proxies
 and gateways log independently. There is no anonymous/untracked web-search promise.
 See [security](../SECURITY.md) and [model processing](../policies/llm-processing.json).
+
+## Search-history retention
+
+New setups and environment-based launches default to **seven days** (604800 seconds)
+from acceptance. This includes queued/running jobs, results and feedback, even
+feedback with learning opt-in. The API exposes each job's fixed `expires_at`; null
+means indefinite. New setup prints the chosen policy and doctor/capabilities report
+the effective policy for future requests. Use a different lifetime at setup:
+
+```text
+uv run anvesha setup --model YOUR_INSTALLED_MODEL --retention-seconds 86400
+```
+
+This example creates a new configuration; setup still refuses to overwrite one.
+Values are integer seconds from 0 to 31536000. `--retention-seconds 0` explicitly
+retains new searches indefinitely. Without the flag, setup uses
+`ANVESHA_RETENTION_SECONDS` or seven days. Legacy environment API launches also use
+that variable. These are operator settings; search clients cannot override them.
+
+For an **existing saved configuration**, stop both services, keep a private backup,
+edit/add the top-level `"retention_seconds": 86400` field in its JSON, then restart
+API and worker together. Doctor with `--config` confirms the saved policy. Old saved
+files missing the field keep indefinite behavior and ignore ambient retention
+variables. Startup adds a nullable database column/index without changing original
+jobs, snapshots, feedback or request hashes. Existing jobs stay indefinite unless
+they already have a deadline; no automatic legacy-history backfill is implemented.
+
+Changing policy, replaying a request, polling, renewing leases or adding feedback
+never extends or removes an accepted deadline. Setting zero later affects only
+new searches. At expiry, all authenticated job operations return 404 and an old
+ETag cannot return 304. A running worker cannot publish expired work. Requests use
+wall-clock checks; clock changes affect timing, and already returned/client-copied
+data or in-flight external processing cannot be recalled.
+
+The separate worker prunes at most 100 expired jobs before each claim, even while
+idle and after restart. Long-running work or a stopped worker can delay physical
+row cleanup; access checks still hide expired data. To preview or delete one
+bounded batch manually, with the intended existing config/database:
+
+```text
+uv run anvesha prune --config .anvesha/server.json
+uv run anvesha prune --config .anvesha/server.json --apply --batch-size 100
+```
+
+Default dry-run opens the database read-only and reports counts only. `--apply`
+deletes one batch, from 1 to 500 jobs; repeat for a larger backlog. Neither command
+creates or migrates a missing/legacy database: upgrade by starting the upgraded
+service or using `anvesha init` against the intended database first. It uses only
+recorded deadlines, never an inferred age threshold. It does not delete imported
+documents, configuration/keys, model weights, review workspaces or benchmark data.
+No command prints raw queries or feedback. Saved operational records and the
+independent-review database are separate stores.
+
+Expiry/deletion also releases that client's idempotency key. A retry after expiry
+can create a new search and repeat external processing; clients must treat the new
+ID as new work. Keys are not permanent replay protection beyond the retained job.
+
+Logical database deletion does not erase SQLite pages/WAL, backups, browser/client
+copies or external runtime/gateway logs. Manage their retention and filesystem
+permissions separately. Do not manually delete a live SQLite WAL file: see
+[SQLite's WAL guidance](https://www.sqlite.org/wal.html). No automatic vacuum,
+backup deletion, encryption or forensic erasure is included. ANV-008's other
+hosted-hardening gates remain open.
+
+## Upgrade continuity
 
 Before upgrading stop API and worker, back up private configuration and the whole
 data directory/volume without running writers, record the source/image revision,

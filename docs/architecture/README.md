@@ -48,6 +48,9 @@ flowchart LR
 6. Cancellation invalidates running work's publication right. Deletion removes associated snapshots and feedback and prevents stale publication.
 7. All reads and mutations check authenticated ownership. Return the same missing response for unknown and unowned jobs.
 8. Feedback refers to a real published version and, if supplied, a result present in that version.
+9. ANV-026 persists each accepted search's optional expiry. At its deadline, reads
+   and worker publication rights end; bounded worker cleanup removes operational
+   rows and their dependents without changing the document corpus or review store.
 
 ```mermaid
 stateDiagram-v2
@@ -127,6 +130,16 @@ replacement slots retain the original review count. Replacement packets stay bli
 and old adjudications fail when the reviewer/revision map changes. Coverage, qrels
 and private audit events share one read snapshot; verification rejects obsolete
 exports. No production job, ranking, feedback or actual human judgment is changed.
+
+ANV-026 adds operational retention under [ADR 0012](../decisions/0012-private-search-retention.md).
+New setup/environment policy defaults to seven days, with explicit zero for
+indefinite retention. Existing jobs migrate to a null expiry and old saved files
+missing the field preserve zero. Store eligibility checks, rather than a scheduler,
+enforce logical expiry across status/results/feedback/leases/publication. A separate
+worker deletes up to 100 due jobs before every claim, including idle passes; foreign
+key cascades remove snapshots/feedback. Local prune previews read-only or applies
+one bounded batch. Immutable result content/version remains stable during its
+retained lifetime. Deletion is logical, not a disk/WAL/backup erasure guarantee.
 
 Adding a connector requires a tracked task, rights manifest, fixed/validated destinations, bounded work, deterministic fixtures, honest evidence labels, and source-failure tests. Adding a model requires exact artefact licensing, an optional installation path, model-output validation, adversarial evaluation, and measured gain. Changing persistence requires a migration/recovery plan and tests that preserve ownership, idempotency, snapshot, feedback, cancellation, and deletion behavior.
 

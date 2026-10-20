@@ -1,7 +1,7 @@
 {
-  "policy_version": "llm-processing-v4",
-  "task": "ANV-024",
-  "reviewed_at": "2026-10-18",
+  "policy_version": "llm-processing-v5",
+  "task": "ANV-026",
+  "reviewed_at": "2026-10-20",
   "scope": "Default-mode inference over bounded snippets from an operator-imported corpus, using an operator-configured endpoint; no training or new source discovery.",
   "default": "New API/browser requests default to llm and reject before acceptance when no model is configured. Explicit ranking=lexical performs no model call. Existing accepted jobs are unchanged; legacy lexical clients/replays must send the mode explicitly after upgrading.",
   "sent_fields": [
@@ -21,7 +21,7 @@
     "reviewer_labels"
   ],
   "rights": "Operator must review corpus rights and permission to process excerpts with the selected runtime/provider. Ingestion, a gateway account or a licence string is not a blanket permission grant.",
-  "retention": "Anvesha retains operational jobs/snapshots/feedback under its documented local policy, but does not persist model prompts, raw responses or reasoning. Runtime/gateway/provider retention is outside Anvesha's control.",
+  "retention": "New setup/environment defaults expire operational jobs/snapshots/feedback seven days from acceptance; operators can choose a bounded lifetime or explicit zero for indefinite retention. Existing jobs and old saved files preserve their prior lifetime. Expired data is inaccessible and the worker prunes bounded batches. Logical deletion is not disk/WAL/backup erasure. Anvesha does not persist model prompts, raw responses or reasoning. In-flight processing and runtime/gateway/provider retention remain outside this control.",
   "privacy": "Loopback restricts Anvesha's destination, not gateway egress. Do not claim local inference or untracked search without verifying downstream routing and logs.",
   "training": "No automatic training in Anvesha; separately review any downstream provider's training policy.",
   "licensing": "Independently implemented Apache-2.0 client. No OmniRoute code or model weights are distributed; gateway, model and document licences remain separate.",

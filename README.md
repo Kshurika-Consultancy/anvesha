@@ -8,7 +8,7 @@ Submit a query, receive an ID, poll its status, inspect stable sources and give 
 
 **Start here:** [native and Docker self-hosting guide](docs/PRIVATE_RESEARCH.md). Import permitted documents, connect your local model and use the bundled browser. No paid API is mandatory. A local gateway can still forward data to cloud providers; verify its routing.
 
-**Scope:** the default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. This is a private-corpus search preview, not a general-web search engine, a factual-verification system, or evidence of Google-level quality. LLM reranking remains experimental; broader backend and domain validation remains open. Query planning, page inspection, embeddings, automatic retention and feedback learning remain future work.
+**Scope:** the default seeded corpus contains three visibly synthetic demonstration documents at example.org URLs. This is a private-corpus search preview, not a general-web search engine, a factual-verification system, or evidence of Google-level quality. LLM reranking remains experimental; broader backend and domain validation remains open. New setups use configurable seven-day search-history retention. Query planning, page inspection, embeddings and feedback learning remain future work.
 
 The [first real local-model pilot](reports/evaluation/local-llm-pilot-v3/ANALYSIS.md)
 used Qwen3-4B on CPU. On 24 reserved scientific queries, nDCG@10 was 0.6169 for
@@ -62,7 +62,7 @@ $feedback = @{ version = 1; rating = 1; result_id = $results.results[0].id; lear
 Invoke-RestMethod -Method Post -Uri "http://127.0.0.1:8000/v1/searches/$($job.id)/feedback" -Headers $headers -ContentType 'application/json' -Body $feedback
 ```
 
-Reuse an idempotency key only for the same query/sources/limit/ranking; a different request with that key returns 409. Delete a retained job with `DELETE /v1/searches/{id}`. Automatic expiry is not implemented yet. Feedback is stored, not used to automatically train or change ranking.
+Reuse an idempotency key only for the same query/sources/limit/ranking while its job is retained; a different request with that key returns 409. Delete a retained job with `DELETE /v1/searches/{id}`. New setups expire searches after seven days, with bounded worker cleanup of snapshots/feedback. Existing jobs and saved configurations preserve their previous lifetime. [Configure retention or preview pruning](docs/PRIVATE_RESEARCH.md#search-history-retention). Feedback is stored, not used to automatically train or change ranking.
 
 New requests default to `ranking: "llm"`; explicitly sending that field is also supported. The model only reorders retrieved candidates. Invalid output/outage keeps lexical results with visible warnings. **Upgrade change:** old model-free clients and old lexical idempotency replays must send `"ranking":"lexical"`. Existing accepted jobs stay unchanged. See [processing limits and upgrade guidance](docs/PRIVATE_RESEARCH.md).
 

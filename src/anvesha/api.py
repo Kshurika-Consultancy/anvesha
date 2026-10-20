@@ -86,6 +86,7 @@ def public_job(job):
         "updated_at",
         "pipeline_version",
         "ranking",
+        "expires_at",
     )
     result = {key: job[key] for key in fields if key in job}
     active = job["state"] in {"queued", "running"}
@@ -175,6 +176,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "llm_endpoint_scope": settings.llm.endpoint_scope if settings.llm.enabled else None,
             "gateway_downstream_verified": False,
             "coverage": "configured_sources_only",
+            "retention_seconds": settings.retention_seconds,
+            "retention_applies_to": "new_searches",
+            "expiry_cleanup": "separate_worker_or_explicit_prune",
         }
 
     @app.post("/v1/searches", status_code=202)
@@ -202,6 +206,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 idempotency_key,
                 ranking=body.ranking,
                 pipeline_version=settings.llm.pipeline_version if body.ranking == "llm" else None,
+                retention_seconds=settings.retention_seconds,
             )
         except IdempotencyConflict as exc:
             raise HTTPException(409, "idempotency_key_conflict") from exc
@@ -250,6 +255,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             **snapshot,
             "pipeline_version": job["pipeline_version"],
             "ranking": job["ranking"],
+            "expires_at": job["expires_at"],
             "offset": offset,
             "next_offset": next_offset if next_offset < snapshot["total"] else None,
             "coverage": "configured_sources_only",
@@ -261,6 +267,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         try:
             saved = store.submit_feedback(owner, job_id, **body.model_dump())
         except FeedbackError as exc:
+            if store.get_job(owner, job_id) is None:
+                raise HTTPException(404, "search_not_found") from exc
             raise HTTPException(409, "feedback_snapshot_or_result_invalid") from exc
         allowed = {
             "id",

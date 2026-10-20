@@ -2,6 +2,17 @@
 
 Record material delivered changes with task IDs and verification references. This is an engineering log, not a list of future features.
 
+## 2026-10-20
+
+- ANV-026: added persisted search expiry, seven-day new-installation policy with
+  explicit indefinite opt-out and legacy preservation, access/lease/publication
+  guards, bounded worker cascading cleanup, and read-only prune preview/explicit
+  apply. API, operator guide and processing policy describe the actual lifetime and
+  deletion limits. New real-process retention acceptance is part of offline CI;
+  [verification](verification/2026-10-20-retention.md) records checks. No actual
+  private service/review data was used. Storage reference review also recorded
+  the separate SQLite runtime/vendor patch-evidence gap as planned ANV-027.
+
 ## 2026-10-18
 
 - ANV-025: enforce query-wide coaching/exposure exclusions and quarantine affected
