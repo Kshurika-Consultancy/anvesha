@@ -325,9 +325,12 @@ hosted-hardening gates remain open.
 Before upgrading stop API and worker, back up private configuration and the whole
 data directory/volume without running writers, record the source/image revision,
 then install/build and restart both services together. Preserve container UID
-10001 ownership. SQLite startup migration is additive; never run an older worker
-against new LLM jobs. Roll back with matching backup and code/image, rather than
-assuming a backwards migration.
+10001 ownership. SQLite startup migration is additive; never run older API/worker
+versions against the upgraded database. Older versions do not enforce recorded
+expiry. Roll back with matching backup and code/image, rather than assuming a
+backwards migration, and review restored history/lifetimes before exposing it to
+clients. Restoring a backup can restore records; editing retention alone does not
+backfill deadlines for legacy history.
 
 **Default change from ANV-021:** new requests omitting ranking now use LLM
 processing. Existing accepted jobs and snapshots are unchanged. Old clients

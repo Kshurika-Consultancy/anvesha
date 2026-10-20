@@ -16,13 +16,19 @@ report verifiers and all three process smokes passed. A runtime-only installed
 wheel passed actual HTTP/API/worker restart/expiry/cascade/prune acceptance;
 imports came from site-packages with pytest absent. Six changed runtime modules
 in the wheel match source and private artifacts are excluded. All owned services
-ended; new installed-wheel scratch was cleaned. Commit/push/CI remain.
+ended; new installed-wheel scratch was cleaned. Implementation is published as
+`93d14c2ef625216e1047742fc793645caf3ef0dd`, with matching local/remote main and clean
+Git state. All five jobs passed in
+[CI run 39427201666](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39427201666):
+Windows/Linux Python 3.12/3.14 and actual container acceptance, including the new
+offline retention smoke in each matrix job. This documentation-only evidence
+follow-up has its own commit/CI; inspect current HEAD.
 [Evidence](verification/2026-10-20-retention.md) tracks commands and observations.
 ANV-027 records the separately discovered SQLite WAL-reset runtime/vendor patch gap
 (local version 3.50.4, no corruption observed, vendor patch status unverified).
 That concrete runtime review is a priority follow-up; no upstream fix is claimed
 from passing application tests. ANV-008 broader hosted controls and ANV-020 human
-study remain open. Root owns all files pending publication;
+study remain open. Root ownership of the completed ANV-026 scope is released;
 no delegation, actual private database/review access, paid API or hosted inference.
 Do not repeat or clean up the historical ANV-025 scratch as a side effect here.
 

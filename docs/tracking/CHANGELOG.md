@@ -12,6 +12,7 @@ Record material delivered changes with task IDs and verification references. Thi
   [verification](verification/2026-10-20-retention.md) records checks. No actual
   private service/review data was used. Storage reference review also recorded
   the separate SQLite runtime/vendor patch-evidence gap as planned ANV-027.
+  Implementation `93d14c2` is pushed to main with all five CI jobs passing.
 
 ## 2026-10-18
 

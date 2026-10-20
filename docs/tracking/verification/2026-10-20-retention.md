@@ -85,7 +85,19 @@ passed from that installation, including separate HTTP/API/worker restarts,
 expiry/cascade/key reuse/pruning. The venv/synthetic scratch directory was cleaned
 successfully after all connections/processes closed. No owned services remain.
 All 24 changed/new files are classified under ANV-026; discovery notes for ANV-027
-and ANV-008 continuity are in the same ledger. Commit/push and CI follow.
+and ANV-008 continuity are in the same ledger.
+
+## Publication and cross-platform acceptance
+
+`git push origin main` published
+`93d14c2ef625216e1047742fc793645caf3ef0dd`; local HEAD and
+`git ls-remote origin refs/heads/main` matched and Git status was clean. All five
+jobs passed in [run 39427201666](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39427201666):
+Windows/Linux Python 3.12/3.14 plus actual container acceptance. Each matrix job
+includes the new retention smoke, full tests, archived verifiers, existing process
+smokes and tracking. No real LLM, paid API or private pilot data is used. This
+documentation-only evidence/rollback clarification has its own commit/run; inspect
+current HEAD. No public deployment or package publication follows.
 
 The new actual-process smoke already passed once: a saved eight-second policy,
 separate real worker completion, HTTP feedback, API stop/restart with the worker

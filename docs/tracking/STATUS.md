@@ -1,13 +1,15 @@
 # Anvesha development status
 
-ANV-026 is implemented and verified locally (2026-10-20): configurable expiry for private search
+ANV-026 is done and published as `93d14c2` (2026-10-20): configurable expiry for private search
 jobs, snapshots and feedback, bounded worker cleanup and explicit dry-run/apply
 operator pruning. New setups default to seven days; legacy saved settings/jobs
 retain their existing lifetime. [ADR 0012](../decisions/0012-private-search-retention.md)
 defines access, idempotency, migration and deletion boundaries. Final 401 tests,
 Ruff/tracking, three process smokes, five archived artifact verifiers and isolated
 runtime-only installed-wheel acceptance passed. [Evidence](verification/2026-10-20-retention.md)
-records commands/limits; commit/push verification is next. All new checks use
+records commands/limits. Local/remote main matched and all five jobs passed in
+[implementation CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39427201666),
+including the new retention process smoke and actual container acceptance. All new checks use
 synthetic databases; no actual service or independent-review data is used. No owned
 test services remain; new scratch cleaned. ANV-008 hosted controls remain open;
 ANV-027 separately tracks SQLite runtime/vendor WAL-reset patch verification.
