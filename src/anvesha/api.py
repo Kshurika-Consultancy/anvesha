@@ -13,15 +13,15 @@ from fastapi.security import APIKeyHeader
 from pydantic import BaseModel, ConfigDict, Field, StrictBool, StrictInt, field_validator
 
 from anvesha import __version__
-from anvesha.config import Settings
+from anvesha.config import SUPPORTED_SOURCES, Settings
 from anvesha.store import FeedbackError, IdempotencyConflict, Store
 
 
 class SearchRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     query: str = Field(min_length=1, max_length=2000)
-    sources: list[Literal["local", "wikidata"]] = Field(
-        default_factory=lambda: ["local"], min_length=1, max_length=2
+    sources: list[Literal["local", "wikidata", "wikipedia"]] = Field(
+        default_factory=lambda: ["local"], min_length=1, max_length=3
     )
     limit: StrictInt = Field(default=10, ge=1, le=50)
     ranking: Literal["lexical", "llm"] = "llm"
@@ -172,7 +172,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "default_ranking": "llm",
             "llm_configured": settings.llm.enabled,
             "document_count": store.document_count(),
-            "llm_source_scope": ["local"],
+            "llm_source_scope": sorted(SUPPORTED_SOURCES),
+            "source_privacy": {
+                source: ("instance_only" if source == "local" else "query_sent_to_wikimedia")
+                for source in settings.enabled_sources
+            },
             "llm_endpoint_scope": settings.llm.endpoint_scope if settings.llm.enabled else None,
             "gateway_downstream_verified": False,
             "coverage": "configured_sources_only",
@@ -193,8 +197,6 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         if body.ranking == "llm":
             if not settings.llm.enabled:
                 raise HTTPException(422, "llm_not_configured")
-            if body.sources != ["local"]:
-                raise HTTPException(422, "llm_local_source_only")
         if idempotency_key is not None and not idempotency_key.strip():
             raise HTTPException(422, "invalid_idempotency_key")
         try:

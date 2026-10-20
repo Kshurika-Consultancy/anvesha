@@ -1,0 +1,35 @@
+{
+  "source": "wikipedia",
+  "manifest_version": "wikipedia-discovery-v1",
+  "task": "ANV-028",
+  "reviewed_at": "2026-10-20",
+  "scope": "Opt-in English Wikipedia main-namespace article discovery: page ID, unmodified title, word count, last-edit timestamp and constructed article attribution link. No article prose, search excerpts, images or additional page fetches.",
+  "endpoint": "https://en.wikipedia.org/w/api.php",
+  "license": "CC-BY-SA-4.0",
+  "rights": {
+    "retrieval": "Approved narrow Action API read/search use with identifying operator User-Agent, fixed endpoint, bounded response, maxlag and rate/throttling compliance; no API availability guarantee or white-label sublicensing.",
+    "retention": "Retain validated discovery metadata only in private operational job snapshots under configured job retention. Raw responses/article snippets are not persisted. No article-text corpus import/cache.",
+    "display": "Preserve unmodified title and article URL, Wikipedia contributor/Wikimedia attribution and CC-BY-SA licence link. Summary is first-party metadata description, explicitly not an article excerpt/evidence verification. Additional page-specific content rights are not inferred.",
+    "redistribution": "Discovery metadata/title attribution and licence context must travel together. Anvesha code remains Apache-2.0; do not label Wikimedia content Apache. Broader prose/media re-use requires page-specific rights/attribution review, not this manifest.",
+    "evaluation": "Only explicit bounded non-sensitive live acceptance and synthetic default fixtures in this slice. Any future archived real-data benchmark needs its own rights/protocol review; do not publish private queries/payloads or fabricate judgments.",
+    "training": "No training approved or implemented by this slice. Local inference may reorder supplied titles/generated metadata summaries under existing strict model-output validation; no URLs/tools/source prose are sent. External gateway processing needs operator policy review."
+  },
+  "attribution": "Wikipedia contributors; Wikimedia Foundation, with the discovered article URL linking to its contributor history; retain licence URL. First-party metadata summary is identified as a transformation, not quoted prose. Original first-party metadata summaries are offered under CC-BY-SA-4.0 alongside result metadata; source prose rights are not inferred.",
+  "limitations": [
+    "English Wikipedia is one encyclopaedic discovery source, not general-web search or inspected evidence. No established relevance gain follows from connectivity or fixture tests.",
+    "Live selection sends original query, operator identifying User-Agent and server IP to Wikimedia; local LLM inference does not make discovery private/offline/anonymous.",
+    "No API snippets, article text, media, edit histories or article-specific source rights are retrieved. Do not generalize this grant to whole articles or model training.",
+    "Wikimedia attribution and actual upstream identity stay visible in API provenance/browser; this is a client, not a sublicensed or guaranteed Wikimedia API.",
+    "Transport uses 5-second operation timeouts and 15-second elapsed body budget; strict total trickling-header deadline, hosted quotas and in-flight cross-worker admission limits remain ANV-008.",
+    "Shared durable Wikimedia backoff handles Retry-After on 429/503/maxlag and persists across workers/restarts. Already in-flight requests cannot be recalled; paused sources return visible partial/failed jobs.",
+    "Unknown/malformed Retry-After pauses conservatively for 60s (maxlag 5s default); valid seconds/HTTP dates are honored with a minimum 1s. Unrepresentably large waits conservatively disable requests for operationally indefinite time; operators must investigate upstream instructions, not bypass throttling."
+  ],
+  "references": [
+    "https://www.mediawiki.org/wiki/API:Search",
+    "https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use",
+    "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines",
+    "https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy",
+    "https://foundation.wikimedia.org/wiki/Policy:Privacy_policy",
+    "https://creativecommons.org/licenses/by-sa/4.0/legalcode.en"
+  ]
+}

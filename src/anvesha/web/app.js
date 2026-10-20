@@ -5,14 +5,17 @@ const state = { key: "", capabilities: null, job: null, controller: null, versio
 const messages = {
   invalid_api_key: "The access key was not accepted. Check your instance key.",
   llm_not_configured: "Configure a local model with anvesha setup --model YOUR_MODEL, or explicitly choose the lexical baseline.",
-  llm_local_source_only: "LLM ranking currently supports your local collection only.",
   search_not_found: "This search is no longer available to this key.",
   results_not_available: "Results are not ready yet.",
 };
 function error(message) { $("error").textContent = message; $("error").hidden = !message; }
+function selectedSources() { return Array.from($("sources").querySelectorAll("input:checked"), (node) => node.value); }
 function controls() {
   const busy = Boolean(state.controller);
-  $("search").disabled = !state.key || !$("query").value.trim() || busy || ($("ranking").value === "llm" && !state.capabilities?.llm_configured);
+  const sources = selectedSources();
+  $("search").disabled = !state.key || !sources.length || !$("query").value.trim() || busy || ($("ranking").value === "llm" && !state.capabilities?.llm_configured);
+  for (const input of $("sources").querySelectorAll("input")) input.disabled = busy;
+  $("source-privacy").hidden = !sources.some((source) => source !== "local");
   $("ranking").disabled = busy;
   $("cancel").hidden = !busy || !state.job;
 }
@@ -33,6 +36,7 @@ function clearResults() {
 function disconnect() {
   state.controller?.abort(); state.controller = null; state.key = "";
   state.capabilities = null; state.job = null; clearResults();
+  $("sources").replaceChildren(); $("source-options").hidden = true;
   $("query").value = "";
   $("api-key").value = ""; $("connect-form").hidden = false;
   $("connection-state").hidden = true; $("job-panel").hidden = true;
@@ -45,6 +49,15 @@ $("connect-form").addEventListener("submit", async (event) => {
   state.key = $("api-key").value.trim();
   try {
     state.capabilities = await request("/v1/capabilities");
+    $("sources").replaceChildren();
+    const labels = { local: "Your collection", wikidata: "Wikidata · Wikimedia (live)", wikipedia: "Wikipedia · Wikimedia (live)" };
+    for (const source of state.capabilities.sources) {
+      if (!Object.hasOwn(labels, source)) continue;
+      const label = document.createElement("label"); const input = document.createElement("input");
+      input.type = "checkbox"; input.value = source; input.checked = source === "local";
+      input.addEventListener("change", controls); label.append(input, document.createTextNode(labels[source])); $("sources").append(label);
+    }
+    $("source-options").hidden = false;
     $("api-key").value = ""; $("connect-form").hidden = true; $("connection-state").hidden = false;
     $("collection-note").textContent = `${state.capabilities.document_count} imported documents`;
     $("model-note").textContent = state.capabilities.llm_configured
@@ -59,7 +72,7 @@ $("query").addEventListener("input", controls);
 $("ranking").addEventListener("change", controls);
 function showJob(job) {
   $("job-panel").hidden = false;
-  const labels = { queued: "Waiting for the worker", running: "Researching your collection", completed: "Search complete", completed_partial: "Search complete with a fallback", failed: "Search could not complete", cancelled: "Search cancelled" };
+  const labels = { queued: "Waiting for the worker", running: "Searching selected sources", completed: "Search complete", completed_partial: "Search complete with limits", failed: "Search could not complete", cancelled: "Search cancelled" };
   $("job-status").textContent = labels[job.state] || "Checking search";
   $("job-detail").textContent = `${job.id} · ${job.phase.replaceAll("_", " ")} · requested ranking: ${job.ranking}`;
   const codes = job.warnings || [];
@@ -84,8 +97,15 @@ function renderResult(item, jobId, version) {
   const title = element(destination ? "a" : "span", item.title.slice(0, 500));
   if (destination) { title.href = destination; title.target = "_blank"; title.rel = "noopener noreferrer"; title.referrerPolicy = "no-referrer"; }
   heading.append(title); row.append(heading, element("p", item.snippet.slice(0, 2000)));
-  const method = item.ranking_method === "llm_rerank" ? "LLM reordered" : "Lexical order";
+  const method = item.ranking_method === "llm_rerank" ? "LLM reordered" : "Retrieved order";
   row.append(element("div", `${method} · ${item.evidence_status} · ${item.license} · ${item.attribution}`, "result-meta"));
+  const names = { local: "Your collection", wikidata: "Wikidata · Wikimedia", wikipedia: "Wikipedia · Wikimedia" };
+  row.append(element("div", `Sources: ${item.sources.map((source) => names[source] || source).join(", ")}`, "result-meta"));
+  if (item.license_url) {
+    const destination = safeLink(item.license_url);
+    if (destination) { const link = element("a", "Source licence", "result-meta"); link.href = destination; link.target = "_blank"; link.rel = "noopener noreferrer"; link.referrerPolicy = "no-referrer"; row.append(link); }
+  }
+  if (item.content_transformation) row.append(element("p", item.content_transformation, "result-meta"));
   const feedback = element("div", "", "feedback"); const buttons = [];
   const receipt = element("span", "", "feedback-status"); receipt.setAttribute("role", "status");
   for (const [label, rating] of [["Useful", 1], ["Not useful", -1]]) {
@@ -133,7 +153,7 @@ $("search-form").addEventListener("submit", async (event) => {
   error(""); clearResults(); state.job = null;
   const controller = new AbortController(); state.controller = controller; controls();
   try {
-    let job = await request("/v1/searches", { method: "POST", body: JSON.stringify({ query: $("query").value, sources: ["local"], limit: 20, ranking: $("ranking").value }) }, controller.signal);
+    let job = await request("/v1/searches", { method: "POST", body: JSON.stringify({ query: $("query").value, sources: selectedSources(), limit: 20, ranking: $("ranking").value }) }, controller.signal);
     if (controller.signal.aborted || state.controller !== controller) return;
     if (!/^srch_[a-f0-9]{32}$/.test(job.id)) throw new Error("Invalid search identifier.");
     state.job = job; controls();

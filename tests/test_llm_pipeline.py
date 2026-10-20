@@ -141,7 +141,7 @@ def test_explicit_lexical_mode_does_not_call_model_and_capabilities_exclude_secr
     assert client.get("/v1/capabilities", headers={"X-API-Key": "wrong"}).status_code == 401
 
 
-def test_unconfigured_or_nonlocal_requests_are_rejected_before_acceptance(tmp_path):
+def test_unconfigured_model_rejected_and_enabled_metadata_source_accepted(tmp_path):
     settings = Settings(database_path=tmp_path / "db", api_keys=(KEY,))
     with TestClient(create_app(settings), headers={"X-API-Key": KEY}) as client:
         assert (
@@ -158,7 +158,7 @@ def test_unconfigured_or_nonlocal_requests_are_rejected_before_acceptance(tmp_pa
         response = client.post(
             "/v1/searches", json={"query": "x", "ranking": "llm", "sources": ["wikidata"]}
         )
-        assert response.status_code == 422 and response.json()["detail"] == "llm_local_source_only"
+        assert response.status_code == 202 and response.json()["sources"] == ["wikidata"]
 
 
 @pytest.mark.parametrize("action", ["cancel", "delete"])

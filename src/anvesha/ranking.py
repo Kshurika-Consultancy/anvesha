@@ -10,6 +10,13 @@ import idna
 
 RRF_CONSTANT = 60
 PIPELINE_VERSION = "m1-rrf-v1"
+DISCOVERY_FIELDS = (
+    "license_url",
+    "attribution_url",
+    "source_modified_at",
+    "observed_at",
+    "content_transformation",
+)
 
 
 def canonicalize_url(url: str) -> str:
@@ -51,6 +58,9 @@ def _selection_key(candidate: dict) -> tuple:
         candidate["license"],
         candidate["attribution"],
         candidate.get("rights_manifest_version", ""),
+        json.dumps(
+            {key: candidate[key] for key in DISCOVERY_FIELDS if key in candidate}, sort_keys=True
+        ),
     )
 
 
@@ -95,6 +105,7 @@ def rank_candidates(candidates: list[dict], limit: int = 10) -> list[dict]:
             record["rights_manifest_version"] = candidate.get(
                 "rights_manifest_version", f"{source}-v1"
             )
+            record.update({key: candidate[key] for key in DISCOVERY_FIELDS if key in candidate})
             provenance[json.dumps(record, sort_keys=True)] = record
         results.append(
             {
@@ -109,6 +120,7 @@ def rank_candidates(candidates: list[dict], limit: int = 10) -> list[dict]:
                 "attribution": display["attribution"],
                 "display_source": display["source"],
                 "provenance": [provenance[key] for key in sorted(provenance)],
+                **{key: display[key] for key in DISCOVERY_FIELDS if key in display},
             }
         )
     results.sort(key=lambda result: (-result["score"], result["url"]))

@@ -2,9 +2,9 @@
 
 Anvesha is Kshurika Consultancy's open-source search engine for people who want control over their data and the tools that use it. Run it on your own computer or home server, use a local LLM, and build internal tools without a mandatory service that collects your queries or usage. **No mandatory paid API, hosted LLM, GPU, or database service.**
 
-It is a search building block for your own research, coding and development projects, personal IoT operations, asset-management tools, and private AI agents or chat systems. Those are intended integration uses: the current preview searches documents you import; it does not control devices/assets, provide a chat agent, or ship those integrations. You choose what is indexed, where models run, who can access the instance, and whether an optional external provider receives anything. Local storage, backups and model-server settings still need your care.
+It is a search building block for your own research, coding and development projects, personal IoT operations, asset-management tools, and private AI agents or chat systems. Those are intended integration uses: the current preview searches documents you import and explicitly selected Wikimedia discovery metadata; it does not control devices/assets, provide a chat agent, or ship those integrations. You choose what is indexed, where models run, who can access the instance, and whether an optional external provider receives anything. Local storage, backups and model-server settings still need your care.
 
-Submit a query, receive an ID, poll its status, inspect stable sources and give feedback. Separate API/worker processes persist jobs, ownership, results and feedback in SQLite. **LLM-assisted ranking is the default**, using your configured local or compatible gateway model after FTS5/BM25 retrieval. An explicit lexical baseline runs without any model.
+Submit a query, receive an ID, poll its status, inspect stable sources and give feedback. Separate API/worker processes persist jobs, ownership, results and feedback in SQLite. **LLM-assisted ranking is the default**, using your configured local or compatible gateway model after local retrieval and optional approved-source discovery. An explicit lexical baseline runs without any model.
 
 **Start here:** [native and Docker self-hosting guide](docs/PRIVATE_RESEARCH.md). Import permitted documents, connect your local model and use the bundled browser. No paid API is mandatory. A local gateway can still forward data to cloud providers; verify its routing.
 
@@ -78,6 +78,16 @@ uv run --extra dev anvesha ingest examples/documents.json --config .anvesha/serv
 The flag acknowledges your review of rights to store, index, and display that content. It is not an automated legal clearance. **All configured API clients share this document corpus**; job history is owner-isolated, but document-level tenant permissions are not implemented.
 
 Imports upsert by document ID. Keep IDs stable. Import validation runs before writes; a database failure during the import may still leave earlier documents applied, so rerunning the same IDs is safe. Data import is an operator CLI operation, not a public upload endpoint.
+
+## Optional live article discovery
+
+ANV-028 adds English Wikipedia article discovery and lets your configured LLM rank
+local, Wikidata and Wikipedia candidates. Enable sources explicitly, then select
+them in the browser or request body. Live requests send the query and server
+address to Wikimedia. Results keep source attribution and licence links;
+Wikipedia returns article titles/links and observed metadata, not inspected text.
+See [setup, privacy and coverage](docs/DISCOVERY.md). Default searches stay local,
+and no paid API/key is required. Connectivity is not evidence of relevance gains.
 
 ## Optional free live Wikidata search
 

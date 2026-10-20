@@ -17,7 +17,16 @@ from anvesha.sqlite_runtime import require_runtime
 from anvesha.store import Store
 
 
-def setup(path, database, llm, *, demo=False, retention_seconds=DEFAULT_SECONDS):
+def setup(
+    path,
+    database,
+    llm,
+    *,
+    demo=False,
+    retention_seconds=DEFAULT_SECONDS,
+    enabled_sources=("local",),
+    wikipedia_user_agent="",
+):
     path = Path(path).expanduser().resolve()
     database = Path(database).expanduser().resolve()
     if path.exists():
@@ -29,6 +38,8 @@ def setup(path, database, llm, *, demo=False, retention_seconds=DEFAULT_SECONDS)
         api_keys=(secrets.token_urlsafe(32),),
         llm=llm,
         retention_seconds=retention_seconds,
+        enabled_sources=tuple(sorted(set(enabled_sources))),
+        wikipedia_user_agent=wikipedia_user_agent,
     )
     model = asdict(llm)
     model.pop("endpoint_scope")
@@ -39,6 +50,7 @@ def setup(path, database, llm, *, demo=False, retention_seconds=DEFAULT_SECONDS)
         "enabled_sources": list(settings.enabled_sources),
         "worker_poll_seconds": settings.worker_poll_seconds,
         "retention_seconds": settings.retention_seconds,
+        "wikipedia_user_agent": settings.wikipedia_user_agent,
         "llm": model,
     }
     store = Store(database)
@@ -74,7 +86,7 @@ def load_settings(path):
         }
         if (
             not isinstance(data, dict)
-            or set(data) - {"retention_seconds"} != expected
+            or set(data) - {"retention_seconds", "wikipedia_user_agent"} != expected
             or data["schema_version"] != 1
         ):
             raise ValueError
@@ -99,6 +111,7 @@ def load_settings(path):
             llm=LLMConfig(**data["llm"]),
             # ANV-026: missing saved policy preserves legacy indefinite retention.
             retention_seconds=data.get("retention_seconds", 0),
+            wikipedia_user_agent=data.get("wikipedia_user_agent", ""),
         )
     except (OSError, ValueError, TypeError, KeyError):
         raise ValueError(

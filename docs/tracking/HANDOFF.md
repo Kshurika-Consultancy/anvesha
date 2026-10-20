@@ -1,5 +1,56 @@
 # Anvesha handoff
 
+## Current objective: ANV-028 in progress
+
+2026-10-20: user again authorized next useful improvement, tests, commit and push.
+Root selected a scoped discovery slice from clean main 3a8c24e; ledger before
+behavior. No subagents. Fixed English Wikipedia Action API discovery now returns
+validated article titles/IDs/observed metadata, never API snippets/article prose.
+Approved local/Wikidata/Wikipedia candidates can use the existing tool-free LLM
+ranking contract. Rights/licence/freshness/transformation fields survive fusion
+and snapshots. Provider identity stays visible. Original local prompt/pipeline
+fingerprints are unchanged. ADR 0014, source manifest and processing policy v6
+record rights/privacy boundaries; discovery guide explains configuration/upgrade.
+
+Added explicit saved source allowlist/Wikipedia operator User-Agent setup; old
+configs default empty. Browser defaults local, exposes source selection and live
+privacy disclosure, locks choices during work and clears choices/key on reconnect.
+Additive provider_backoff table persists shared Wikimedia Retry-After periods
+across workers/restart without changing jobs/corpus/review data. Doctor checks
+that table read-only. This is not full hosted quota/concurrency/deadline hardening.
+
+Initial full 479 tests passed in 63.73s (48 new source regressions; existing ANV-015
+warning only), Ruff passed and new offline discovery process smoke passed. Focused
+48 tests passed. Real CUA desktop/mobile UI verified local defaults, mixed/live-only
+LLM protocol results, licence/source labels, hostile title as text (zero images),
+no-source disabled, synthetic feedback learning off, reload/reconnect clears live
+selection; 390x844 override had no horizontal overflow and was reset. Browser tab
+closed; preview stop marker led to graceful cleanup. New synthetic screenshots
+are in ignored .anvesha/verification/anv028-desktop.png and anv028-mobile.png.
+Actual review pilot/forms/keys/practice/labels and actual service/config data are
+untouched. No independent judgments, mandatory paid API or model download/call.
+
+Two bounded explicit live probes of public SQLite fixture succeeded (one research,
+one implemented provider): one call/three article candidates each, real project
+URL User-Agent, no raw payload saved. Additional real-local-model compatibility
+run was rejected before process creation by automatic approval review with stated
+reason 'blocked by policy'. It did not start, create hardlinks/workspace, or touch
+the original model cache. Do not retry/circumvent that rejected action; record the
+limit. This slice's actual-model/quality evidence remains unestablished; approved
+synthetic protocol tests and prior ANV-023 real model evidence are distinct.
+
+Final local 479 tests passed in 69.60s; Ruff/format/tracking/diff, all five offline
+process smokes, runtime identity and five archived verifiers passed. Wheel/sdist
+built (31/169 entries); 11 changed modules/assets match source and new docs/source
+manifest/evidence are included. Fresh runtime-only wheel imports from site-packages
+with pytest absent and passed the real-process synthetic discovery acceptance.
+New owned scratch/venv/processes cleaned. No owned preview/service remains.
+
+Remaining before completion: final tracking/diff, commit/push main and actual
+Windows/Linux/container CI acceptance. ANV-028 remains in progress. See
+[verification](verification/2026-10-20-discovery.md).
+Broader ANV-008/009/010/011/014/020/023 gates remain open. Root owns shared files.
+
 ## Objective and delivered ANV-027 slice
 
 2026-10-20: user authorized selecting the next useful improvement, tests, commit

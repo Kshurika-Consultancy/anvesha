@@ -12,8 +12,9 @@ separate trust boundaries.
 model; no paid API or hosted account is required. The explicit lexical baseline
 works without a model. Anvesha never downloads model weights automatically.
 
-This preview searches an imported collection. General-web discovery, query
-planning, page inspection and embeddings remain future work. Reranking is
+This preview searches an imported collection and optional explicitly selected
+Wikimedia discovery metadata. General-web coverage, query planning, page inspection
+and embeddings remain future work. Reranking is
 experimental: the first scientific CPU pilot has a higher mean score but does
 not establish improvement; see [results](../reports/evaluation/local-llm-pilot-v3/ANALYSIS.md). A ranker
 cannot recover a missing document or establish that a statement is true.
@@ -69,6 +70,17 @@ restart both services to change models, keys or timeouts.
 Configuration is plaintext and can include the model key. Creation requests mode
 0600 on POSIX; on Windows restrict the parent directory's inherited ACLs. Never
 commit or upload it. `show-key` explicitly displays the client key locally.
+
+## Optional live discovery
+
+For Wikipedia article discovery, use the explicit source setup and privacy notes
+in [the discovery guide](DISCOVERY.md). New setup supports `--sources local
+wikipedia --wikipedia-user-agent "AnveshaBot/0.1 (YOUR_REAL_CONTACT_URL)"`.
+Saved settings retain the source identity across API/worker restart. The browser
+starts with only the local collection selected, offers only operator-enabled
+sources, and discloses external query transmission when live sources are chosen.
+Your configured model can rank those discovery candidates. Source content is not
+inspected and no relevance improvement is claimed from protocol tests.
 
 ## Import your permitted documents
 
@@ -251,7 +263,8 @@ prevents publication but cannot recall content already sent.
 The `/` browser loads no CDNs/fonts, has no built-in analytics or persistent
 key/history store, uses same-origin requests and renders untrusted content as
 plain text. CSP/no-store/no-referrer headers apply. Reload disconnects; Disconnect
-also clears displayed query/results. Opening source links, extensions and the OS
+also clears displayed query/results and source selections. Live sources are
+never silently restored on reconnect. Opening source links, extensions and the OS
 are separate trust boundaries. OpenAPI remains at `/openapi.json`; CDN-backed
 `/docs` and `/redoc` are disabled.
 

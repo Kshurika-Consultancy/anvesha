@@ -4,6 +4,18 @@ Record material delivered changes with task IDs and verification references. Thi
 
 ## 2026-10-20
 
+- ANV-028: add opt-in English Wikipedia article discovery metadata, explicit saved
+  source/contact configuration, client source selection/privacy disclosure and
+  approved-source LLM ranking with retained provenance/licences. No article prose
+  or API excerpts; no implicit live source. Shared Wikimedia throttling persists
+  across workers/restart. Add 48 regressions, offline synthetic process acceptance,
+  actual desktop/mobile checks, primary-source rights manifest and operator guide.
+  Two bounded public probes passed; actual-model compatibility remains unverified
+  after an automatic approval rejection. Final 479 tests, five process smokes,
+  archived verifiers and runtime-only installed-wheel acceptance passed. Actual
+  CI and publication are pending.
+  See [verification](verification/2026-10-20-discovery.md).
+
 - ANV-027: added reviewed Python/SQLite acquisition hashes, actual runtime/FTS5
   diagnostics and conservative refusal before operational DB access on unverified
   SQLite builds. Native/CI/container installation is aligned to PBS 20261013,

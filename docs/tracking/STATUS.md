@@ -1,5 +1,19 @@
 # Anvesha development status
 
+ANV-028 is in progress (2026-10-20): opt-in English Wikipedia article discovery
+metadata, LLM ranking across approved local/Wikimedia candidates, explicit browser
+source selection/privacy disclosure and durable shared Wikimedia backoff. Local
+remains the default source. Initial 479 tests, focused 48 source cases, offline
+discovery process acceptance and actual synthetic desktop/mobile browser checks
+passed; two bounded public live probes succeeded. No article/API prose is copied.
+An additional real-model compatibility run was rejected before process creation
+by automatic approval review ("blocked by policy"); it did not run. No new quality
+gain or actual-model evidence is claimed. Final local 479 tests, five process smokes, archived verifiers,
+Ruff/tracking and fresh runtime-only wheel acceptance passed. CI/publication
+are pending. [Guide](../DISCOVERY.md), [ADR 0014](../decisions/0014-opt-in-wikipedia-discovery.md)
+and [evidence](verification/2026-10-20-discovery.md) record scope and limits. Actual
+service/review pilot data is untouched; no mandatory paid API or model download.
+
 ANV-027 is done and published (2026-10-20): reviewed hash-pinned Python/SQLite
 runtime acquisition, offline identity/FTS5 diagnostics and refusal before operational
 DB access on unverified SQLite builds. Native/CI/container use PBS 20261013 with

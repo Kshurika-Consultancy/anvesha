@@ -8,7 +8,7 @@ import sqlite3
 from dataclasses import replace
 from pathlib import Path
 
-from anvesha.config import Settings
+from anvesha.config import SUPPORTED_SOURCES, Settings
 from anvesha.ranking import canonicalize_url
 from anvesha.retention import CLEANUP_BATCH, seconds_from_env
 from anvesha.sqlite_runtime import inspect_runtime
@@ -72,6 +72,7 @@ def diagnostics(settings):
             try:
                 count = connection.execute("SELECT count(*) FROM documents").fetchone()[0]
                 connection.execute("SELECT ranking, expires_at FROM jobs LIMIT 0")
+                connection.execute("SELECT until FROM provider_backoff LIMIT 0")
             finally:
                 connection.close()
         except sqlite3.Error:
@@ -136,6 +137,14 @@ def main(argv=None):
     setup_parser.add_argument("--allow-model-network", action="store_true")
     setup_parser.add_argument("--seed-demo", action="store_true")
     setup_parser.add_argument(
+        "--sources", nargs="+", choices=sorted(SUPPORTED_SOURCES), default=["local"]
+    )
+    setup_parser.add_argument(
+        "--wikipedia-user-agent",
+        default=os.getenv("ANVESHA_WIKIPEDIA_USER_AGENT", ""),
+        help="Descriptive Anvesha client/version and real operator contact URL or email",
+    )
+    setup_parser.add_argument(
         "--retention-seconds",
         type=int,
         help="New search lifetime; default seven days, 0 explicitly keeps history indefinitely",
@@ -173,6 +182,8 @@ def main(argv=None):
                     args.db or Path(os.getenv("ANVESHA_DB_PATH", ".anvesha/anvesha.db")),
                     llm,
                     demo=args.seed_demo,
+                    enabled_sources=args.sources,
+                    wikipedia_user_agent=args.wikipedia_user_agent,
                     retention_seconds=(
                         args.retention_seconds
                         if args.retention_seconds is not None

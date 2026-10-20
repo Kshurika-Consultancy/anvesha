@@ -156,6 +156,38 @@ and the unchanged aggregate are under policies/runtimes and third_party.
 [runtime guide](SQLITE_RUNTIME.md) distinguish release/build evidence from
 application integrity tests, platform acceptance and broader release gates.
 
+## ANV-028 discovery source review, 2026-10-20
+
+[MediaWiki Search](https://www.mediawiki.org/wiki/API:Search) documents fixed Action
+API article discovery, namespace filtering and optional fields. ANV-028 requests
+only English main-namespace titles/IDs/wordcount/last-edit metadata. API snippets,
+article prose and media are excluded; linked-page inspection is separate work.
+Validated IDs construct fixed-host result/attribution URLs; model outputs cannot
+add links. Two small public SQLite probes (research and implemented connector)
+succeeded with three candidates each; no raw payload is retained.
+
+[Wikimedia Terms](https://foundation.wikimedia.org/wiki/Policy:Terms_of_Use) require
+attribution/licence context and retain exceptions for page-specific imports/fair-use.
+[CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/legalcode.en) governs
+applicable reused text and adaptation notices. Title attribution, licence link and
+original metadata-summary disclosure travel in results/provenance; this does not
+approve article prose, models/training or overwrite local content's licence.
+[API guidelines](https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_API_Usage_Guidelines)
+require throttling compliance and forbid obscuring the upstream API identity or
+guaranteeing its availability. Both API and browser identify Wikimedia. Shared
+SQLite backoff honors Retry-After after throttling; full hosted admission/rate and
+strict-header deadline gates remain ANV-008.
+
+[User-Agent policy](https://foundation.wikimedia.org/wiki/Policy:Wikimedia_Foundation_User-Agent_Policy)
+requires descriptive operator contact; Wikipedia's identity is explicit and saved
+privately, never guessed. [Privacy policy](https://foundation.wikimedia.org/wiki/Policy:Privacy_policy)
+is a separate trust boundary: explicitly selected live discovery sends query/server
+identity to Wikimedia even with local inference. Default sources remain local.
+[Rights manifest](../policies/sources/wikipedia.json), [processing policy v6](../policies/llm-processing.json)
+and [ADR 0014](decisions/0014-opt-in-wikipedia-discovery.md) define the narrow scope.
+No external code/model weights are copied, paid API is required, new independent
+judgment is created, or relevance gain established by source/protocol tests.
+
 ## Maintaining this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

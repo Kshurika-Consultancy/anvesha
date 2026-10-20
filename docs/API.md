@@ -1,6 +1,6 @@
 # HTTP API
 
-Tasks ANV-004, ANV-021, ANV-022 and ANV-026. Base URL: `http://127.0.0.1:8000`. The self-hosted browser is at `/`; OpenAPI is at `/openapi.json`. CDN-backed `/docs` and `/redoc` are disabled. JSON is the API input/output format. Timestamps are UTC Unix seconds. Browser assets, health and OpenAPI are public; all search/capability operations require `X-API-Key`.
+Tasks ANV-004, ANV-021, ANV-022, ANV-026 and ANV-028. Base URL: `http://127.0.0.1:8000`. The self-hosted browser is at `/`; OpenAPI is at `/openapi.json`. CDN-backed `/docs` and `/redoc` are disabled. JSON is the API input/output format. Timestamps are UTC Unix seconds. Browser assets, health and OpenAPI are public; all search/capability operations require `X-API-Key`.
 
 ## Authentication and ownership
 
@@ -18,11 +18,27 @@ Configure one or more strong secrets with `ANVESHA_API_KEYS`. Every key identifi
 {"query":"free local search","sources":["local"],"limit":10}
 ```
 
-`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata` sources. `limit` is an integer from 1–50. `ranking` is experimental `"llm"` (default) or explicit `"lexical"`. Unknown fields are rejected; language/region/date filters and query planning are not implemented. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
+`query` is required, trimmed and limited to 1–2000 nonblank characters. `sources` defaults to `["local"]` and may contain only configured `local`/`wikidata`/`wikipedia` sources. `limit` is an integer from 1–50. `ranking` is experimental `"llm"` (default) or explicit `"lexical"`. Unknown fields are rejected; language/region/date filters and query planning are not implemented. Local matching OR-combines safe query tokens; exact-phrase, negation, domain/date filters and sophisticated intent handling are future work.
 
-LLM mode requires operator model configuration and `sources: ["local"]`; otherwise submission returns 422 (`llm_not_configured` or `llm_local_source_only`) before acceptance. Explicit lexical mode works without a model. `GET /v1/capabilities` reports `sources`, `ranking_modes`, `default_ranking: "llm"`, `llm_configured`, `document_count`, `llm_source_scope`, `llm_endpoint_scope` and `gateway_downstream_verified: false` without credentials or addresses. The bounded stage preserves the original query; it does not generate queries or guarantee exact constraints. See [the private research guide](PRIVATE_RESEARCH.md).
+LLM mode requires operator model configuration; otherwise submission returns 422
+(`llm_not_configured`) before acceptance. ANV-028 allows all enabled approved sources
+in LLM mode: local excerpts, Wikidata entities and Wikipedia article discovery
+metadata. Explicit lexical mode performs no model call. Disabled sources still
+reject with `source_not_enabled`. `GET /v1/capabilities` reports `sources`,
+`ranking_modes`, `default_ranking: "llm"`, `llm_configured`, `document_count`,
+`llm_source_scope`, `llm_endpoint_scope`, `gateway_downstream_verified: false` and
+`source_privacy` without credentials/contact values. Privacy values are
+`instance_only` for local and `query_sent_to_wikimedia` for live sources. Sources
+remain local by default; selecting a live source sends the original query and
+server address/User-Agent to Wikimedia. The model stage preserves the original
+query but does not generate queries, inspect articles or guarantee constraints.
+See [the discovery guide](DISCOVERY.md).
 
-**ANV-022 upgrade:** new omitted-mode requests now use LLM processing. Existing accepted jobs/snapshots are unchanged. Old lexical clients, Wikidata requests and old lexical idempotency replays must explicitly send `"ranking":"lexical"`; otherwise the input meaning changes and replay can conflict. Operators must review processing rights before using the default with external endpoints. The lexical job JSON below illustrates that explicit baseline.
+**Upgrade:** omitted ranking defaults to LLM (ANV-022); explicit lexical clients
+must continue sending the mode. ANV-028 permits configured Wikimedia sources in
+LLM requests; the former `llm_local_source_only` rejection is removed. Existing
+accepted jobs/snapshots and local-only model configuration identities are unchanged.
+Upgrade every API/worker together. Source policy versions remain in provenance.
 
 Optional `Idempotency-Key` is 1–128 nonblank characters. The same owner/key and canonical query/sources/limit/ranking returns the existing job (200 with `Idempotency-Replayed: true`); different input returns 409. Model configuration changes do not rewrite a previously accepted job on replay. New jobs return 202 only after durable commit, with `Location`, `Retry-After: 1`, and `Idempotency-Replayed: false`. Old lexical request hashes remain valid after the additive database migration. Deleting a job removes its idempotency record, so reusing that key after deletion creates new work.
 
@@ -152,6 +168,26 @@ not implemented. See [SQLite's deletion limits](https://www.sqlite.org/pragma.ht
 ## Provider configuration and operational bounds
 
 The API and worker source allowlists must agree. Enable `wikidata` explicitly and set a real `ANVESHA_WIKIDATA_USER_AGENT`. No paid keys are required. The connector makes one bounded-result English entity metadata query to a fixed host, does not follow redirects, and never fetches arbitrary result URLs. Source failures are sanitized codes such as `wikidata:missing_user_agent`, not raw response bodies.
+
+ANV-028 adds explicitly enabled English `wikipedia` discovery at
+`https://en.wikipedia.org/w/api.php`. Settings require an identifying
+`wikipedia_user_agent` (or `ANVESHA_WIKIPEDIA_USER_AGENT` in environment mode).
+Only page ID, unmodified title, word count and last-edit timestamp are requested;
+URLs use validated IDs at the fixed Wikipedia host. No API excerpt or article prose
+is retained. Result summaries describe metadata and retain `metadata_only` evidence.
+Optional `license_url`, `attribution_url`, `source_modified_at`, `observed_at` and
+`content_transformation` accompany the selected display and each applicable
+provenance entry. A local display candidate never inherits Wikipedia's licence.
+`source_modified_at` is a last-edit observation, not publication/factual freshness.
+
+Wikimedia 429/503/maxlag responses establish a shared, persisted waiting period
+in the single-host store, honoring Retry-After seconds/HTTP dates. Other workers
+and restarts check it before further Wikimedia calls; already in-flight requests
+cannot be recalled. Paused sources yield `wikipedia:cooldown_active` or
+`wikidata:cooldown_active`, producing partial/failed jobs as usual. No hidden
+retry/poll loop contacts Wikimedia. Local retrieval still works. Unknown headers
+use conservative defaults; extremely large waits require operator investigation.
+This is not a global admission quota or production rate-limiting guarantee.
 
 Current live networking limits include inactivity timeouts, response-size limits, and body elapsed checks. A strict total deadline including trickling headers remains tracked in ANV-008. This is another reason not to expose the M1 worker as a public unlimited service. Default offline tests mock this connector; no live availability guarantee is implied.
 

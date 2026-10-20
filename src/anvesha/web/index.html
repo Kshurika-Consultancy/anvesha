@@ -26,14 +26,16 @@
     <section class="search-section" aria-labelledby="search-title">
       <div class="eyebrow">PRIVATE RESEARCH · LLM FIRST</div>
       <h1 id="search-title">Search your own knowledge.</h1>
-      <p class="intro">Private search for research, code, and the tools you run yourself. Ask across your imported documents, with your chosen model and original sources intact.</p>
+      <p class="intro">Private search for research, code, and the tools you run yourself. Search your collection and optional discovery sources with your chosen model.</p>
       <form id="search-form">
         <label for="query">What would you like to find?</label>
         <div class="search-box"><textarea id="query" rows="2" maxlength="2000" autocomplete="off" spellcheck="false" placeholder="Compare approaches, find evidence, follow an idea…" required></textarea><button id="search" type="submit" disabled>Search <span aria-hidden="true">↗</span></button></div>
         <div class="search-options"><div><label for="ranking">Ranking</label><select id="ranking"><option value="llm" selected>LLM assisted · default</option><option value="lexical">Lexical baseline · no model</option></select></div><span id="collection-note">Connect to see your collection.</span></div>
+        <fieldset id="source-options" class="source-options" hidden><legend>Where to search</legend><div id="sources" class="source-choices"></div></fieldset>
+        <p id="source-privacy" class="source-privacy" role="status" hidden>Selected live searches send your query and server address to Wikimedia. Your model endpoint has its own processing and privacy settings.</p>
       </form>
       <p id="model-note" class="model-note">LLM ranking uses your configured endpoint. A local gateway may forward to external providers.</p>
-      <p class="scope-note">Searches your imported collection, not the whole web. Relevance is not factual verification.</p>
+      <p class="scope-note">Coverage is limited to your selected sources. Wikimedia results are discovery metadata; source content has not been inspected. Relevance is not factual verification.</p>
     </section>
     <div id="error" class="error" role="alert" hidden></div>
     <section id="job-panel" class="job-panel" aria-label="Search progress" hidden>

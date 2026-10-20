@@ -1,8 +1,8 @@
 {
-  "policy_version": "llm-processing-v5",
-  "task": "ANV-026",
+  "policy_version": "llm-processing-v6",
+  "task": "ANV-028",
   "reviewed_at": "2026-10-20",
-  "scope": "Default-mode inference over bounded snippets from an operator-imported corpus, using an operator-configured endpoint; no training or new source discovery.",
+  "scope": "Default-mode bounded inference over operator-imported local excerpts and explicitly selected approved Wikimedia discovery metadata; no source discovery tools or training.",
   "default": "New API/browser requests default to llm and reject before acceptance when no model is configured. Explicit ranking=lexical performs no model call. Existing accepted jobs are unchanged; legacy lexical clients/replays must send the mode explicitly after upgrading.",
   "sent_fields": [
     "original_query",
@@ -20,7 +20,7 @@
     "feedback",
     "reviewer_labels"
   ],
-  "rights": "Operator must review corpus rights and permission to process excerpts with the selected runtime/provider. Ingestion, a gateway account or a licence string is not a blanket permission grant.",
+  "rights": "Operator reviews local corpus and configured inference endpoint rights. Wikipedia scope is unmodified article titles and first-party generated discovery metadata summaries under wikipedia-discovery-v1, preserving attribution/licence in public results; no article/API prose excerpts are sent. Wikidata entity metadata retains CC0 under wikidata-v1. A gateway account or licence string is not a blanket permission grant.",
   "retention": "New setup/environment defaults expire operational jobs/snapshots/feedback seven days from acceptance; operators can choose a bounded lifetime or explicit zero for indefinite retention. Existing jobs and old saved files preserve their prior lifetime. Expired data is inaccessible and the worker prunes bounded batches. Logical deletion is not disk/WAL/backup erasure. Anvesha does not persist model prompts, raw responses or reasoning. In-flight processing and runtime/gateway/provider retention remain outside this control.",
   "privacy": "Loopback restricts Anvesha's destination, not gateway egress. Do not claim local inference or untracked search without verifying downstream routing and logs.",
   "training": "No automatic training in Anvesha; separately review any downstream provider's training policy.",
@@ -33,5 +33,6 @@
   "candidate_aliases": "Listwise sends short per-request aliases mapping back only to supplied result objects; pointwise sends no ID field. Aliases are not authorization or anonymization. Original public result IDs and source rights remain stable.",
   "output_format": "json_object remains the compatibility default. Optional json_schema bounds either the listwise permutation or one pointwise ordinal grade. Strict client validation still applies. No implicit format/provider fallback; accepted identity includes the format.",
   "strategy": "listwise remains the default for new and older saved settings. Optional pointwise sends one candidate without ID per sequential call, at most 20 under a single total deadline. Every grade is required; any failure discards all grades and retains lexical results. Grades remain internal ordinal signals. No automatic promotion or training.",
-  "diagnostics": "Only closed-vocabulary structural llm_contract warnings accompany invalid_response; no raw model outputs, reasoning or private exception text."
+  "diagnostics": "Only closed-vocabulary structural llm_contract warnings accompany invalid_response; no raw model outputs, reasoning or private exception text.",
+  "source_selection": "Live sources are operator-enabled and explicitly selected per request. They send the original query and server identity/address to Wikimedia, independently of model location. Local is the only default source. Model sees only supplied title/snippet prefixes/evidence status, not source URL fields, secrets or fetching tools."
 }

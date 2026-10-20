@@ -35,6 +35,7 @@ jobs:
       - run: uv run --extra dev python scripts/smoke_selfhost.py
       - run: uv run --extra dev python scripts/smoke_retention.py
       - run: uv run --extra dev python scripts/smoke_sqlite.py
+      - run: uv run --extra dev python scripts/smoke_discovery.py
       - run: uv run --extra dev python scripts/check_tracking.py
       - run: git diff --check
   container:

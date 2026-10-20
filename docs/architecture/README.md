@@ -86,6 +86,19 @@ Rank fusion should be deterministic, including ties. Deduplicate conservatively 
 
 Source manifests under `policies/sources/` document permissions and operational constraints. The operator's own corpus can have mixed rights. Ingestion is not a licence grant, and first-party demo rights do not extend to imported documents.
 
+ANV-028 adds [opt-in Wikipedia discovery](../DISCOVERY.md) under
+[ADR 0014](../decisions/0014-opt-in-wikipedia-discovery.md). Fixed Action API search
+returns main-namespace titles/IDs/observed metadata; no excerpts/article text.
+Validated IDs construct URLs; optional freshness/licence/transformation fields
+remain attached to the appropriate display/provenance through fusion and model
+ordering. Approved-source LLM ranking retains existing local-only prompt identities.
+Browser selection defaults to local and discloses live egress. Wikipedia's operator
+User-Agent persists in private settings; older files default empty. An additive
+provider_backoff table stores only shared Wikimedia waiting periods after
+429/503/maxlag. Workers consult it before calls across restart, without sleeping
+inside request handling. Paused sources become explicit partial/failed outcomes;
+in-flight concurrency limits and strict total provider deadlines remain ANV-008.
+
 ## Why SQLite first
 
 The original target plan proposed PostgreSQL, a production search index such as OpenSearch, and possibly durable workflow infrastructure. [ADR 0001](../decisions/0001-local-first-mvp.md) deliberately narrows the first implementation to prove acceptance, recovery, ownership, cancellation, snapshots, and feedback with minimal setup.

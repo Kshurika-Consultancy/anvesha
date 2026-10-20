@@ -57,6 +57,10 @@ CREATE TABLE IF NOT EXISTS jobs (
     UNIQUE (owner, idempotency_key)
 );
 CREATE INDEX IF NOT EXISTS jobs_claim ON jobs(state, lease_until, created_at);
+CREATE TABLE IF NOT EXISTS provider_backoff (
+    provider TEXT PRIMARY KEY,
+    until REAL NOT NULL
+);
 CREATE TABLE IF NOT EXISTS snapshots (
     job_id TEXT NOT NULL REFERENCES jobs(id) ON DELETE CASCADE,
     version INTEGER NOT NULL,
@@ -236,8 +240,8 @@ class Store:
         for source in sources:
             _bounded_text(source, "source", 100)
         canonical_sources = sorted(set(sources))
-        if ranking == "llm" and canonical_sources != ["local"]:
-            raise ValueError("LLM preview supports local documents only")
+        if ranking == "llm" and set(canonical_sources) - {"local", "wikidata", "wikipedia"}:
+            raise ValueError("LLM ranking requires approved sources")
         if idempotency_key is not None:
             _bounded_text(idempotency_key, "idempotency_key", 200)
         request = [query, canonical_sources, limit]
@@ -607,6 +611,23 @@ class Store:
     def document_count(self) -> int:
         with self._connection() as connection:
             return connection.execute("SELECT count(*) FROM documents").fetchone()[0]
+
+    def wikimedia_paused(self) -> bool:
+        with self._connection() as connection:
+            row = connection.execute(
+                "SELECT until FROM provider_backoff WHERE provider='wikimedia'"
+            ).fetchone()
+            return row is not None and row["until"] > time.time()
+
+    def pause_wikimedia(self, seconds: int) -> None:
+        if type(seconds) is not int or not 1 <= seconds <= 2**53:
+            raise ValueError("Invalid Wikimedia waiting period")
+        with self._connection(write=True) as connection:
+            connection.execute(
+                """INSERT INTO provider_backoff VALUES ('wikimedia', ?)
+                   ON CONFLICT(provider) DO UPDATE SET until=max(until, excluded.until)""",
+                (time.time() + seconds,),
+            )
 
     def search_local(self, query: str, limit: int = 20) -> list[dict]:
         if not isinstance(query, str):

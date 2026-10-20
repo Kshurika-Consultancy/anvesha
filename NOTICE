@@ -34,3 +34,11 @@ No interpreter binaries or PBS build scripts are vendored in this repository.
 Downloaded Python and its dependencies retain their own terms; see
 policies/runtimes and the unmodified third_party notice aggregate. Container
 builds preserve those materials separately from Anvesha's Apache-2.0 licence.
+
+ANV-028 optionally discovers English Wikipedia article titles/links and metadata.
+Wikipedia contributor/Wikimedia attribution and CC-BY-SA-4.0 context accompany
+results; article prose/API excerpts/images are not copied. Original generated
+metadata summaries are offered under the same result licence. This does not
+relicense the Apache core, underlying pages, models or imported local documents.
+See policies/sources/wikipedia.json and docs/DISCOVERY.md. Wikimedia services
+are identified as upstream providers; availability and endorsement are not promised.

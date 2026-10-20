@@ -8,7 +8,7 @@ import uuid
 from collections.abc import Callable
 
 from anvesha.llm import LLMError, LLMReranker, RerankCancelled
-from anvesha.providers import ProviderError, search_wikidata
+from anvesha.providers import ProviderError, search_wikidata, search_wikipedia
 from anvesha.ranking import rank_candidates
 from anvesha.store import Store
 
@@ -20,6 +20,8 @@ def process_one(
     wikidata_search: Callable = search_wikidata,
     enabled_sources: tuple[str, ...] | None = None,
     reranker: LLMReranker | None = None,
+    wikipedia_search: Callable = search_wikipedia,
+    wikipedia_user_agent: str | None = None,
 ) -> bool:
     """Claim one job and publish only while its current lease remains valid."""
     job = store.claim_job(worker_id, lease_seconds=lease_seconds, max_attempts=3)
@@ -41,15 +43,23 @@ def process_one(
             try:
                 if enabled_sources is not None and source not in enabled_sources:
                     raise ProviderError("disabled_source")
+                if source in {"wikidata", "wikipedia"} and store.wikimedia_paused():
+                    raise ProviderError("cooldown_active")
                 if source == "local":
                     retrieved = store.search_local(job["query"], limit=candidate_limit)
                 elif source == "wikidata":
                     retrieved = wikidata_search(job["query"], limit=candidate_limit)
+                elif source == "wikipedia":
+                    retrieved = wikipedia_search(
+                        job["query"], limit=candidate_limit, user_agent=wikipedia_user_agent
+                    )
                 else:
                     raise ProviderError("unsupported_source")
                 candidates.extend(retrieved)
                 successes += 1
             except ProviderError as exc:
+                if source in {"wikidata", "wikipedia"} and exc.retry_after_seconds is not None:
+                    store.pause_wikimedia(exc.retry_after_seconds)
                 warnings.append(f"{source}:{exc.code}")
             except Exception:
                 warnings.append(f"{source}:source_failed")
@@ -114,6 +124,7 @@ def main(argv=None, settings=None) -> None:
                 worker_id=worker_id,
                 enabled_sources=settings.enabled_sources,
                 reranker=reranker,
+                wikipedia_user_agent=settings.wikipedia_user_agent,
             )
             if args.once:
                 return
