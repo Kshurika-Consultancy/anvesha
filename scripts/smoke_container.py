@@ -121,7 +121,9 @@ def main():
             )
             key = compose("run", "--rm", "setup", "show-key")
             assert 24 <= len(key) <= 256 and "\n" not in key
-            runtime = json.loads(compose("run", "--rm", "setup", "doctor"))["sqlite_runtime"]
+            runtime = json.loads(
+                compose("run", "--rm", "setup", "doctor", "--config", "/data/server.json")
+            )["sqlite_runtime"]
             assert runtime["sqlite_version"] == "3.53.1" and runtime["supported"]
             print("Container runtime: " + json.dumps(runtime, sort_keys=True))
             compose("up", "-d", "model-fixture", "api", "worker")
@@ -129,7 +131,9 @@ def main():
             caps = request("/v1/capabilities")
             assert caps["llm_configured"] and caps["default_ranking"] == "llm"
             assert compose("exec", "-T", "api", "id", "-u") == "10001"
-            active = json.loads(compose("exec", "-T", "api", "anvesha", "doctor"))
+            active = json.loads(
+                compose("exec", "-T", "api", "anvesha", "doctor", "--config", "/data/server.json")
+            )
             assert active["sqlite_runtime"] == runtime and active["ready"]
             with opener.open(f"http://127.0.0.1:{port}/", timeout=5) as response:
                 assert b"/assets/app.js" in response.read()

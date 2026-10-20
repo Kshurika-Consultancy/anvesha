@@ -31,7 +31,7 @@ claim improved relevance or public-service readiness.
 | New Windows project environment | Managed PBS 20261013 CPython 3.14.8, SQLite 3.53.1; source `2026-05-05 10:34:17 c88b22011a54b4f6fbd149e9f8e4de77658ce58143a1af0e3785e4e6475127e9`; FTS5 present | Matches upstream fixed release/source and reviewed archive; acceptance below. |
 | Windows/Linux CI x86-64 3.12.15 / 3.14.8 | Explicit PBS manifest and expected SQLite identity check added | Pending source push/actual CI execution. |
 | New Linux x86-64 container | Pinned Debian bookworm-slim + same PBS 3.14.8 runtime, build-time eligibility and actual doctor identity assertion | Pending Linux Compose CI; Docker is not installed locally. |
-| Old pinned stock Python/bookworm container | Debian SQLite/vendor backport status was not established by archived functional tests | No assertion that it is unpatched. Replaced runtime selection; not an accepted runtime based on tests alone. |
+| Old pinned stock Python/bookworm container, inventoried in actual Linux CI | Python 3.12.15, SQLite 3.40.1, source `2022-12-28 14:03:47 df5c253c0b3dd24916e4ec7cf77d3db5294cc9fd45ae7b9c5e82ad8197f3alt1`; Debian `libsqlite3-0:amd64 3.40.1-2+deb12u2` | Vendor backport status unverified. No assertion it is unpatched. Replaced runtime selection, without a blanket vendor exception. |
 | Manifest macOS x86-64/ARM64 and Linux ARM64 | Public archive IDs/hashes, not executed here | Acquisition pins only. Platform acceptance remains a release gate (ANV-014). |
 
 No vendor backport exception is approved in this slice. Older SQLite builds
@@ -90,13 +90,26 @@ the Debian repository; a bit-for-bit OS rebuild is not promised.
   installed; no actual service/review DB is opened.
 - Wheel/sdist built successfully. Wheel has 31 entries / 306816 uncompressed
   bytes, all four changed runtime modules match source, private data/binaries are
-  absent; sdist has 161 entries including guide, runtime manifest and notices.
+  absent; sdist has 162 entries after rebuilding the committed source (including this evidence) including guide, runtime manifest and notices.
 - A fresh runtime-only venv installed locked dependencies and the built wheel.
   Imports came from site-packages with pytest absent. Actual SQLite multiprocess/
   crash and retention HTTP/API/worker/restart/cascade acceptance passed from that
   installation. All newly owned installed-wheel scratch/venv/processes cleaned.
 - Tracking and diff checks passed. Actual Linux container/cross-platform CI and
   publication are pending; the task remains in progress until those gates pass.
+
+## Publication checkpoint and CI correction
+
+Implementation `bc24fc933bd9a6f1381144196cda3a34a2f48c44` was pushed to main
+with matching local/remote hashes. [Initial CI run 39431905281](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39431905281)
+passed both Linux test jobs. The new container built/initialized successfully but
+its added doctor assertion omitted `--config /data/server.json`, so doctor used
+environment-only settings with no API keys and returned nonzero. The acceptance
+script now explicitly selects the saved config in both diagnostic calls. No
+runtime gate was relaxed. Actual rerun acceptance is pending; keep the task open.
+The legacy-container inventory above ran without network inside the container,
+with no mounts or operational data. Rebuilding the committed sdist includes this
+verification file; wheel contents still match all changed runtime modules.
 
 ## Limits and next gates
 

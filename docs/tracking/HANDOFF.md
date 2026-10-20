@@ -22,7 +22,11 @@ passed, as did five archived report verifiers. A runtime-only installed wheel
 (site-packages, pytest absent) passed actual SQLite multiprocess/crash and retention
 HTTP/restart acceptance. Four changed runtime modules match the wheel; private
 data/binaries are excluded. Newly owned scratch/venv/processes cleaned. Actual
-Linux container/cross-platform CI acceptance and main publication are pending. Do not claim upstream race-fix
+Main implementation bc24fc9 is pushed with matching remote. Initial CI run
+39431905281 passed Linux tests; container built/initialized but the added doctor
+check omitted its explicit saved-config path and returned nonzero as designed.
+Both diagnostic calls now select /data/server.json; rerun acceptance is pending.
+No runtime eligibility gate was relaxed. Do not claim upstream race-fix
 proof from application tests. Reference verification/2026-10-20-sqlite-runtime.md
 for the final evidence, to be completed before handoff.
 
