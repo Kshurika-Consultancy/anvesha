@@ -2,20 +2,27 @@ name: Checks
 on: [push, pull_request]
 permissions:
   contents: read
+env:
+  UV_PYTHON_DOWNLOADS_JSON_URL: ${{ github.workspace }}/policies/runtimes/python-downloads.json
+  UV_PYTHON_PREFERENCE: only-managed
 jobs:
   test:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        python: ["3.12", "3.14"]
+        python: ["3.12.15", "3.14.8"]
     runs-on: ${{ matrix.os }}
+    env:
+      UV_PYTHON: ${{ matrix.python }}
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.11.8"
           python-version: ${{ matrix.python }}
+      - run: uv python install --no-bin --no-registry
       - run: uv sync --extra dev --locked
+      - run: uv run --extra dev python scripts/check_sqlite_runtime.py --expected-sqlite 3.53.1
       - run: uv run --extra dev ruff check .
       - run: uv run --extra dev ruff format --check .
       - run: uv run --extra dev pytest
@@ -27,6 +34,7 @@ jobs:
       - run: uv run --extra dev python scripts/smoke_mvp.py
       - run: uv run --extra dev python scripts/smoke_selfhost.py
       - run: uv run --extra dev python scripts/smoke_retention.py
+      - run: uv run --extra dev python scripts/smoke_sqlite.py
       - run: uv run --extra dev python scripts/check_tracking.py
       - run: git diff --check
   container:
@@ -37,5 +45,11 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           version: "0.11.8"
-          python-version: "3.12"
+          python-version: "3.14.8"
+      - run: uv python install --no-bin --no-registry
+      - name: Inventory previous stock container runtime
+        run: >-
+          docker run --rm --network none
+          python:3.12-slim-bookworm@sha256:34386ef0cb081344d7ec1c103ba398e6e9f64e9ab3a1509accc92a4e24a07258
+          python -c "import json,sqlite3,subprocess,sys; print(json.dumps({'python':sys.version.split()[0], 'sqlite':sqlite3.sqlite_version, 'source_id':sqlite3.connect(':memory:').execute('select sqlite_source_id()').fetchone()[0], 'vendor_package':subprocess.check_output(['dpkg-query','-W','libsqlite3-0'],text=True).strip()}))"
       - run: uv run --extra dev python scripts/smoke_container.py

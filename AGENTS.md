@@ -56,7 +56,11 @@ Anvesha is Kshurika Consultancy's private, asynchronous, open-source search engi
 
 ## Required checks and definition of done
 
-Use the pinned development environment (`uv sync --extra dev`) once bootstrapped. Standard checks are:
+Bootstrap the [reviewed runtime](docs/SQLITE_RUNTIME.md#install-the-reviewed-runtime)
+before `uv sync --extra dev --locked --managed-python`. Do not replace global
+Python/DLLs or bypass the SQLite eligibility check. Record actual SQLite version
+and source ID for runtime changes; test passes do not prove vendor patch status.
+Standard checks are:
 
 ```text
 uv run --extra dev ruff check .
@@ -64,6 +68,10 @@ uv run --extra dev ruff format --check .
 uv run --extra dev pytest
 uv run --extra dev python scripts/check_tracking.py
 ```
+
+For Python/SQLite runtime or persistence changes, also run the offline identity
+check `scripts/check_sqlite_runtime.py` and synthetic multiprocess/crash acceptance
+`scripts/smoke_sqlite.py`, plus applicable process and container checks below.
 
 Run narrower tests during development, then the standard checks before completing a milestone slice. Add meaningful tests for behavioral changes and regressions, not tests that merely repeat implementation. Record unavailable checks and their reason; do not claim they passed.
 

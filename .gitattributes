@@ -9,3 +9,6 @@ uv.lock text eol=lf
 # ANV-019: byte-hashed evaluation fixtures must survive Windows checkouts unchanged.
 /benchmarks/** text eol=lf
 /reports/evaluation/** text eol=lf
+
+# ANV-027: preserve upstream notice bytes; RST headings resemble conflict markers.
+/third_party/python-build-standalone-20261013/LICENSES.rst -text -diff -whitespace

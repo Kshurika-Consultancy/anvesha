@@ -1191,8 +1191,8 @@
       "id": "ANV-027",
       "milestone": "M2",
       "title": "Verify and remediate SQLite WAL-reset patch status in supported runtimes",
-      "status": "planned",
-      "owner": "unassigned",
+      "status": "in_progress",
+      "owner": "root",
       "depends_on": [
         "ANV-006"
       ],
@@ -1205,13 +1205,54 @@
       "validation_plan": [
         "Review official SQLite fix/vendor evidence, record exact runtime identities, then run concurrency/process/packaging checks on selected patched distributions"
       ],
-      "verification": [],
-      "references": [
-        "docs/RESEARCH.md",
-        "docs/architecture/README.md",
-        "SECURITY.md"
+      "verification": [
+        {
+          "command": "Reviewed official SQLite/PBS/uv evidence; explicit manifest runtime install; actual runtime diagnostics and original-interpreter negative probe",
+          "result": "Windows project uses hash-verified PBS 20261013 CPython 3.14.8 with SQLite 3.53.1/source c88b220 matching official release identity. Original global Python 3.14.4/SQLite 3.50.4 remains unchanged and is actually refused before database-directory creation. No observed corruption or approved older vendor-backport exception. Version recognition is not binary attestation; tests cannot certify upstream patch status.",
+          "date": "2026-10-20"
+        },
+        {
+          "command": "uv sync --extra dev --locked --managed-python; Ruff lint/format; pytest; scripts/smoke_mvp.py; scripts/smoke_selfhost.py; scripts/smoke_retention.py; scripts/smoke_sqlite.py; five archived verifiers",
+          "result": "Locked environment installed 25 packages; 431 tests passed in 75.33s (30 new runtime cases, existing ANV-015 warning only), Ruff/format passed. Four actual offline process smokes and all five archived verifiers passed; synthetic multiprocess test retains 72 jobs/snapshots/feedback and passes FTS/FK/database/crash integrity. No paid provider/model or actual service/review data used. Installed-package and actual Linux container/cross-platform CI acceptance are pending; task remains in progress.",
+          "date": "2026-10-20"
+        },
+        {
+          "command": "uv build; wheel/sdist/private-artifact inspection; runtime-only fresh venv installation; actual SQLite and retention smokes from installed wheel; tracking/diff checks",
+          "result": "Wheel 31 entries/306816 uncompressed bytes and sdist 161 entries built; all four changed runtime modules match source, private artifacts/binaries absent, runtime guide/manifest/notices included. Fresh runtime-only installed wheel imports from site-packages with pytest absent; both actual multiprocess/checkpoint/crash integrity and HTTP/API/worker restart/expiry/cascade acceptance passed. All new scratch/venv/processes cleaned. Tracking/diff passed; actual cross-platform/container CI awaits source push.",
+          "date": "2026-10-20"
+        }
       ],
-      "notes": "Discovered during ANV-026 primary-source review on 2026-10-20. Official SQLite WAL page documents the reset-race fixes; local Python reports SQLite 3.50.4, within the upstream affected version range. Vendor patch status is unverified; no corruption was observed. Runtime replacement/patch certification is separate from operational-retention behavior and remains a concrete follow-up. Do not infer patch status from passing functional tests or version numbers alone when vendor backports exist."
+      "references": [
+        "src/anvesha/sqlite_runtime.py",
+        "src/anvesha/store.py",
+        "src/anvesha/cli.py",
+        "src/anvesha/runtime.py",
+        "scripts/check_sqlite_runtime.py",
+        "scripts/smoke_sqlite.py",
+        "scripts/smoke_container.py",
+        "tests/test_sqlite_runtime.py",
+        ".python-version",
+        ".github/workflows/ci.yml",
+        "Dockerfile",
+        ".dockerignore",
+        ".gitattributes",
+        "AGENTS.md",
+        "CONTRIBUTING.md",
+        "NOTICE",
+        "README.md",
+        "SECURITY.md",
+        "policies/runtimes/python-downloads.json",
+        "policies/runtimes/README.md",
+        "third_party/python-build-standalone-20261013/LICENSES.rst",
+        "third_party/python-build-standalone-20261013/provenance.json",
+        "docs/SQLITE_RUNTIME.md",
+        "docs/RESEARCH.md",
+        "docs/PRIVATE_RESEARCH.md",
+        "docs/architecture/README.md",
+        "docs/decisions/0013-reviewed-sqlite-runtime.md",
+        "docs/tracking/verification/2026-10-20-sqlite-runtime.md"
+      ],
+      "notes": "Root selected from clean 95ac82a, recorded ledger before behavior changes. Native runtime hash pins, conservative upstream-fixed-release/FTS5 eligibility, offline diagnostics and refusal before operational Store access/setup/supervisor children are implemented. Standard-library SQLite and WAL/schema are retained. Global Python/DLLs, actual service/review data and historical ANV-025 scratch are untouched. Native 3.14.8 local acceptance passed; 3.12.15/3.14.8 Windows/Linux and actual new container acceptance await CI before completion. macOS/ARM64 manifest entries are acquisition pins only, not verified platforms; further platform/vendor-backport/update-release work remains ANV-014. ANV-008 hosted/backup gates remain open. No mandatory paid API, model download/call or new quality claim. Root owns files; no delegation."
     }
   ]
 }

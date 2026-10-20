@@ -1,5 +1,16 @@
 # Anvesha development status
 
+ANV-027 is in progress (root, 2026-10-20) from clean 95ac82a: reviewed PBS
+runtime acquisition and conservative SQLite WAL/FTS5 eligibility. Local Python
+3.14.8 now loads SQLite 3.53.1 with its published source identity; global Python
+is unchanged. Runtime diagnostics, unsupported-runtime refusal and synthetic
+multiprocess WAL/crash checks are implemented. [ADR 0013](../decisions/0013-reviewed-sqlite-runtime.md)
+and [guide](../SQLITE_RUNTIME.md) document acquisition, vendor-backport and
+upgrade boundaries. Local 431 tests, four process smokes,
+five archived verifiers and runtime-only installed-wheel acceptance passed. Actual
+cross-platform/container CI and main publication are pending; do not mark complete
+from a local version probe. Actual service/review data is untouched.
+
 ANV-026 is done and published as `93d14c2` (2026-10-20): configurable expiry for private search
 jobs, snapshots and feedback, bounded worker cleanup and explicit dry-run/apply
 operator pruning. New setups default to seven days; legacy saved settings/jobs

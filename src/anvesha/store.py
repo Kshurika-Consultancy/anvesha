@@ -17,6 +17,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 from anvesha.retention import CLEANUP_BATCH, MAX_BATCH, validate_seconds
+from anvesha.sqlite_runtime import require_runtime
 
 PIPELINE_VERSION = "m1-rrf-v1"
 
@@ -149,6 +150,7 @@ class Store:
         self.path = Path(path).expanduser().resolve()
 
     def _open(self, *, read_only: bool = False) -> sqlite3.Connection:
+        require_runtime()
         connection = sqlite3.connect(
             self.path.as_uri() + "?mode=ro" if read_only else self.path,
             uri=read_only,
@@ -179,6 +181,7 @@ class Store:
             connection.close()
 
     def initialize(self) -> None:
+        require_runtime()  # Fail before even creating the database directory.
         self.path.parent.mkdir(parents=True, exist_ok=True)
         connection = self._open()
         try:

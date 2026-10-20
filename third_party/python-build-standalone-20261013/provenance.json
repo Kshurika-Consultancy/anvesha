@@ -1,0 +1,8 @@
+{
+  "task": "ANV-027",
+  "reviewed_at": "2026-10-20",
+  "source_url": "https://raw.githubusercontent.com/astral-sh/python-build-standalone/20261013/python-licenses.rst",
+  "sha256": "e43fb936c6655d7996dba480d7ebdea492d6040ec388eb8ed9d1000f72de8cab",
+  "transformation": "none; complete upstream notice aggregation",
+  "scope": "Upstream runtime notices; no build scripts, interpreter binary or model weights vendored. Includes upstream notices for components across build variants, not an assertion that all are present."
+}

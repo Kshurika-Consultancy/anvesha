@@ -5,13 +5,13 @@ import json
 import os
 import secrets
 import sqlite3
-from contextlib import closing
 from dataclasses import replace
 from pathlib import Path
 
 from anvesha.config import Settings
 from anvesha.ranking import canonicalize_url
 from anvesha.retention import CLEANUP_BATCH, seconds_from_env
+from anvesha.sqlite_runtime import inspect_runtime
 from anvesha.store import Store
 
 DEMO_DOCUMENTS = [
@@ -62,12 +62,8 @@ def validate_document(document):
 
 def diagnostics(settings):
     """ANV-021: offline/read-only diagnostics without printing any credentials."""
-    with closing(sqlite3.connect(":memory:")) as connection:
-        try:
-            connection.execute("CREATE VIRTUAL TABLE probe USING fts5(content)")
-            fts5 = True
-        except sqlite3.OperationalError:
-            fts5 = False
+    sqlite = inspect_runtime()
+    fts5 = sqlite["fts5_available"]
     count = None
     if settings.database_path.is_file():
         try:
@@ -81,7 +77,8 @@ def diagnostics(settings):
         except sqlite3.Error:
             count = None
     return {
-        "ready": bool(fts5 and settings.api_keys and count is not None),
+        "ready": bool(sqlite["supported"] and settings.api_keys and count is not None),
+        "sqlite_runtime": sqlite,
         "fts5_available": fts5,
         "api_keys_configured": bool(settings.api_keys),
         "database_initialized": count is not None,

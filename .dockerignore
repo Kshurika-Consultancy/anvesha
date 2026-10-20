@@ -5,6 +5,12 @@
 !README.md
 !LICENSE
 !NOTICE
+!policies/
+!policies/runtimes/
+!policies/runtimes/python-downloads.json
+!third_party/
+!third_party/python-build-standalone-20261013/
+!third_party/python-build-standalone-20261013/**
 !src/
 !src/anvesha/
 !src/anvesha/**

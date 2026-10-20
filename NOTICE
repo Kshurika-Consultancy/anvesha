@@ -28,3 +28,9 @@ Neither runtime binaries nor model weights are distributed here. Their pins,
 licence sources and permitted evaluation scope are in policies/models.
 Evaluation rankings/metrics derive from the attributed SciFact snapshot;
 the project's code licence does not relicense data or source documents.
+
+ANV-027 uses reviewed python-build-standalone 20261013 acquisition metadata.
+No interpreter binaries or PBS build scripts are vendored in this repository.
+Downloaded Python and its dependencies retain their own terms; see
+policies/runtimes and the unmodified third_party notice aggregate. Container
+builds preserve those materials separately from Anvesha's Apache-2.0 licence.

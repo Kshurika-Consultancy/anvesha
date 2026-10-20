@@ -25,12 +25,13 @@ established**. This is a measured starting point, not a general quality claim.
 
 ## Quick start
 
-Requirements: Python 3.12+ with SQLite FTS5, and [uv](https://docs.astral.sh/uv/getting-started/installation/). The lockfile pins dependencies. Windows and Linux CI configurations are included; local verification evidence is recorded in the handoff.
+Requirements: [uv](https://docs.astral.sh/uv/getting-started/installation/) and a reviewed Python/SQLite runtime. The command below installs pinned Python 3.14.8 with SQLite 3.53.1 without replacing global Python. Other Python 3.12+ builds need a fixed SQLite release and FTS5; see [runtime verification and upgrades](docs/SQLITE_RUNTIME.md). Dependencies and runtime download hashes are pinned.
 
 From the repository directory:
 
 ```text
-uv sync --extra dev --locked
+uv python install --python-downloads-json-url policies/runtimes/python-downloads.json --no-bin --no-registry
+uv sync --extra dev --locked --managed-python
 uv run --extra dev anvesha setup --model YOUR_INSTALLED_MODEL --seed-demo
 uv run --extra dev anvesha show-key
 uv run --extra dev anvesha start

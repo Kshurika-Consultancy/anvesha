@@ -26,12 +26,15 @@ fingerprint, so accepted older LLM jobs can fall back visibly with
 
 ## Native setup
 
-Install Python 3.12+ with SQLite FTS5 and [uv](https://docs.astral.sh/uv/getting-started/installation/).
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/).
+Use the reviewed Python/SQLite build below; [runtime requirements and upgrades](SQLITE_RUNTIME.md)
+explain the WAL fix, vendor backports and offline verification.
 Install your model runtime separately, review the model licence/hardware needs,
 and choose an already installed local model (`ollama list` for Ollama). From the repo:
 
 ```text
-uv sync --locked
+uv python install --python-downloads-json-url policies/runtimes/python-downloads.json --no-bin --no-registry
+uv sync --locked --managed-python
 uv run anvesha setup --model YOUR_INSTALLED_MODEL --seed-demo
 uv run anvesha show-key
 uv run anvesha start
@@ -82,7 +85,9 @@ processing rights; a licence string is not blanket permission. All clients share
 the imported corpus; job history and feedback are owner-isolated. Per-user private
 libraries remain future work. Doctor checks configuration, FTS5, database and
 document count offline without printing keys or creating a database. It does not
-prove API/worker/model reachability or quality.
+prove API/worker/model reachability or quality. It also reports the actual
+SQLite version/source ID, FTS5 and upstream WAL-reset fix status. An unverified
+runtime makes readiness fail and operational database access is refused.
 
 ## Docker Compose
 

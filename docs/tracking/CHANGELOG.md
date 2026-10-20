@@ -4,6 +4,15 @@ Record material delivered changes with task IDs and verification references. Thi
 
 ## 2026-10-20
 
+- ANV-027: added reviewed Python/SQLite acquisition hashes, actual runtime/FTS5
+  diagnostics and conservative refusal before operational DB access on unverified
+  SQLite builds. Native/CI/container installation is aligned to PBS 20261013,
+  SQLite 3.53.1; global Python/DLLs and actual private data are untouched. Runtime
+  notices, upgrade guidance, 30 regressions and synthetic multiprocess WAL/crash
+  checks are added. Local 431 tests, four process smokes, report verifiers and
+  runtime-only installed-wheel acceptance passed; actual CI/container and push
+  evidence are pending. See [verification](verification/2026-10-20-sqlite-runtime.md).
+
 - ANV-026: added persisted search expiry, seven-day new-installation policy with
   explicit indefinite opt-out and legacy preservation, access/lease/publication
   guards, bounded worker cascading cleanup, and read-only prune preview/explicit

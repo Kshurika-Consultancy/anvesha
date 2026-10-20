@@ -2,35 +2,44 @@
 
 ## Objective
 
-2026-10-20 current turn: user authorized selecting the next useful improvement,
-implementation, tests, commit and push. Root selected ANV-026 from clean 8e0c283:
-private search retention under the broader open ANV-008 gate. Ledger/ADR were added
-before behavior changes. Implemented initial nullable expires_at migration,
-seven-day new-setup default with legacy saved settings effective zero, live
-Store/API eligibility guards, idempotent key reuse after expiry, bounded cleanup
-before worker claims, private read-only prune preview and explicit apply.
-[ADR 0012](../decisions/0012-private-search-retention.md) records the contract.
-Code/docs are implemented and verified: final 401 tests passed in 84.09s (38 new
-retention cases, existing ANV-015 warning only), Ruff/format/tracking, five archived
-report verifiers and all three process smokes passed. A runtime-only installed
-wheel passed actual HTTP/API/worker restart/expiry/cascade/prune acceptance;
-imports came from site-packages with pytest absent. Six changed runtime modules
-in the wheel match source and private artifacts are excluded. All owned services
-ended; new installed-wheel scratch was cleaned. Implementation is published as
-`93d14c2ef625216e1047742fc793645caf3ef0dd`, with matching local/remote main and clean
-Git state. All five jobs passed in
-[CI run 39427201666](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39427201666):
-Windows/Linux Python 3.12/3.14 and actual container acceptance, including the new
-offline retention smoke in each matrix job. This documentation-only evidence
-follow-up has its own commit/CI; inspect current HEAD.
-[Evidence](verification/2026-10-20-retention.md) tracks commands and observations.
-ANV-027 records the separately discovered SQLite WAL-reset runtime/vendor patch gap
-(local version 3.50.4, no corruption observed, vendor patch status unverified).
-That concrete runtime review is a priority follow-up; no upstream fix is claimed
-from passing application tests. ANV-008 broader hosted controls and ANV-020 human
-study remain open. Root ownership of the completed ANV-026 scope is released;
-no delegation, actual private database/review access, paid API or hosted inference.
-Do not repeat or clean up the historical ANV-025 scratch as a side effect here.
+2026-10-20 new turn: user authorized selecting the next useful improvement,
+implementation/tests and main commit/push. Root selected ANV-027 from clean
+95ac82a, following the concrete SQLite WAL-reset gap. Ledger marked in progress
+before behavior changes. No subagents. Reviewed primary SQLite/PBS/uv sources;
+previous local Python 3.14.4 loaded 3.50.4 with unverified backport status, no
+observed corruption. Explicit hash-verified PBS 20261013 Python 3.14.8 acquisition
+now loads SQLite 3.53.1/source c88b220; global Python/DLLs were not changed.
+Project .venv was recreated by locked uv sync with the managed interpreter.
+
+Implemented offline identity/FTS5 diagnostics, conservative upstream-fixed-release
+policy and refusal before operational DB access/setup/supervisor children on an
+unverified runtime. Older vendor backports have no bypass and need explicit review.
+No schema/journal/ranking/review changes. Native/CI/container runtime pins, runtime
+notices/provenance and ADR 0013/guide are added. Thirty focused synthetic runtime
+tests (56 including CLI/selfhost) passed, as did initial 72-job multiprocess WAL/
+checkpoint/crash acceptance. Full 431 tests passed in 75.33s, Ruff/format/tracking and four process smokes
+passed, as did five archived report verifiers. A runtime-only installed wheel
+(site-packages, pytest absent) passed actual SQLite multiprocess/crash and retention
+HTTP/restart acceptance. Four changed runtime modules match the wheel; private
+data/binaries are excluded. Newly owned scratch/venv/processes cleaned. Actual
+Linux container/cross-platform CI acceptance and main publication are pending. Do not claim upstream race-fix
+proof from application tests. Reference verification/2026-10-20-sqlite-runtime.md
+for the final evidence, to be completed before handoff.
+
+Actual service DB, private configuration/queries, review pilot/forms/credentials/
+practice/labels and historical ignored ANV-025 scratch are untouched. No paid API,
+provider/model call or public deployment. ANV-008 hosted/backup gates, ANV-020 human
+study and ANV-014 release/update policy remain open. No owned services remain.
+
+## Previous completed ANV-026 slice
+
+ANV-026 added private search expiry, seven-day new-setup defaults with legacy
+preservation, client/lease/publication guards and bounded cascading cleanup.
+Implementation 93d14c2 and evidence follow-up 95ac82a are published on main;
+all five CI jobs passed. Final 401 tests, three process smokes, report verifiers
+and runtime-only installed-wheel acceptance passed. See
+[retention evidence](verification/2026-10-20-retention.md) and ADR 0012. Actual
+service/review data was untouched; broader ANV-008 hosted/backup gates remain open.
 
 ## Previous completed ANV-025 slice
 

@@ -2,7 +2,9 @@
 
 Read [AGENTS.md](AGENTS.md) and [development status](docs/tracking/STATUS.md) before changing code. The same scope and verification rules apply to human and AI-assisted contributions. Tie work to a ledger task; add new work before implementing it. Coordinate file ownership when working concurrently.
 
-Install the locked development environment with `uv sync --extra dev --locked`. Run Ruff, pytest, and `scripts/check_tracking.py` as documented in AGENTS.md. All default tests must run offline and without paid accounts. Changes to API semantics need integration tests; changes to retrieval need measured comparisons before quality claims.
+First install the [reviewed Python runtime](docs/SQLITE_RUNTIME.md#install-the-reviewed-runtime),
+then the locked development environment with `uv sync --extra dev --locked --managed-python`.
+Run Ruff, pytest, and `scripts/check_tracking.py` as documented in AGENTS.md. All default tests must run offline and without paid accounts. Changes to API semantics need integration tests; changes to retrieval need measured comparisons before quality claims.
 
 ANV-022 adds `scripts/smoke_selfhost.py` for native first-run/restart/supervision.
 The separate `scripts/smoke_container.py` requires Docker Compose v2 and is checked

@@ -129,6 +129,33 @@ version range; vendor patch status is unverified. ANV-027 tracks runtime/vendor
 evidence and remediation. Passing application tests does not establish that fix.
 No corruption was observed and no runtime was replaced in ANV-026.
 
+## ANV-027 runtime evidence, 2026-10-20
+
+The [official WAL-reset advisory](https://www.sqlite.org/wal.html#walresetbug)
+specifies fixes in 3.51.3+, with branch-specific 3.44.6 and 3.50.7 backports.
+The [3.53.1 release identity](https://www.sqlite.org/releaselog/3_53_1.html)
+provides the exact source ID now observed locally. The previous 3.50.4 source
+identity did not establish a vendor backport; no corruption was observed.
+
+[PBS 20261013 dependencies](https://github.com/astral-sh/python-build-standalone/blob/20261013/pythonbuild/downloads.json)
+declare SQLite 3.53.1; the [Windows builder](https://github.com/astral-sh/python-build-standalone/blob/20261013/cpython-windows/build.py)
+uses that dependency instead of stock CPython's SQLite declaration. Exact archive
+URLs/hashes come from the [same release](https://github.com/astral-sh/python-build-standalone/releases/tag/20261013).
+The earlier [20260414 dependency list](https://github.com/astral-sh/python-build-standalone/blob/20260414/pythonbuild/downloads.py)
+used SQLite 3.50.4, showing why Python minor-version CI alone was insufficient.
+[uv custom metadata](https://docs.astral.sh/uv/reference/environment/#uv_python_downloads_json_url)
+allows reviewed acquisition without replacing global Python or using unsigned
+DLL swaps. Version eligibility is deliberately conservative about vendor backports.
+
+[SQLite licensing](https://www.sqlite.org/copyright.html), [PBS distributions](https://docs.astral.sh/python-build-standalone/distributions/)
+and its [upstream notice aggregate](https://github.com/astral-sh/python-build-standalone/blob/20261013/python-licenses.rst)
+keep runtime terms separate from Anvesha's Apache core. Preserve notices and
+source references when building/redistributing a container. Runtime facts/hashes
+and the unchanged aggregate are under policies/runtimes and third_party.
+[ADR 0013](decisions/0013-reviewed-sqlite-runtime.md) and the
+[runtime guide](SQLITE_RUNTIME.md) distinguish release/build evidence from
+application integrity tests, platform acceptance and broader release gates.
+
 ## Maintaining this register
 
 For a material new fact or changed term, record the review date, primary URL, narrow supported finding, affected connector/task, and resulting decision. Preserve important historical constraints in the decision log instead of overwriting why a choice was made. A source URL alone is not evidence that every planned operation is permitted. Where terms are ambiguous, keep the capability disabled and record the specific question to resolve.

@@ -13,6 +13,7 @@ from pathlib import Path
 from anvesha.config import Settings
 from anvesha.llm import LLMConfig
 from anvesha.retention import DEFAULT_SECONDS
+from anvesha.sqlite_runtime import require_runtime
 from anvesha.store import Store
 
 
@@ -137,6 +138,7 @@ def stop_process(process):
 
 def start(path, host, port):
     load_settings(path)  # Fail before starting either child; never log its secrets.
+    require_runtime()
     children = []
     previous = signal.getsignal(signal.SIGTERM)
 

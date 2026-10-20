@@ -92,6 +92,13 @@ The original target plan proposed PostgreSQL, a production search index such as 
 
 SQLite WAL and short transactions fit this single-host baseline, but writes remain serialized. API and workers must use the same database on local disk; network filesystem and multi-host operation are unsupported. Keep long-running connector work outside transactions. Migrate based on observed contention, index size, recovery needs, and topology, preserving the externally visible semantics. An additional service is justified by a measured requirement, not by the eventual ambition alone.
 
+ANV-027 requires a reviewed fixed upstream SQLite release and FTS5 before any
+operational Store connection. Native/CI/container acquisition uses hash-pinned PBS
+20261013 builds; doctor reports actual SQLite/source identity offline. Unknown vendor
+backports are unverified and require explicit review. Runtime checks do not alter
+schema/journaling or certify the upstream race fix. See [ADR 0013](../decisions/0013-reviewed-sqlite-runtime.md)
+and the [runtime update guide](../SQLITE_RUNTIME.md).
+
 ## Target architecture after validation
 
 ```mermaid
