@@ -29,8 +29,8 @@ claim improved relevance or public-service readiness.
 | --- | --- | --- |
 | Original Windows global interpreter, retained | CPython 3.14.4, SQLite 3.50.4; source `2025-07-30 19:33:53 4d8adfb30e03f9cf27f800a2c1ba3c48fb4ca1b08b0f5ed59a4d5ecbf45e20a3`; FTS5 present | Vendor fix unverified; actual negative probe refuses Store initialization before directory/file creation. No corruption observed. |
 | New Windows project environment | Managed PBS 20261013 CPython 3.14.8, SQLite 3.53.1; source `2026-05-05 10:34:17 c88b22011a54b4f6fbd149e9f8e4de77658ce58143a1af0e3785e4e6475127e9`; FTS5 present | Matches upstream fixed release/source and reviewed archive; acceptance below. |
-| Windows/Linux CI x86-64 3.12.15 / 3.14.8 | Explicit PBS manifest and expected SQLite identity check added | Pending source push/actual CI execution. |
-| New Linux x86-64 container | Pinned Debian bookworm-slim + same PBS 3.14.8 runtime, build-time eligibility and actual doctor identity assertion | Pending Linux Compose CI; Docker is not installed locally. |
+| Windows/Linux CI x86-64 3.12.15 / 3.14.8 | Actual manifest acquisition, SQLite 3.53.1/source c88b220 identity checks and all application checks | All four jobs passed in run 39432206424. |
+| New Linux x86-64 container | Pinned Debian bookworm-slim + PBS 3.14.8; actual doctor reports SQLite 3.53.1/source c88b220, FTS5 and eligibility | Actual Compose acceptance passed in run 39432206424. Docker is not installed locally. |
 | Old pinned stock Python/bookworm container, inventoried in actual Linux CI | Python 3.12.15, SQLite 3.40.1, source `2022-12-28 14:03:47 df5c253c0b3dd24916e4ec7cf77d3db5294cc9fd45ae7b9c5e82ad8197f3alt1`; Debian `libsqlite3-0:amd64 3.40.1-2+deb12u2` | Vendor backport status unverified. No assertion it is unpatched. Replaced runtime selection, without a blanket vendor exception. |
 | Manifest macOS x86-64/ARM64 and Linux ARM64 | Public archive IDs/hashes, not executed here | Acquisition pins only. Platform acceptance remains a release gate (ANV-014). |
 
@@ -74,8 +74,7 @@ the Debian repository; a bit-for-bit OS rebuild is not promised.
   regressions cover branch boundaries/malformed versions, unavailable FTS5,
   setup/API/worker/supervisor refusal, existing DB access and non-mutating doctor.
 - Full suite: **431 passed in 75.33s**, no skips. Only the existing ANV-015
-  Starlette/httpx TestClient deprecation warning. Ruff lint and all 107 files'
-  format check passed.
+  Starlette/httpx TestClient deprecation warning. Ruff lint/format passed (final format check: 108 files).
 - Four offline real-process smokes passed: MVP HTTP/API/worker durability and
   lifecycle; self-host saved configuration/supervision/restart; retention expiry,
   cascade and idempotent reuse; new multiprocess SQLite/checkpoint/crash integrity.
@@ -90,13 +89,15 @@ the Debian repository; a bit-for-bit OS rebuild is not promised.
   installed; no actual service/review DB is opened.
 - Wheel/sdist built successfully. Wheel has 31 entries / 306816 uncompressed
   bytes, all four changed runtime modules match source, private data/binaries are
-  absent; sdist has 162 entries after rebuilding the committed source (including this evidence) including guide, runtime manifest and notices.
+  absent. Rebuilt committed-source sdist has 162 entries including this evidence,
+  runtime guide, manifest and notices.
 - A fresh runtime-only venv installed locked dependencies and the built wheel.
   Imports came from site-packages with pytest absent. Actual SQLite multiprocess/
   crash and retention HTTP/API/worker/restart/cascade acceptance passed from that
   installation. All newly owned installed-wheel scratch/venv/processes cleaned.
-- Tracking and diff checks passed. Actual Linux container/cross-platform CI and
-  publication are pending; the task remains in progress until those gates pass.
+- Final tracking/diff checks passed. Actual cross-platform/container acceptance
+  and publication are complete as recorded below. All scoped acceptance criteria
+  are met; ANV-027 is done.
 
 ## Publication checkpoint and CI correction
 
@@ -106,7 +107,17 @@ passed both Linux test jobs. The new container built/initialized successfully bu
 its added doctor assertion omitted `--config /data/server.json`, so doctor used
 environment-only settings with no API keys and returned nonzero. The acceptance
 script now explicitly selects the saved config in both diagnostic calls. No
-runtime gate was relaxed. Actual rerun acceptance is pending; keep the task open.
+runtime gate was relaxed. The correction is published as
+`c635dde779cf1d572295a536cd4b5dcc85eb74f7`, with matching local/remote main.
+All five jobs passed in [CI run 39432206424](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39432206424):
+Windows/Linux x86-64 on Python 3.12.15/3.14.8 and actual container acceptance.
+The four matrix jobs exercise runtime identity, all 431 tests, four process smokes,
+five archived verifiers, tracking and diff checks. The container reports Python
+3.14.8, SQLite 3.53.1 and the published source identity, then passes non-root
+UID 10001, model protocol fixture, LLM default, restart, feedback and visible
+fallback acceptance with scoped cleanup. No real model/provider is used.
+This completion-evidence follow-up is documentation only and has its own CI;
+inspect current HEAD for that run.
 The legacy-container inventory above ran without network inside the container,
 with no mounts or operational data. Rebuilding the committed sdist includes this
 verification file; wheel contents still match all changed runtime modules.

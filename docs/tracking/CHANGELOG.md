@@ -10,8 +10,10 @@ Record material delivered changes with task IDs and verification references. Thi
   SQLite 3.53.1; global Python/DLLs and actual private data are untouched. Runtime
   notices, upgrade guidance, 30 regressions and synthetic multiprocess WAL/crash
   checks are added. Local 431 tests, four process smokes, report verifiers and
-  runtime-only installed-wheel acceptance passed; actual CI/container and push
-  evidence are pending. See [verification](verification/2026-10-20-sqlite-runtime.md).
+  runtime-only installed-wheel acceptance passed. Implementation bc24fc9 and
+  container-check correction c635dde are pushed with matching remote hashes; all
+  five CI jobs passed, including actual container acceptance. See
+  [verification](verification/2026-10-20-sqlite-runtime.md).
 
 - ANV-026: added persisted search expiry, seven-day new-installation policy with
   explicit indefinite opt-out and legacy preservation, access/lease/publication

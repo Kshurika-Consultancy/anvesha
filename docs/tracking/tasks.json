@@ -482,7 +482,7 @@
       ],
       "verification": [],
       "references": [],
-      "notes": "Initial source publication is separately authorized and tracked under ANV-017. Service deployment and the M6 public pilot remain planned. Establish a private vulnerability disclosure contact and complete name/package/domain clearance before public service release. Release maintenance must review action runtime deprecations and refresh/review the pinned Python, uv and optional model-runtime image digests introduced in ANV-022; a pinned digest is not a security-update policy."
+      "notes": "Initial source publication is separately authorized and tracked under ANV-017. Service deployment and the M6 public pilot remain planned. Establish a private vulnerability disclosure contact and complete name/package/domain clearance before public service release. Release maintenance must review action runtime deprecations and refresh/review the pinned Python, uv and optional model-runtime image digests introduced in ANV-022; a pinned digest is not a security-update policy. ANV-027 supplies a reviewed PBS/SQLite baseline and actual Windows/Linux x86-64/container acceptance; retain periodic runtime/digest/dependency/notice review. macOS/ARM64 manifest entries are acquisition pins only and require actual platform/process/container testing before advertising support. Any older vendor SQLite backport exception requires explicit build/package evidence and a deliberate policy change; none is approved by ANV-027."
     },
     {
       "id": "ANV-015",
@@ -1191,7 +1191,7 @@
       "id": "ANV-027",
       "milestone": "M2",
       "title": "Verify and remediate SQLite WAL-reset patch status in supported runtimes",
-      "status": "in_progress",
+      "status": "done",
       "owner": "root",
       "depends_on": [
         "ANV-006"
@@ -1213,12 +1213,17 @@
         },
         {
           "command": "uv sync --extra dev --locked --managed-python; Ruff lint/format; pytest; scripts/smoke_mvp.py; scripts/smoke_selfhost.py; scripts/smoke_retention.py; scripts/smoke_sqlite.py; five archived verifiers",
-          "result": "Locked environment installed 25 packages; 431 tests passed in 75.33s (30 new runtime cases, existing ANV-015 warning only), Ruff/format passed. Four actual offline process smokes and all five archived verifiers passed; synthetic multiprocess test retains 72 jobs/snapshots/feedback and passes FTS/FK/database/crash integrity. No paid provider/model or actual service/review data used. Installed-package and actual Linux container/cross-platform CI acceptance are pending; task remains in progress.",
+          "result": "Locked environment installed 25 packages; 431 tests passed in 75.33s (30 new runtime cases, existing ANV-015 warning only), Ruff/format passed. Four actual offline process smokes and all five archived verifiers passed; synthetic multiprocess test retains 72 jobs/snapshots/feedback and passes FTS/FK/database/crash integrity. No paid provider/model or actual service/review data used. Actual cross-platform/container checks subsequently passed in run 39432206424.",
           "date": "2026-10-20"
         },
         {
           "command": "uv build; wheel/sdist/private-artifact inspection; runtime-only fresh venv installation; actual SQLite and retention smokes from installed wheel; tracking/diff checks",
-          "result": "Wheel 31 entries/306816 uncompressed bytes and sdist 161 entries built; all four changed runtime modules match source, private artifacts/binaries absent, runtime guide/manifest/notices included. Fresh runtime-only installed wheel imports from site-packages with pytest absent; both actual multiprocess/checkpoint/crash integrity and HTTP/API/worker restart/expiry/cascade acceptance passed. All new scratch/venv/processes cleaned. Tracking/diff passed; actual cross-platform/container CI awaits source push.",
+          "result": "Wheel 31 entries/306816 uncompressed bytes; committed-source sdist 162 entries built, including verification evidence, runtime guide/manifest/notices. All four changed runtime modules match source; private artifacts/binaries absent. Fresh runtime-only installed wheel imports from site-packages with pytest absent; both actual multiprocess/checkpoint/crash integrity and HTTP/API/worker restart/expiry/cascade acceptance passed. All new scratch/venv/processes cleaned. Final tracking/diff checks passed.",
+          "date": "2026-10-20"
+        },
+        {
+          "command": "git push origin main; compare HEAD/ls-remote; inspect actual jobs/logs for CI run 39432206424",
+          "result": "Implementation bc24fc933bd9a6f1381144196cda3a34a2f48c44 and explicit saved-config container-check correction c635dde779cf1d572295a536cd4b5dcc85eb74f7 published with matching remote hashes. All five jobs passed: Windows/Linux x86-64 Python 3.12.15/3.14.8 and actual Linux container. Loaded SQLite 3.53.1/source c88b220 matched reviewed upstream identity. Container passed non-root UID10001, local protocol fixture, LLM default, restart, feedback/fallback and cleanup. Legacy stock image inventory observed SQLite 3.40.1 / Debian 3.40.1-2+deb12u2; vendor backport status unverified, no exception approved. All scoped acceptance criteria met. Documentation-only completion follow-up has its own CI; inspect current HEAD.",
           "date": "2026-10-20"
         }
       ],
@@ -1252,7 +1257,7 @@
         "docs/decisions/0013-reviewed-sqlite-runtime.md",
         "docs/tracking/verification/2026-10-20-sqlite-runtime.md"
       ],
-      "notes": "Root selected from clean 95ac82a, recorded ledger before behavior changes. Native runtime hash pins, conservative upstream-fixed-release/FTS5 eligibility, offline diagnostics and refusal before operational Store access/setup/supervisor children are implemented. Standard-library SQLite and WAL/schema are retained. Global Python/DLLs, actual service/review data and historical ANV-025 scratch are untouched. Native 3.14.8 local acceptance passed; 3.12.15/3.14.8 Windows/Linux and actual new container acceptance await CI before completion. macOS/ARM64 manifest entries are acquisition pins only, not verified platforms; further platform/vendor-backport/update-release work remains ANV-014. ANV-008 hosted/backup gates remain open. No mandatory paid API, model download/call or new quality claim. Root owns files; no delegation. Implementation bc24fc9 is pushed with matching remote hash. Initial run 39431905281 passed both Linux jobs; container built/initialized but new doctor check omitted the explicit saved-config path and correctly returned nonzero. Both container doctor calls now supply the config; no gate is bypassed. Actual rerun acceptance pending. Legacy stock container inventory observed SQLite 3.40.1 / Debian 3.40.1-2+deb12u2, backport status unverified. Rebuilt committed-source sdist has 162 entries including evidence."
+      "notes": "Completed from clean 95ac82a with ledger before behavior changes, primary-source review, native/CI/container runtime alignment and full scoped verification. PBS 20261013 Python 3.14.8/3.12.15 with SQLite 3.53.1 has reviewed archive hashes and observed upstream source identity. Unsupported/unknown vendor runtimes are unverified and fail before operational DB access; no bypass or schema/journaling change. Initial container diagnostic omitted saved-config selection; corrected explicitly and actual rerun passed without relaxing gates. Implementation bc24fc9 plus correction c635dde are published, remote hashes matched and all five jobs passed in run 39432206424. Global Python/DLLs, actual service/review data and historical ANV-025 scratch untouched. New scratch/venv/processes cleaned; no owned services. No paid API, model call, new quality claim or deployment. macOS/ARM64 acquisition pins and requested vendor-backport exceptions need actual acceptance/review under ANV-014 before support claims. Broader hosted/backup controls remain ANV-008 and actual human study ANV-020. Root completed/released this scoped work; documentation-only completion evidence has its own CI."
     }
   ]
 }

@@ -1,15 +1,20 @@
 # Anvesha development status
 
-ANV-027 is in progress (root, 2026-10-20) from clean 95ac82a: reviewed PBS
-runtime acquisition and conservative SQLite WAL/FTS5 eligibility. Local Python
-3.14.8 now loads SQLite 3.53.1 with its published source identity; global Python
-is unchanged. Runtime diagnostics, unsupported-runtime refusal and synthetic
-multiprocess WAL/crash checks are implemented. [ADR 0013](../decisions/0013-reviewed-sqlite-runtime.md)
-and [guide](../SQLITE_RUNTIME.md) document acquisition, vendor-backport and
-upgrade boundaries. Local 431 tests, four process smokes,
-five archived verifiers and runtime-only installed-wheel acceptance passed. Actual
-cross-platform/container CI and main publication are pending; do not mark complete
-from a local version probe. Actual service/review data is untouched.
+ANV-027 is done and published (2026-10-20): reviewed hash-pinned Python/SQLite
+runtime acquisition, offline identity/FTS5 diagnostics and refusal before operational
+DB access on unverified SQLite builds. Native/CI/container use PBS 20261013 with
+SQLite 3.53.1; global Python/DLLs and actual service/review data are untouched.
+Final local 431 tests, Ruff/format/tracking, four real-process smokes, five archived
+verifiers and runtime-only installed-wheel acceptance passed. All five jobs passed
+in [implementation CI](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39432206424)
+for published c635dde (initial bc24fc9 plus explicit-config container check correction),
+including Windows/Linux Python 3.12.15/3.14.8 and actual container runtime/Compose
+acceptance. Local/remote main matched. [ADR 0013](../decisions/0013-reviewed-sqlite-runtime.md),
+[runtime guide](../SQLITE_RUNTIME.md) and [evidence](verification/2026-10-20-sqlite-runtime.md)
+distinguish release/build evidence from application tests, vendor backports and
+untested platforms. macOS/ARM64 manifest entries are acquisition pins only. No
+owned services; new scratch cleaned. Broader ANV-008, ANV-014 and ANV-020 gates
+remain open. This documentation-only completion follow-up has its own CI.
 
 ANV-026 is done and published as `93d14c2` (2026-10-20): configurable expiry for private search
 jobs, snapshots and feedback, bounded worker cleanup and explicit dry-run/apply
@@ -23,7 +28,7 @@ records commands/limits. Local/remote main matched and all five jobs passed in
 including the new retention process smoke and actual container acceptance. All new checks use
 synthetic databases; no actual service or independent-review data is used. No owned
 test services remain; new scratch cleaned. ANV-008 hosted controls remain open;
-ANV-027 separately tracks SQLite runtime/vendor WAL-reset patch verification.
+ANV-027 subsequently verified/replaced the runtime baseline as described above.
 
 ANV-025's scoped safeguards are done and published as `7764642` (2026-10-18):
 query-scoped coaching/exposure exclusions, blinded replacement assignments, explicit

@@ -1,39 +1,52 @@
 # Anvesha handoff
 
-## Objective
+## Objective and delivered ANV-027 slice
 
-2026-10-20 new turn: user authorized selecting the next useful improvement,
-implementation/tests and main commit/push. Root selected ANV-027 from clean
-95ac82a, following the concrete SQLite WAL-reset gap. Ledger marked in progress
-before behavior changes. No subagents. Reviewed primary SQLite/PBS/uv sources;
-previous local Python 3.14.4 loaded 3.50.4 with unverified backport status, no
-observed corruption. Explicit hash-verified PBS 20261013 Python 3.14.8 acquisition
-now loads SQLite 3.53.1/source c88b220; global Python/DLLs were not changed.
-Project .venv was recreated by locked uv sync with the managed interpreter.
+2026-10-20: user authorized selecting the next useful improvement, tests, commit
+and push. Root selected ANV-027 from clean 95ac82a, recorded the task before behavior
+changes and delivered the scoped runtime fix. No subagents. Primary SQLite/PBS/uv
+release evidence established the replacement baseline: hash-pinned PBS 20261013
+Python 3.14.8/SQLite 3.53.1/source c88b220, with Windows/Linux CI also on Python
+3.12.15. Original global Python 3.14.4/SQLite 3.50.4 is unchanged and an actual
+negative probe confirms refusal before any synthetic DB directory is created.
+No corruption was observed or older vendor-backport exception approved.
 
-Implemented offline identity/FTS5 diagnostics, conservative upstream-fixed-release
-policy and refusal before operational DB access/setup/supervisor children on an
-unverified runtime. Older vendor backports have no bypass and need explicit review.
-No schema/journal/ranking/review changes. Native/CI/container runtime pins, runtime
-notices/provenance and ADR 0013/guide are added. Thirty focused synthetic runtime
-tests (56 including CLI/selfhost) passed, as did initial 72-job multiprocess WAL/
-checkpoint/crash acceptance. Full 431 tests passed in 75.33s, Ruff/format/tracking and four process smokes
-passed, as did five archived report verifiers. A runtime-only installed wheel
-(site-packages, pytest absent) passed actual SQLite multiprocess/crash and retention
-HTTP/restart acceptance. Four changed runtime modules match the wheel; private
-data/binaries are excluded. Newly owned scratch/venv/processes cleaned. Actual
-Main implementation bc24fc9 is pushed with matching remote. Initial CI run
-39431905281 passed Linux tests; container built/initialized but the added doctor
-check omitted its explicit saved-config path and returned nonzero as designed.
-Both diagnostic calls now select /data/server.json; rerun acceptance is pending.
-No runtime eligibility gate was relaxed. Do not claim upstream race-fix
-proof from application tests. Reference verification/2026-10-20-sqlite-runtime.md
-for the final evidence, to be completed before handoff.
+Implemented in-memory cached runtime/FTS5 diagnostics and conservative upstream
+release eligibility before operational Store connections, setup directory/credential
+creation and native supervisor children. Doctor stays read-only/secret-free and
+returns nonzero for unready instances. No schema/journal/ranking/review changes.
+Native/CI/container acquisition uses reviewed hashes; runtime notices/provenance,
+ADR 0013 and update/backup/rollback guidance are tracked. See
+[runtime evidence](verification/2026-10-20-sqlite-runtime.md) and
+[operator guide](../SQLITE_RUNTIME.md) for exact commands/identities and limits.
 
-Actual service DB, private configuration/queries, review pilot/forms/credentials/
-practice/labels and historical ignored ANV-025 scratch are untouched. No paid API,
-provider/model call or public deployment. ANV-008 hosted/backup gates, ANV-020 human
-study and ANV-014 release/update policy remain open. No owned services remain.
+Final local 431 tests passed in 75.33s (30 new runtime regressions; existing
+ANV-015 warning only), Ruff/format/tracking/diff, four offline process smokes and
+five archived artifact verifiers passed. A runtime-only installed wheel imports
+from site-packages with pytest absent and passed actual multiprocess/checkpoint/
+crash integrity plus HTTP/API/worker retention/restart/cascade acceptance. Four
+changed runtime modules match the wheel; private data/binaries are excluded.
+Committed-source sdist includes guide, manifest, notices and verification evidence.
+All newly owned scratch/venv/processes cleaned; no owned services remain.
+
+Implementation bc24fc9 and container-check correction c635dde are pushed to main
+with matching local/remote hashes. The initial container check omitted doctor's
+saved-config argument; both calls were corrected without relaxing runtime gates.
+All five jobs passed in [CI run 39432206424](https://github.com/Kshurika-Consultancy/anvesha/actions/runs/39432206424):
+Windows/Linux Python 3.12.15/3.14.8 and actual Linux container acceptance. Container
+reported SQLite 3.53.1/source c88b220 as UID 10001 and passed the protocol fixture,
+LLM-default, durable restart, feedback/fallback and cleanup checks. This
+completion-evidence update is documentation only and has its own CI; inspect
+current HEAD. ANV-027 is done; root ownership of the completed scope is released.
+
+Actual service DB/configuration/queries, review pilot/forms/keys/practice/labels
+and historical ignored ANV-025 scratch were untouched. No paid API, real model,
+new independent judgment, public deployment or binary publication. Tests cannot
+prove the upstream race fix; reviewed release/build evidence supports that narrow
+claim. macOS/ARM64 pins are untested acquisition entries, and older vendor
+backports require explicit review. ANV-014 retains release/update/platform gates,
+ANV-008 hosted/backup controls, and ANV-020 actual human review. Do not use archived
+artifact verification as new relevance evidence.
 
 ## Previous completed ANV-026 slice
 
